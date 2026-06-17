@@ -116,6 +116,43 @@ public class StudentUserService {
                 studentId);
     }
 
+    public Optional<StudentOrder> createOrderFromSubmissionIfLoggedIn(HttpSession session, Submission submission) {
+        Object mobile = session.getAttribute(SESSION_STUDENT_MOBILE);
+        if (!(mobile instanceof String value) || value.isBlank()) {
+            return Optional.empty();
+        }
+        StudentCredential student = findCredentialByMobile(value)
+                .orElseThrow(() -> new IllegalArgumentException("学生账号不存在，请重新登录"));
+        String targetType = submission.targetType() == null || submission.targetType().isBlank()
+                ? "咨询"
+                : submission.targetType();
+        String serviceCategory = switch (targetType) {
+            case "翻译润色" -> "translation";
+            case "科学编辑" -> "editing";
+            default -> "publication";
+        };
+        String orderNo = "IESST-SUB-" + submission.id();
+        long orderId = store.insertAndReturnId(
+                "INSERT INTO student_orders(order_no,student_user_id,source_submission_id,service_category,target_type,title,current_stage,amount,currency_code,payment_status,order_status,consultant_name,notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                orderNo,
+                student.id(),
+                submission.id(),
+                serviceCategory,
+                targetType,
+                submission.paperTitle(),
+                "信息已提交",
+                BigDecimal.ZERO,
+                "CNY",
+                "UNPAID",
+                "NEW",
+                null,
+                submission.message());
+        addProgress(orderId, "SUBMITTED", "信息已提交", "你的稿件评估信息已进入后台，顾问将进行初步判断。", "系统");
+        return adminOrders().stream()
+                .filter(item -> item.id().equals(orderId))
+                .findFirst();
+    }
+
     public List<StudentOrder> adminOrders() {
         return jdbc.query("SELECT * FROM student_orders ORDER BY created_at DESC", (rs, rowNum) -> mapOrder(rs));
     }

@@ -6,6 +6,8 @@ import cn.iesst.demo.model.Expert;
 import cn.iesst.demo.model.ServiceOffering;
 import cn.iesst.demo.model.Submission;
 import cn.iesst.demo.service.DemoStore;
+import cn.iesst.demo.service.StudentUserService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,9 +22,11 @@ import java.util.List;
 @RequestMapping("/api/public")
 public class PublicController {
     private final DemoStore store;
+    private final StudentUserService studentUserService;
 
-    public PublicController(DemoStore store) {
+    public PublicController(DemoStore store, StudentUserService studentUserService) {
         this.store = store;
+        this.studentUserService = studentUserService;
     }
 
     @GetMapping("/banners")
@@ -47,7 +51,9 @@ public class PublicController {
     public List<Expert> experts() { return store.publicExperts(); }
 
     @PostMapping("/submissions")
-    public Submission submit(@Valid @RequestBody Submission submission) {
-        return store.createSubmission(submission);
+    public Submission submit(@Valid @RequestBody Submission submission, HttpSession session) {
+        Submission saved = store.createSubmission(submission);
+        studentUserService.createOrderFromSubmissionIfLoggedIn(session, saved);
+        return saved;
     }
 }
