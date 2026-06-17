@@ -1,0 +1,20 @@
+.uploaded-file {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: -4px;
+  padding: 12px 14px;
+  border: 1px solid #d9d1ee;
+  border-radius: 10px;
+  background: #f8f6fc;
+}
+
+.uploaded-file a {
+  min-width: 0;
+  overflow: hidden;
+  color: #6042a6;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

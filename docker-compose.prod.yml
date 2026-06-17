@@ -1,0 +1,52 @@
+services:
+  app:
+    build: .
+    image: iesst-academic-platform:latest
+    container_name: iesst-app
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:mysql://mysql:3306/iesst?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
+      DB_USERNAME: iesst
+      DB_PASSWORD: ${DB_PASSWORD:-iesst123}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-ChangeMe123!}
+      ADMIN_DISPLAY_NAME: ${ADMIN_DISPLAY_NAME:-IESST 管理员}
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
+      UPLOAD_DIR: /data/iesst/uploads
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    volumes:
+      - iesst_uploads:/data/iesst/uploads
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health | grep -q 'UP'"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+
+  mysql:
+    image: mysql:8.4
+    container_name: iesst-mysql-prod
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: iesst
+      MYSQL_USER: iesst
+      MYSQL_PASSWORD: ${DB_PASSWORD:-iesst123}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root123}
+      TZ: Asia/Shanghai
+    ports:
+      - "${MYSQL_PORT:-3307}:3306"
+    volumes:
+      - iesst_mysql_prod_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${MYSQL_ROOT_PASSWORD:-root123}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  iesst_mysql_prod_data:
+  iesst_uploads:

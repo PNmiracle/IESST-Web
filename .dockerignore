@@ -1,0 +1,9 @@
+.git
+.DS_Store
+client/node_modules
+client/dist
+server/target
+.tools
+uploads
+*.zip
+*.log

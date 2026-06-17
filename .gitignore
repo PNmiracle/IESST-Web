@@ -1,0 +1,9 @@
+client/node_modules/
+client/dist/
+server/target/
+server/.m2-cache/
+.tools/
+.DS_Store
+uploads/
+data/
+backups/

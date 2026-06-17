@@ -1,0 +1,60 @@
+.service-page-hero .primary {
+  display: inline-block;
+  margin-top: 24px;
+}
+
+.service-list-section {
+  padding-top: 58px;
+}
+
+.service-tools {
+  align-items: flex-start;
+  padding: 18px 0 24px;
+  border-bottom: 1px solid #e5e0eb;
+}
+
+.service-highlight-inline {
+  display: flex;
+  max-width: 780px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.service-highlight-inline span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 8px 12px;
+  color: #5d677b;
+  background: #f4f1f8;
+  border: 1px solid #e2dceb;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.service-material-section {
+  padding-top: 0;
+}
+
+.service-material-card {
+  overflow: hidden;
+  padding: 18px;
+  background: #fff;
+}
+
+.service-material-card img {
+  display: block;
+  width: 100%;
+  max-height: 520px;
+  object-fit: contain;
+  background: #f3f0f7;
+  border-radius: 14px;
+}
+
+@media (max-width: 650px) {
+  .service-highlight-inline {
+    justify-content: flex-start;
+  }
+}

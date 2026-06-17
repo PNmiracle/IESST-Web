@@ -1,0 +1,51 @@
+CREATE TABLE banners (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  title VARCHAR(255) NOT NULL,
+  image_url VARCHAR(1000) NOT NULL,
+  link_url VARCHAR(1000),
+  sort_order INT NOT NULL,
+  enabled BOOLEAN NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE journals (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  type VARCHAR(20) NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  field_name VARCHAR(255),
+  index_type VARCHAR(255),
+  cycle VARCHAR(100),
+  description TEXT,
+  document_name VARCHAR(500),
+  document_url VARCHAR(1000),
+  published BOOLEAN NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE submissions (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  author_name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  paper_title VARCHAR(500) NOT NULL,
+  target_type VARCHAR(100),
+  message TEXT,
+  status VARCHAR(50) NOT NULL,
+  created_at DATETIME NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE service_offerings (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  category VARCHAR(100) NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  price VARCHAR(100),
+  description TEXT,
+  features TEXT,
+  published BOOLEAN NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE experts (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL,
+  institution VARCHAR(500),
+  role_name VARCHAR(255),
+  image_url VARCHAR(1000),
+  published BOOLEAN NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

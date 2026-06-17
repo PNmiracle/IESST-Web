@@ -1,0 +1,122 @@
+.consult-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: #1d172680;
+  backdrop-filter: blur(8px);
+}
+
+.consult-modal {
+  position: relative;
+  width: min(620px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+  padding: 34px;
+}
+
+.consult-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  color: var(--muted);
+  background: #f2edf7;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.consult-heading span {
+  color: var(--purple);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.consult-heading h2 {
+  margin: 10px 0;
+  font-size: 30px;
+}
+
+.consult-heading p,
+.consult-success p {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.consult-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.consult-form .wide {
+  grid-column: 1 / -1;
+}
+
+.consult-actions {
+  display: flex;
+  justify-content: flex-end;
+  grid-column: 1 / -1;
+  gap: 12px;
+}
+
+.consult-success {
+  display: grid;
+  justify-items: center;
+  padding: 22px 0;
+  text-align: center;
+}
+
+.consult-success span {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+  color: #fff;
+  background: #24916f;
+  border-radius: 50%;
+  font-size: 26px;
+}
+
+.link-button {
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+}
+
+.footer-consult {
+  color: #c9aaf0;
+  font-size: 12px;
+}
+
+.service-card button.primary,
+.service-card a.primary {
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+@media (max-width: 650px) {
+  .consult-modal {
+    padding: 26px 18px;
+  }
+
+  .consult-form {
+    grid-template-columns: 1fr;
+  }
+
+  .consult-form .wide,
+  .consult-actions {
+    grid-column: auto;
+  }
+}

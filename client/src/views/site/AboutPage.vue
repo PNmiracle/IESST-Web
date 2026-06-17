@@ -1,0 +1,5 @@
+<template>
+  <section class="page-hero"><div class="shell"><span>ABOUT IESST</span><h1>关于思研学术</h1><p>以专业、透明、合规和长期主义，为科研工作者提供清晰可执行的学术服务。</p></div></section>
+  <section class="section shell about-grid"><article><span class="eyebrow">OUR POSITION</span><h2>机构定位</h2><p>IESST 面向科研工作者提供期刊匹配、翻译润色、科学编辑与投稿协同支持。我们重视研究内容本身，也重视作者在服务过程中的知情权和选择权。</p><p>所有页面期刊与数据均为 Demo 演示内容，正式上线前需替换为经过核验的真实业务资料。</p></article><div class="principle-grid"><div class="card"><b>01</b><h3>专业</h3><p>按学科与稿件阶段配置服务。</p></div><div class="card"><b>02</b><h3>透明</h3><p>明确服务范围、节点与交付物。</p></div><div class="card"><b>03</b><h3>合规</h3><p>尊重学术伦理，不承诺不当结果。</p></div><div class="card"><b>04</b><h3>长期</h3><p>关注研究表达能力的持续提升。</p></div></div></section>
+  <section class="section pale"><div class="shell callout"><div><span class="eyebrow">CONTACT US</span><h2>让我们从稿件初评开始</h2><p>提交基础信息，顾问会根据目标方向和当前阶段提供初步建议。</p></div><a class="primary" href="?consult=1&subject=%E9%A2%84%E7%BA%A6%E4%B8%80%E5%AF%B9%E4%B8%80%E6%B2%9F%E9%80%9A&targetType=SCI" data-consult-subject="预约一对一沟通" onclick="window.__iesstConsultationFromElement && window.__iesstConsultationFromElement(this)">预约一对一沟通</a></div></section>
+</template>

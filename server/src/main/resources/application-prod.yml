@@ -1,0 +1,31 @@
+server:
+  servlet:
+    session:
+      cookie:
+        secure: true
+  error:
+    include-message: never
+    include-stacktrace: never
+
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+app:
+  admin:
+    username: ${ADMIN_USERNAME}
+    password: ${ADMIN_PASSWORD}
+    display-name: ${ADMIN_DISPLAY_NAME:IESST 管理员}
+  upload-dir: ${UPLOAD_DIR:/data/iesst/uploads}
+
+management:
+  endpoint:
+    health:
+      show-details: never
+
+logging:
+  level:
+    root: INFO
+    cn.iesst.demo: INFO

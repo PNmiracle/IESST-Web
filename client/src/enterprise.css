@@ -1,0 +1,170 @@
+.submission-tools {
+  display: grid;
+  justify-items: end;
+  gap: 12px;
+}
+
+.submission-tools input {
+  width: min(360px, 70vw);
+  padding: 11px 14px;
+  border: 1px solid #d9deea;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.table-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 4px 0;
+  color: #68758c;
+}
+
+.table-pagination div {
+  display: flex;
+  gap: 8px;
+}
+
+@media (max-width: 900px) {
+  .submission-tools {
+    justify-items: stretch;
+    width: 100%;
+  }
+
+  .submission-tools input {
+    width: 100%;
+  }
+}
+
+.governance-grid {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.72fr) minmax(0, 1.6fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.security-card {
+  position: sticky;
+  top: 24px;
+}
+
+.form-hint {
+  margin: -4px 0 6px;
+  color: #738096;
+  line-height: 1.7;
+}
+
+.audit-card {
+  padding: 24px;
+}
+
+.audit-card > header,
+.audit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.audit-card > header {
+  padding-bottom: 18px;
+  border-bottom: 1px solid #edf0f5;
+}
+
+.audit-card h2 {
+  margin: 4px 0 0;
+}
+
+.audit-card header span {
+  color: #7652b8;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+}
+
+.audit-list {
+  display: grid;
+}
+
+.audit-row {
+  justify-content: flex-start;
+  padding: 16px 0;
+  border-bottom: 1px solid #edf0f5;
+}
+
+.audit-row:last-child {
+  border-bottom: 0;
+}
+
+.audit-row > div:nth-child(2) {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  flex: 1;
+}
+
+.audit-row > div:last-child {
+  display: grid;
+  justify-items: end;
+  gap: 5px;
+  color: #c0392b;
+}
+
+.audit-row small {
+  color: #8791a3;
+}
+
+.audit-row b {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.audit-row .success {
+  color: #23805b;
+}
+
+.audit-action {
+  display: inline-grid;
+  place-items: center;
+  width: 48px;
+  height: 30px;
+  border-radius: 8px;
+  background: #edf3ff;
+  color: #345fa8;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.action-delete {
+  background: #fff0f0;
+  color: #b93a3a;
+}
+
+.action-post {
+  background: #ecf8f1;
+  color: #287a55;
+}
+
+@media (max-width: 1000px) {
+  .governance-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .security-card {
+    position: static;
+  }
+}
+
+@media (max-width: 680px) {
+  .audit-row {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .audit-row > div:last-child {
+    width: 100%;
+    justify-items: start;
+    padding-left: 64px;
+  }
+}

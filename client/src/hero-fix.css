@@ -1,0 +1,16 @@
+.hero-caption {
+  background: linear-gradient(100deg, #101d35f2, #352541ec);
+  backdrop-filter: blur(3px);
+}
+
+.hero-caption h1 {
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 2px 14px #0008;
+}
+
+.hero-caption p,
+.hero-caption > a {
+  position: relative;
+  z-index: 1;
+}
