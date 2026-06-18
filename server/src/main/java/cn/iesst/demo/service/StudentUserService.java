@@ -1,11 +1,14 @@
 package cn.iesst.demo.service;
 
 import cn.iesst.demo.model.InvoiceRequest;
+import cn.iesst.demo.model.ConsultationRecord;
+import cn.iesst.demo.model.ConsultationRequest;
 import cn.iesst.demo.model.StudentAccount;
 import cn.iesst.demo.model.StudentAccountInput;
 import cn.iesst.demo.model.StudentOrder;
 import cn.iesst.demo.model.StudentOrderProgress;
 import cn.iesst.demo.model.Submission;
+import cn.iesst.demo.model.UploadResult;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -151,6 +154,50 @@ public class StudentUserService {
         return adminOrders().stream()
                 .filter(item -> item.id().equals(orderId))
                 .findFirst();
+    }
+
+    public ConsultationRecord createConsultation(HttpSession session, ConsultationRequest request) {
+        Submission submission = store.createSubmission(new Submission(
+                null,
+                request.contactName(),
+                request.email(),
+                request.subject(),
+                request.targetType(),
+                request.content(),
+                null,
+                null));
+        Long studentId = currentStudentIdIfPresent(session);
+        long id = store.insertAndReturnId(
+                "INSERT INTO consultation_records(student_user_id,source_submission_id,contact_name,mobile,email,source_channel,subject,content,follow_up_status) VALUES (?,?,?,?,?,?,?,?,?)",
+                studentId,
+                submission.id(),
+                request.contactName(),
+                request.mobile(),
+                request.email(),
+                "WEB",
+                request.subject(),
+                request.content(),
+                "NEW");
+        return findConsultation(id);
+    }
+
+    public void attachSubmissionFileToOrderIfLoggedIn(HttpSession session, long submissionId, UploadResult upload) {
+        Long studentId = currentStudentIdIfPresent(session);
+        if (studentId == null) {
+            return;
+        }
+        List<Long> orderIds = jdbc.query(
+                "SELECT id FROM student_orders WHERE student_user_id=? AND source_submission_id=?",
+                (rs, rowNum) -> rs.getLong("id"),
+                studentId,
+                submissionId);
+        orderIds.forEach(orderId -> store.insertAndReturnId(
+                "INSERT INTO student_order_files(order_id,file_category,file_name,file_url,visible_to_student,uploaded_by) VALUES (?,?,?,?,TRUE,?)",
+                orderId,
+                "MANUSCRIPT",
+                upload.fileName(),
+                upload.url(),
+                "学生"));
     }
 
     public List<StudentOrder> adminOrders() {
@@ -368,6 +415,37 @@ public class StudentUserService {
         return findCredentialByMobile(mobile)
                 .map(StudentCredential::id)
                 .orElseThrow(() -> new IllegalArgumentException("学生账号不存在，请重新登录"));
+    }
+
+    private Long currentStudentIdIfPresent(HttpSession session) {
+        Object mobile = session.getAttribute(SESSION_STUDENT_MOBILE);
+        if (!(mobile instanceof String value) || value.isBlank()) {
+            return null;
+        }
+        return findCredentialByMobile(value).map(StudentCredential::id).orElse(null);
+    }
+
+    private ConsultationRecord findConsultation(long id) {
+        return jdbc.query(
+                        "SELECT * FROM consultation_records WHERE id=?",
+                        (rs, rowNum) -> new ConsultationRecord(
+                                rs.getLong("id"),
+                                nullableLong(rs, "student_user_id"),
+                                nullableLong(rs, "source_submission_id"),
+                                rs.getString("contact_name"),
+                                rs.getString("mobile"),
+                                rs.getString("email"),
+                                rs.getString("source_channel"),
+                                rs.getString("subject"),
+                                rs.getString("content"),
+                                rs.getString("consultant_name"),
+                                rs.getString("follow_up_status"),
+                                timestamp(rs, "created_at"),
+                                timestamp(rs, "updated_at")),
+                        id)
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("咨询记录创建失败"));
     }
 
     private StudentOrder mapOrder(java.sql.ResultSet rs) throws java.sql.SQLException {

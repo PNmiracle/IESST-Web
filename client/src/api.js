@@ -49,6 +49,13 @@ async function upload(url, file) {
   return request(url, { admin: true, method: "POST", body: formData });
 }
 
+async function uploadWithFields(url, file, fields = {}) {
+  const formData = new FormData();
+  formData.append("file", file);
+  Object.entries(fields).forEach(([key, value]) => formData.append(key, value));
+  return request(url, { method: "POST", body: formData });
+}
+
 async function download(url) {
   const response = await fetch(url, { credentials: "include" });
   if (!response.ok) {
@@ -74,6 +81,8 @@ export const api = {
   publicServices: () => request("/api/public/services"),
   publicExperts: () => request("/api/public/experts"),
   submit: (body) => request("/api/public/submissions", { method: "POST", body: JSON.stringify(body) }),
+  uploadSubmissionFile: (id, email, file) => uploadWithFields(`/api/public/submissions/${id}/file`, file, { email }),
+  consult: (body) => request("/api/public/consultations", { method: "POST", body: JSON.stringify(body) }),
   login: (body) => request("/api/auth/login", { method: "POST", body: JSON.stringify(body) }),
   logout: () => request("/api/auth/logout", { method: "POST", admin: true }),
   currentUser: () => request("/api/auth/me"),

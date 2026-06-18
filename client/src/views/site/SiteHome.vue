@@ -15,6 +15,38 @@ const keyword = ref("");
 const submitting = ref(false);
 const submitted = ref(false);
 const submissionForm = reactive({ authorName: "", email: "", paperTitle: "", targetType: "SCI", message: "" });
+const advantages = [
+  {
+    title: "权威期刊资源",
+    text: "思研学术专注于 SCI 特刊，涵盖各个学科领域，提供多元化发表通道",
+    icon: "book",
+  },
+  {
+    title: "专业编辑团队",
+    text: "由 150 余位教授编委团队提前审稿，审核稿件内容，提高论文质量，确保投准、投中",
+    icon: "team",
+  },
+  {
+    title: "高效发表流程",
+    text: "简化发表流程，缩短审核周期，提供全程进度跟踪，确保论文快速高效发表",
+    icon: "flow",
+  },
+  {
+    title: "高被引保障",
+    text: "提供论文推广服务，增加论文曝光度，提高论文被引用率，提升学术影响力",
+    icon: "quote",
+  },
+  {
+    title: "编辑1对1咨询",
+    text: "直接和期刊编辑老师对话，提供专业的学术咨询服务，根据需求定制发表方案",
+    icon: "chat",
+  },
+  {
+    title: "安全保障",
+    text: "严格保护客户隐私和论文版权，确保论文内容不被泄露，提供安全可靠的服务保障",
+    icon: "shield",
+  },
+];
 let carouselTimer;
 
 const activeBanner = computed(() => banners.value[currentSlide.value] || null);
@@ -101,15 +133,26 @@ onBeforeUnmount(() => clearInterval(carouselTimer));
       </div>
     </section>
 
-    <section class="section shell">
-      <div class="heading"><div><span>WHY IESST</span><h2>学术服务发表优势</h2></div><p>把复杂的发表流程拆成可理解、可选择、可跟进的服务节点。</p></div>
-      <div class="advantage-grid">
-        <article v-for="(item,index) in ['权威期刊资源','专业编辑团队','高效发表流程','高被引支持','编辑一对一咨询','隐私安全保障']" :key="item" class="card"><b>0{{ index + 1 }}</b><h3>{{ item }}</h3><p>{{ ['覆盖 SCI / EI 多学科方向，按研究主题和周期筛选。','由具备学科背景的编辑参与评估、语言与质量复核。','明确服务节点和交付内容，持续同步处理进展。','围绕摘要、关键词和研究亮点优化学术表达。','结合稿件阶段提供清晰、可执行的建议。','严格管理稿件、作者资料与沟通记录。'][index] }}</p></article>
+    <section class="section advantage-section">
+      <div class="shell">
+        <div class="advantage-heading"><span></span><div><h2>学术服务发表优势</h2><p>思研学术，让 SCI 期刊发表更快速更便捷</p></div><span></span></div>
+        <div class="advantage-grid">
+          <article v-for="item in advantages" :key="item.title" class="advantage-card">
+            <div>
+              <h3>{{ item.title }}</h3>
+              <p>{{ item.text }}</p>
+            </div>
+            <img class="advantage-icon" :src="`/images/advantage-icons/${item.icon}.png`" alt="" aria-hidden="true" />
+          </article>
+        </div>
+        <div class="advantage-actions">
+          <a class="primary" href="?consult=1&subject=%E7%AB%8B%E5%8D%B3%E5%92%A8%E8%AF%A2&targetType=SCI" data-consult-subject="立即咨询" data-consult-target="SCI" onclick="window.__iesstConsultationFromElement && window.__iesstConsultationFromElement(this)">立即咨询</a>
+        </div>
       </div>
     </section>
 
     <section class="section pale">
-      <div class="shell solution-grid"><figure class="solution-cover"><img src="/images/sci-journals-books-cutout.png" alt="SCI 期刊封面组合" /></figure><div><span class="eyebrow">FULL-CYCLE SOLUTION</span><h2>可靠的 SCI 全流程解决方案</h2><p>从稿件初评、期刊匹配、语言与科学编辑，到投稿材料和审稿回复协同，形成清晰的服务路径。</p><ol><li><b>01</b> 稿件初评与研究方向识别</li><li><b>02</b> 综合范围、检索与周期匹配期刊</li><li><b>03</b> 优化语言、结构与科学表达</li><li><b>04</b> 协同准备材料与审稿回复</li></ol><div class="detail-actions"><RouterLink class="primary" to="/SCI">查看 SCI 期刊</RouterLink><a class="ghost" href="?consult=1&subject=SCI%E5%85%A8%E6%B5%81%E7%A8%8B%E6%96%B9%E6%A1%88&targetType=SCI" data-consult-subject="SCI全流程方案" data-consult-target="SCI" onclick="window.__iesstConsultationFromElement && window.__iesstConsultationFromElement(this)">了解更多</a></div></div></div>
+      <div class="shell solution-grid"><figure class="solution-cover"><img src="/images/sci-journals-books-cutout.png" alt="SCI 期刊封面组合" /></figure><div class="solution-copy"><h2 class="solution-title">可靠的SCI全流程解决方案</h2><p>论文写完了，发表才刚刚开始。选刊拿不准、流程摸不透、语言不过关、审稿意见不知如何回复——每一个环节都可能拖上数月。思研学术 SCI 特刊快速通道，将上述问题一并纳入标准服务流程：精准匹配已授权的正规特刊、编委团队前置审稿、专业编辑语言润色、审稿意见协同回应。</p><p>我们不替您写论文，不替您伪造审稿，只做一件事——帮您把合格的稿件，高效、合规地送进特刊的录用通道。</p><p>您负责把研究做扎实，我们把发表做简单。</p><div class="solution-actions"><a class="primary" href="?consult=1&subject=SCI%E5%85%A8%E6%B5%81%E7%A8%8B%E6%96%B9%E6%A1%88&targetType=SCI" data-consult-subject="SCI全流程方案" data-consult-target="SCI" onclick="window.__iesstConsultationFromElement && window.__iesstConsultationFromElement(this)">了解更多</a></div></div></div>
     </section>
 
     <section class="section shell">

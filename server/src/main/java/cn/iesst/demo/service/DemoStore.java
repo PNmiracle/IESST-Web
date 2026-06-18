@@ -7,6 +7,7 @@ import cn.iesst.demo.model.Journal;
 import cn.iesst.demo.model.PageResponse;
 import cn.iesst.demo.model.ServiceOffering;
 import cn.iesst.demo.model.Submission;
+import cn.iesst.demo.model.UploadResult;
 import jakarta.annotation.PostConstruct;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -133,6 +134,27 @@ public class DemoStore {
         if (input.email() == null || input.email().isBlank()) throw new IllegalArgumentException("请填写联系邮箱");
         if (input.paperTitle() == null || input.paperTitle().isBlank()) throw new IllegalArgumentException("请填写论文标题");
         return insertSubmission(new Submission(null, input.authorName(), input.email(), input.paperTitle(), input.targetType(), input.message(), "待处理", LocalDateTime.now()));
+    }
+
+    public void attachSubmissionFile(long submissionId, String email, UploadResult upload) {
+        validateSubmissionOwner(submissionId, email);
+        jdbc.update(
+                "INSERT INTO submission_files(submission_id,file_name,file_url,file_size) VALUES (?,?,?,?)",
+                submissionId,
+                upload.fileName(),
+                upload.url(),
+                upload.size());
+    }
+
+    public void validateSubmissionOwner(long submissionId, String email) {
+        Integer count = jdbc.queryForObject(
+                "SELECT COUNT(*) FROM submissions WHERE id=? AND email=?",
+                Integer.class,
+                submissionId,
+                email);
+        if (count == null || count == 0) {
+            throw new IllegalArgumentException("投稿记录不存在或联系邮箱不匹配");
+        }
     }
     private Submission insertSubmission(Submission input) {
         long id = insert("INSERT INTO submissions(author_name,email,paper_title,target_type,message,status,created_at) VALUES (?,?,?,?,?,?,?)", input.authorName(), input.email(), input.paperTitle(), input.targetType(), input.message(), input.status(), Timestamp.valueOf(input.createdAt()));

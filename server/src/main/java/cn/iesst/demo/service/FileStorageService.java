@@ -17,12 +17,14 @@ import java.util.UUID;
 public class FileStorageService {
     private static final Set<String> IMAGE_EXTENSIONS = Set.of("jpg", "jpeg", "png", "webp", "gif");
     private static final Set<String> DOCUMENT_EXTENSIONS = Set.of("pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt");
+    private static final Set<String> MANUSCRIPT_EXTENSIONS = Set.of("pdf", "doc", "docx");
     private final Path root;
 
     public FileStorageService(@Value("${app.upload-dir:./uploads}") String uploadDir) throws IOException {
         root = Path.of(uploadDir).toAbsolutePath().normalize();
         Files.createDirectories(root.resolve("images"));
         Files.createDirectories(root.resolve("documents"));
+        Files.createDirectories(root.resolve("manuscripts"));
     }
 
     public UploadResult saveImage(MultipartFile file) {
@@ -31,6 +33,10 @@ public class FileStorageService {
 
     public UploadResult saveDocument(MultipartFile file) {
         return save(file, "documents", DOCUMENT_EXTENSIONS, 20 * 1024 * 1024L);
+    }
+
+    public UploadResult saveManuscript(MultipartFile file) {
+        return save(file, "manuscripts", MANUSCRIPT_EXTENSIONS, 20 * 1024 * 1024L);
     }
 
     private UploadResult save(MultipartFile file, String folder, Set<String> allowed, long maxSize) {

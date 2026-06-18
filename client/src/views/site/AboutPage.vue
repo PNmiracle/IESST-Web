@@ -1,5 +1,259 @@
+<script setup>
+import { openConsultation } from "../../stores/consultation";
+
+function openAboutConsultation() {
+  openConsultation({
+    subject: "预约一对一沟通",
+    targetType: "SCI",
+  });
+}
+</script>
+
 <template>
-  <section class="page-hero"><div class="shell"><span>ABOUT IESST</span><h1>关于思研学术</h1><p>以专业、透明、合规和长期主义，为科研工作者提供清晰可执行的学术服务。</p></div></section>
-  <section class="section shell about-grid"><article><span class="eyebrow">OUR POSITION</span><h2>机构定位</h2><p>IESST 面向科研工作者提供期刊匹配、翻译润色、科学编辑与投稿协同支持。我们重视研究内容本身，也重视作者在服务过程中的知情权和选择权。</p><p>所有页面期刊与数据均为 Demo 演示内容，正式上线前需替换为经过核验的真实业务资料。</p></article><div class="principle-grid"><div class="card"><b>01</b><h3>专业</h3><p>按学科与稿件阶段配置服务。</p></div><div class="card"><b>02</b><h3>透明</h3><p>明确服务范围、节点与交付物。</p></div><div class="card"><b>03</b><h3>合规</h3><p>尊重学术伦理，不承诺不当结果。</p></div><div class="card"><b>04</b><h3>长期</h3><p>关注研究表达能力的持续提升。</p></div></div></section>
-  <section class="section pale"><div class="shell callout"><div><span class="eyebrow">CONTACT US</span><h2>让我们从稿件初评开始</h2><p>提交基础信息，顾问会根据目标方向和当前阶段提供初步建议。</p></div><a class="primary" href="?consult=1&subject=%E9%A2%84%E7%BA%A6%E4%B8%80%E5%AF%B9%E4%B8%80%E6%B2%9F%E9%80%9A&targetType=SCI" data-consult-subject="预约一对一沟通" onclick="window.__iesstConsultationFromElement && window.__iesstConsultationFromElement(this)">预约一对一沟通</a></div></section>
+  <section class="about-page">
+    <div class="shell about-content">
+      <header class="about-title">
+        <span class="about-title-mark" aria-hidden="true">
+          <i></i><i></i><i></i>
+        </span>
+        <h1>关于我们</h1>
+        <strong>/ ABOUT US</strong>
+      </header>
+
+      <div class="about-summary">
+        <article>
+          <b>150+</b>
+          <span>国际编委成员</span>
+        </article>
+        <article>
+          <b>60+</b>
+          <span>SCI 及 ESCI 特刊授权</span>
+        </article>
+        <article>
+          <b>2019</b>
+          <span>机构成立年份</span>
+        </article>
+      </div>
+
+      <section class="about-section">
+        <h2>机构简介</h2>
+        <div class="about-copy">
+          <p>思研学术 (IESST) 成立于 2019 年，是一家持有自主出版资质的学术出版机构，总部设于英国伦敦，中国办公室位于浙江省杭州市。</p>
+          <p>本机构专注于 SCI 及 ESCI 期刊特刊的策划、申报与出版服务，致力于为全球科研人员提供具备学术确定性、成本可控且流程高效的特刊发表解决方案。</p>
+          <p>艾斯希旗下设国际编委委员会，现有在册编委 150 余人，均为来自欧美及亚洲主要国家科研机构的现职学者。编委团队学科覆盖理工、工农、医及交叉领域，其中含教授职称核心编委多名，具备直接向 SCI 期刊方申请并主导特刊的法定学术资格。</p>
+          <p class="english">IESST (International Elite Scientific Publishing) is an academic publishing institution with independent publishing qualifications, headquartered in London, United Kingdom.</p>
+          <p class="english">The institution specializes in the planning, application, and publication of special issues in SCI and ESCI journals, committed to providing global researchers with academically reliable, cost-effective, and efficient solutions for special issue publication.</p>
+          <p class="english">IESST has established an International Editorial Board, currently comprising over 150 registered editorial members, all of whom are active scholars from research institutions in major countries across Europe, the Americas, and Asia.</p>
+          <p class="english">The editorial team covers natural sciences, engineering, agriculture, medicine, and interdisciplinary fields, and includes multiple core editorial members with full professor titles, possessing the formal academic qualification to directly apply for and lead special issues from SCI journals.</p>
+        </div>
+      </section>
+
+      <section class="about-section">
+        <h2>特刊资源</h2>
+        <div class="about-copy">
+          <p>截至目前，思研学术已正式获得 60 余种 SCI 及 ESCI 期刊的特刊出版授权。所有特刊均为对应期刊的正刊特辑，严格遵循 Web of Science 收录规范，不存在预警或违规出版风险。</p>
+          <p class="english">To date, IESST has officially obtained special issue publication authorizations from more than 60 SCI and ESCI journals.</p>
+          <p class="english">All special issues are genuine special issues of their respective parent journals, strictly adhering to Web of Science indexing standards, with no risk of being on warning lists or involving irregular publishing practices.</p>
+        </div>
+      </section>
+
+      <section class="about-section">
+        <h2>服务定位</h2>
+        <div class="about-copy">
+          <p>本机构采用出版方直营模式，去除中间环节，在确保学术质量的前提下实现显著低于行业均值的发表成本。同时，通过编委内部快速审稿及定向推荐机制，大幅压缩从投稿到录用的周期，实现特刊发表的高度时间确定性。</p>
+          <p class="english">The institution adopts a publisher-direct model, eliminating intermediary links, and achieves publication costs significantly below the industry average while ensuring academic quality.</p>
+          <p class="english">At the same time, through rapid internal review by the editorial board and targeted recommendation mechanisms, the period from submission to acceptance is greatly shortened, achieving a high degree of temporal certainty for special issue publication.</p>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <section class="section pale">
+    <div class="shell callout">
+      <div>
+        <span class="eyebrow">CONTACT US</span>
+        <h2>让我们从稿件初评开始</h2>
+        <p>提交基础信息，顾问会根据目标方向和当前阶段提供初步建议。</p>
+      </div>
+      <button class="primary" type="button" @click="openAboutConsultation">预约一对一沟通</button>
+    </div>
+  </section>
 </template>
+
+<style scoped>
+.about-page {
+  background: #fff;
+}
+
+.about-content {
+  width: min(calc(100% - 48px), 1120px);
+  padding: 72px 0 94px;
+}
+
+.about-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 54px;
+}
+
+.about-title-mark {
+  position: relative;
+  display: inline-flex;
+  width: 54px;
+  height: 28px;
+  align-items: center;
+}
+
+.about-title-mark i {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  background: #70439a;
+  border-radius: 999px;
+  opacity: 0.46;
+}
+
+.about-title-mark i:nth-child(1) {
+  left: 0;
+}
+
+.about-title-mark i:nth-child(2) {
+  left: 13px;
+  opacity: 0.66;
+}
+
+.about-title-mark i:nth-child(3) {
+  left: 26px;
+  opacity: 0.86;
+}
+
+.about-title h1 {
+  margin: 0;
+  color: #3b2458;
+  font-size: 28px;
+  line-height: 1.1;
+}
+
+.about-title strong {
+  color: #b7b4bd;
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.about-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin: -18px 0 58px;
+}
+
+.about-summary article {
+  padding: 22px 24px;
+  background: #faf8fc;
+  border: 1px solid #ebe5f1;
+  border-radius: 8px;
+}
+
+.about-summary b {
+  display: block;
+  color: #70439a;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.about-summary span {
+  display: block;
+  margin-top: 8px;
+  color: #687188;
+  font-size: 13px;
+}
+
+.about-section {
+  margin-top: 64px;
+}
+
+.about-section:first-of-type {
+  margin-top: 0;
+}
+
+.about-section h2 {
+  position: relative;
+  margin: 0 0 22px;
+  padding-left: 24px;
+  color: #16181d;
+  font-size: 25px;
+  line-height: 1.35;
+}
+
+.about-section h2::before {
+  position: absolute;
+  top: 0.3em;
+  left: 0;
+  width: 9px;
+  height: 24px;
+  content: "";
+  background: linear-gradient(90deg, #4b2a74, #9b7fc3);
+  border-radius: 999px;
+}
+
+.about-copy {
+  max-width: 940px;
+  padding-left: 24px;
+}
+
+.about-copy p {
+  margin: 0 0 9px;
+  color: #202329;
+  font-size: 17px;
+  line-height: 1.92;
+}
+
+.about-copy .english {
+  color: #252932;
+}
+
+@media (max-width: 760px) {
+  .about-content {
+    width: min(calc(100% - 28px), 1120px);
+    padding: 46px 0 68px;
+  }
+
+  .about-title {
+    flex-wrap: wrap;
+    margin-bottom: 34px;
+  }
+
+  .about-title h1 {
+    font-size: 25px;
+  }
+
+  .about-title strong {
+    width: 100%;
+    margin-left: 64px;
+    font-size: 14px;
+  }
+
+  .about-summary {
+    grid-template-columns: 1fr;
+    margin: 0 0 38px;
+  }
+
+  .about-section {
+    margin-top: 44px;
+  }
+
+  .about-section h2 {
+    font-size: 22px;
+  }
+
+  .about-copy {
+    padding-left: 0;
+  }
+
+  .about-copy p {
+    font-size: 15px;
+    line-height: 1.82;
+  }
+}
+</style>

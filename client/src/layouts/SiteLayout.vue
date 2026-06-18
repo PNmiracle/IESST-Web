@@ -20,6 +20,7 @@ function handleConsultClick(event) {
   openConsultation({
     subject: trigger.dataset.consultSubject,
     targetType: trigger.dataset.consultTarget || "SCI",
+    message: trigger.dataset.consultMessage || "",
   });
 }
 
@@ -37,6 +38,7 @@ onMounted(() => {
     openConsultation({
       subject: trigger.dataset.consultSubject,
       targetType: trigger.dataset.consultTarget || "SCI",
+      message: trigger.dataset.consultMessage || "",
     });
   };
 });
@@ -52,11 +54,13 @@ watch(
     openConsultation({
       subject: route.query.subject || "预约一对一沟通",
       targetType: route.query.targetType || "SCI",
+      message: route.query.message || "",
     });
     const query = { ...route.query };
     delete query.consult;
     delete query.subject;
     delete query.targetType;
+    delete query.message;
     router.replace({ path: route.path, query, hash: route.hash });
   },
   { immediate: true },

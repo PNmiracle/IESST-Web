@@ -256,9 +256,40 @@
   line-height: 1.12;
 }
 
-.solution-grid p {
-  max-width: 610px;
-  font-size: 18px;
+.solution-grid .solution-title {
+  max-width: none;
+  margin: 0 0 34px;
+  font-size: 42px;
+  white-space: nowrap;
+}
+
+.solution-copy {
+  display: grid;
+  align-content: center;
+}
+
+.solution-copy p {
+  max-width: 680px;
+  margin: 0 0 30px;
+  color: #202329;
+  font-size: 20px;
+  line-height: 1.72;
+}
+
+.solution-copy p:last-of-type {
+  margin-bottom: 38px;
+}
+
+.solution-actions {
+  display: flex;
+  justify-content: center;
+  max-width: 680px;
+}
+
+.solution-actions .primary {
+  min-width: 220px;
+  padding: 15px 34px;
+  text-align: center;
 }
 
 .solution-grid ol {
@@ -303,6 +334,114 @@
 
 .service-entry b {
   color: #7356c8;
+}
+
+.advantage-section {
+  overflow: hidden;
+  background: #eee9f3;
+}
+
+.advantage-heading {
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) auto minmax(80px, 1fr);
+  align-items: center;
+  gap: 32px;
+  margin-bottom: 48px;
+  text-align: center;
+}
+
+.advantage-heading > span {
+  height: 1px;
+  background: linear-gradient(90deg, rgba(185, 176, 196, 0), rgba(185, 176, 196, 0.78));
+}
+
+.advantage-heading > span:last-child {
+  background: linear-gradient(90deg, rgba(185, 176, 196, 0.78), rgba(185, 176, 196, 0));
+}
+
+.advantage-heading h2 {
+  margin: 0;
+  color: #101a30;
+  font-size: 34px;
+  line-height: 1.25;
+}
+
+.advantage-heading p {
+  margin: 12px 0 0;
+  color: #70788b;
+  font-size: 17px;
+}
+
+.advantage-section .advantage-grid {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+
+.advantage-card {
+  position: relative;
+  min-height: 190px;
+  overflow: hidden;
+  padding: 38px 34px 30px;
+  background: #fff;
+  border: 1px solid #e2dce9;
+  border-radius: 8px;
+  box-shadow: 0 16px 36px rgba(33, 24, 48, 0.08);
+}
+
+.advantage-card h3 {
+  position: relative;
+  max-width: calc(100% - 106px);
+  min-height: 72px;
+  margin: 0 0 30px;
+  padding-left: 14px;
+  color: #111a2f;
+  font-size: 22px;
+  line-height: 1.25;
+  display: flex;
+  align-items: center;
+}
+
+.advantage-card h3::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 4px;
+  height: 24px;
+  content: "";
+  background: #70439a;
+  border-radius: 999px;
+  transform: translateY(-50%);
+}
+
+.advantage-card p {
+  margin: 0;
+  color: #4f586a;
+  font-size: 17px;
+  line-height: 1.85;
+}
+
+.advantage-icon {
+  position: absolute;
+  top: 32px;
+  right: 34px;
+  display: block;
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  background: transparent;
+  border-radius: 999px;
+}
+
+.advantage-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 42px;
+}
+
+.advantage-actions .primary {
+  min-width: 210px;
+  padding: 15px 34px;
+  text-align: center;
 }
 
 .student-page {
@@ -544,6 +683,24 @@
   .solution-grid {
     grid-template-columns: 1fr;
   }
+
+  .advantage-section .advantage-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .advantage-card {
+    padding-right: 30px;
+  }
+
+  .solution-grid .solution-title {
+    font-size: 40px;
+    white-space: normal;
+  }
+
+  .solution-copy p,
+  .solution-actions {
+    max-width: none;
+  }
 }
 
 @media (max-width: 650px) {
@@ -553,6 +710,70 @@
 
   .site-nav {
     min-height: 72px;
+  }
+
+  .solution-grid .solution-title {
+    font-size: 30px;
+  }
+
+  .advantage-heading {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 30px;
+  }
+
+  .advantage-heading > span {
+    display: none;
+  }
+
+  .advantage-heading h2 {
+    font-size: 28px;
+  }
+
+  .advantage-heading p {
+    font-size: 15px;
+  }
+
+  .advantage-section .advantage-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .advantage-card {
+    min-height: 0;
+    padding: 28px 24px 26px;
+  }
+
+  .advantage-card h3 {
+    max-width: calc(100% - 88px);
+    min-height: 66px;
+    margin-bottom: 24px;
+    font-size: 20px;
+  }
+
+  .advantage-card p {
+    font-size: 15px;
+  }
+
+  .advantage-icon {
+    top: 24px;
+    right: 22px;
+    width: 66px;
+    height: 66px;
+  }
+
+  .solution-copy p {
+    margin-bottom: 22px;
+    font-size: 16px;
+    line-height: 1.78;
+  }
+
+  .solution-copy p:last-of-type {
+    margin-bottom: 28px;
+  }
+
+  .solution-actions {
+    justify-content: flex-start;
   }
 
   .brand-logo {
