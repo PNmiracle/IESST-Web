@@ -24,12 +24,16 @@ public class AuditLogInterceptor implements HandlerInterceptor {
             HttpServletResponse response,
             Object handler,
             Exception exception) {
-        if (!MUTATING_METHODS.contains(request.getMethod())) return;
+        String path = request.getRequestURI();
+        boolean sensitiveRead = "GET".equals(request.getMethod())
+                && (path.equals("/api/admin/students")
+                || path.matches("/api/admin/submissions/\\d+/files(?:/\\d+/download)?"));
+        if (!MUTATING_METHODS.contains(request.getMethod()) && !sensitiveRead) return;
         Principal principal = request.getUserPrincipal();
         if (principal == null) return;
         auditLogService.record(
                 principal.getName(),
-                request.getMethod(),
+                sensitiveRead ? "READ_SENSITIVE" : request.getMethod(),
                 request.getRequestURI(),
                 response.getStatus(),
                 clientIp(request));

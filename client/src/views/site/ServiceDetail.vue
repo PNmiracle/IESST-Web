@@ -34,6 +34,11 @@ const editingCapabilities = [
   { number: "03", title: "查重降重", description: "采用国际主流查重系统定位高危重复内容，由专业编辑进行语义级改写并保留研究原意。" },
   { number: "04", title: "AI率控制", description: "检测疑似 AI 写作痕迹，通过人工改写与结构重组，降低可识别 AI 率并保持自然连贯。" },
 ];
+const submissionFlow = [
+  { title: "上传稿件", text: "支持 PDF、Word 文件，系统写入后台投稿与附件记录。" },
+  { title: "顾问评估", text: "根据服务类型、字数、研究方向和当前阶段确认处理范围。" },
+  { title: "进度同步", text: "登录学生提交会同步生成订单，后续可查看处理节点。" },
+];
 const translationPlanContent = {
   高级翻译: {
     price: "¥0.8/字",
@@ -110,7 +115,6 @@ function openSubmitDialog(item = null) {
     message: [
       `提交来源：${service.value.title}`,
       item ? `意向服务：${item.title}（${item.price}）` : "",
-      studentSession.state.mobile ? `学生账号：${studentSession.state.mobile}` : "",
     ].filter(Boolean).join("\n"),
   };
   submitDialogOpen.value = true;
@@ -118,9 +122,6 @@ function openSubmitDialog(item = null) {
     if (!submitDialogOpen.value) return;
     if (!submitForm.value.authorName) {
       submitForm.value.authorName = studentSession.state.displayName || "";
-    }
-    if (studentSession.state.mobile && !submitForm.value.message.includes("学生账号：")) {
-      submitForm.value.message = [submitForm.value.message, `学生账号：${studentSession.state.mobile}`].filter(Boolean).join("\n");
     }
   });
 }
@@ -169,7 +170,7 @@ async function submitServiceRequest() {
     });
     const upload = await api.uploadSubmissionFile(
       submission.id,
-      submitForm.value.email,
+      submission.uploadToken,
       manuscriptFile.value,
     );
     submitResult.value = { ...submission, upload };
@@ -203,8 +204,8 @@ onMounted(async () => {
           <li v-for="item in service.highlights" :key="item">{{ item }}</li>
         </ul>
         <div class="translation-intro-actions">
-          <button class="primary submit-button" type="button" @click="openSubmitDialog()">提交稿件</button>
-          <a class="primary consult-button" :href="consultHref(service.title, serviceTarget)" :data-consult-subject="service.title" :data-consult-target="serviceTarget" :data-consult-message="consultMessage()" onclick="window.__iesstConsultationFromElement && window.__iesstConsultationFromElement(this)">咨询客服</a>
+          <button class="primary submit-button" type="button" @click="openSubmitDialog()">提交稿件评估</button>
+          <RouterLink class="ghost evaluation-link" :to="`/submit?subject=${encodeURIComponent(service.title)}&target=${encodeURIComponent(serviceTarget)}`">填写需求</RouterLink>
         </div>
       </div>
       <div class="translation-share">
@@ -218,7 +219,7 @@ onMounted(async () => {
       <span>{{ service.eyebrow }}</span>
       <h1>{{ service.title }}</h1>
       <p>{{ service.subtitle }}</p>
-      <a class="primary" :href="consultHref(service.title, service.title)" :data-consult-subject="service.title" :data-consult-target="service.title" onclick="window.__iesstConsultationFromElement && window.__iesstConsultationFromElement(this)">获取服务方案</a>
+      <RouterLink class="primary" :to="`/submit?subject=${encodeURIComponent(service.title)}&target=${encodeURIComponent(service.title)}`">免费评估稿件</RouterLink>
     </div>
   </section>
   <section v-if="isEditing" class="section shell editing-capability-section">
@@ -229,7 +230,7 @@ onMounted(async () => {
         <span>{{ item.number }}</span>
         <h3>{{ item.title }}</h3>
         <p>{{ item.description }}</p>
-        <a :href="consultHref(`${service.title}-${item.title}`, serviceTarget)" :data-consult-subject="`${service.title}-${item.title}`" :data-consult-target="serviceTarget" :data-consult-message="`咨询科学编辑能力：${item.title}\n${item.description}`" onclick="window.__iesstConsultationFromElement && window.__iesstConsultationFromElement(this)">点击了解</a>
+        <RouterLink :to="`/submit?subject=${encodeURIComponent(`${service.title}-${item.title}`)}&target=${encodeURIComponent(serviceTarget)}`">评估适配</RouterLink>
       </article>
     </div>
   </section>
@@ -244,7 +245,7 @@ onMounted(async () => {
       <div><h2>服务类型</h2></div>
       <p v-if="!isPremiumService">根据稿件阶段和实际需求选择服务，提交后由顾问进一步确认范围。</p>
     </div>
-    <div :class="['service-card-grid', { 'translation-pricing-grid': isTranslation, 'editing-pricing-grid': isEditing }]"><article v-for="item in displayItems" :key="item.id" :class="['card service-card', { 'translation-plan-card': isPremiumService, 'editing-plan-card': isEditing }]"><header><h3>{{ item.title }}</h3><span>{{ item.price }}</span></header><p>{{ item.description }}</p><ul><li v-for="feature in item.features.split('\n').filter(Boolean)" :key="feature">{{ feature }}</li></ul><div class="translation-plan-actions"><a class="primary" :href="consultHref(`${service.title}-${item.title}`, serviceTarget)" :data-consult-subject="`${service.title}-${item.title}`" :data-consult-target="serviceTarget" :data-consult-message="consultMessage(item)" onclick="window.__iesstConsultationFromElement && window.__iesstConsultationFromElement(this)">立即咨询</a></div></article></div>
+    <div :class="['service-card-grid', { 'translation-pricing-grid': isTranslation, 'editing-pricing-grid': isEditing }]"><article v-for="item in displayItems" :key="item.id" :class="['card service-card', { 'translation-plan-card': isPremiumService, 'editing-plan-card': isEditing }]"><header><h3>{{ item.title }}</h3><span>{{ item.price }}</span></header><p>{{ item.description }}</p><ul><li v-for="feature in item.features.split('\n').filter(Boolean)" :key="feature">{{ feature }}</li></ul><div class="translation-plan-actions"><button class="primary" type="button" @click="openSubmitDialog(item)">提交稿件评估</button></div></article></div>
   </section>
   <Teleport to="body">
     <div v-if="submitDialogOpen" class="translation-submit-backdrop" @click.self="closeSubmitDialog">
@@ -254,9 +255,18 @@ onMounted(async () => {
           <div class="translation-submit-success">
             <span>✓</span>
             <h2 id="translation-submit-title">稿件信息已提交</h2>
-            <p>记录编号：#{{ submitResult.id }}，文件：{{ submitResult.upload?.fileName }}。管理员后台已生成投稿与附件记录，登录学生提交时会同步生成订单进度。</p>
-            <RouterLink v-if="studentSession.isLoggedIn.value" class="primary" to="/student/orders" @click="closeSubmitDialog">查看我的订单</RouterLink>
-            <button v-else class="primary" type="button" @click="closeSubmitDialog">好的</button>
+            <p>记录编号：#{{ submitResult.id }}，文件：{{ submitResult.upload?.fileName }}。管理员后台已生成投稿与附件记录，顾问会按流程完成初步评估。</p>
+            <div class="submission-next-steps">
+              <article v-for="(step, index) in submissionFlow" :key="step.title">
+                <b>{{ String(index + 1).padStart(2, "0") }}</b>
+                <div><strong>{{ step.title }}</strong><span>{{ step.text }}</span></div>
+              </article>
+            </div>
+            <div class="translation-submit-success-actions">
+              <RouterLink v-if="studentSession.isLoggedIn.value" class="primary" to="/student/orders" @click="closeSubmitDialog">查看我的订单</RouterLink>
+              <button v-else class="primary" type="button" @click="closeSubmitDialog">好的</button>
+              <button class="ghost" type="button" @click="submitResult = null">继续上传</button>
+            </div>
           </div>
         </template>
         <template v-else>
@@ -264,6 +274,12 @@ onMounted(async () => {
             <span>{{ isEditing ? "SCIENTIFIC EDITING SUBMISSION" : "TRANSLATION SUBMISSION" }}</span>
             <h2 id="translation-submit-title">提交{{ serviceTarget }}稿件</h2>
             <p>提交后会写入后台投稿记录；学生登录状态下同步生成可追踪订单。</p>
+            <div class="submission-next-steps compact">
+              <article v-for="(step, index) in submissionFlow" :key="step.title">
+                <b>{{ String(index + 1).padStart(2, "0") }}</b>
+                <div><strong>{{ step.title }}</strong><span>{{ step.text }}</span></div>
+              </article>
+            </div>
           </div>
           <form class="consult-form" @submit.prevent="submitServiceRequest">
             <label>作者姓名<input v-model="submitForm.authorName" required placeholder="请输入姓名" /></label>

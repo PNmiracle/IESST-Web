@@ -12,7 +12,7 @@ public record StudentRegisterRequest(
         @Size(max = 80, message = "姓名长度不能超过80个字符")
         String displayName,
         @NotBlank(message = "请设置登录密码")
-        @Size(min = 6, max = 50, message = "密码长度需为6到50个字符")
+        @Size(min = 8, max = 64, message = "密码长度需为8到64个字符")
         String password,
         @NotBlank(message = "请再次输入密码")
         String confirmPassword) {

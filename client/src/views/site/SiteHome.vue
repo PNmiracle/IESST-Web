@@ -1,7 +1,6 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, reactive, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { api } from "../../api";
-import { showNotice } from "../../stores/notice";
 
 const banners = ref([]);
 const journals = ref([]);
@@ -12,9 +11,11 @@ const loadError = ref("");
 const paused = ref(false);
 const journalType = ref("ALL");
 const keyword = ref("");
-const submitting = ref(false);
-const submitted = ref(false);
-const submissionForm = reactive({ authorName: "", email: "", paperTitle: "", targetType: "SCI", message: "" });
+const submissionSteps = [
+  { title: "后台生成记录", text: "稿件信息会进入管理员投稿列表，便于顾问跟进。" },
+  { title: "顾问初步评估", text: "结合研究方向、目标类型和稿件阶段判断服务范围。" },
+  { title: "同步进度反馈", text: "登录学生账号提交时，可在我的订单中查看处理状态。" },
+];
 const advantages = [
   {
     title: "权威期刊资源",
@@ -92,27 +93,13 @@ async function loadData() {
   }
 }
 
-async function submitPaper() {
-  if (submitting.value) return;
-  submitting.value = true;
-  try {
-    await api.submit({ ...submissionForm, id: null, status: null, createdAt: null });
-    submitted.value = true;
-    Object.assign(submissionForm, { authorName: "", email: "", paperTitle: "", targetType: "SCI", message: "" });
-    showNotice("投稿信息已成功提交");
-  } catch (error) {
-    showNotice(error.message, true);
-  } finally {
-    submitting.value = false;
-  }
-}
-
 onMounted(loadData);
 onBeforeUnmount(() => clearInterval(carouselTimer));
 </script>
 
 <template>
   <div>
+    <h1 class="visually-hidden">思研学术 SCI 特刊交流中心</h1>
     <section class="site-hero">
       <div class="shell">
         <div v-if="activeBanner" class="hero-image hero-carousel" @mouseenter="paused = true" @mouseleave="paused = false">
@@ -120,8 +107,12 @@ onBeforeUnmount(() => clearInterval(carouselTimer));
             <img :src="previousBanner.imageUrl" :alt="previousBanner.title" />
           </button>
           <button class="hero-arrow hero-arrow-left" aria-label="上一张" @click="showSlide(currentSlide - 1)">‹</button>
-          <RouterLink class="hero-main-slide" :to="activeBanner.linkUrl || '/SCI'">
+          <RouterLink class="hero-main-slide" to="/submit?subject=首页首屏&target=SCI">
             <img :src="activeBanner.imageUrl" :alt="activeBanner.title" />
+            <span class="mobile-hero-caption">
+              <b>{{ activeBanner.title }}</b>
+              <small>提交稿件后，顾问将协助完成方向评估、期刊匹配与服务建议。</small>
+            </span>
           </RouterLink>
           <button class="hero-arrow hero-arrow-right" aria-label="下一张" @click="showSlide(currentSlide + 1)">›</button>
           <button v-if="nextBanner" class="hero-preview hero-preview-right" type="button" aria-label="预览下一张轮播图" @click="showSlide(currentSlide + 1)">
@@ -146,13 +137,13 @@ onBeforeUnmount(() => clearInterval(carouselTimer));
           </article>
         </div>
         <div class="advantage-actions">
-          <a class="primary" href="?consult=1&subject=%E7%AB%8B%E5%8D%B3%E5%92%A8%E8%AF%A2&targetType=SCI" data-consult-subject="立即咨询" data-consult-target="SCI" onclick="window.__iesstConsultationFromElement && window.__iesstConsultationFromElement(this)">立即咨询</a>
+          <RouterLink class="primary" to="/submit?subject=学术服务发表优势&target=SCI">免费评估稿件</RouterLink>
         </div>
       </div>
     </section>
 
     <section class="section pale">
-      <div class="shell solution-grid"><figure class="solution-cover"><img src="/images/sci-journals-books-cutout.png" alt="SCI 期刊封面组合" /></figure><div class="solution-copy"><h2 class="solution-title">可靠的SCI全流程解决方案</h2><p>论文写完了，发表才刚刚开始。选刊拿不准、流程摸不透、语言不过关、审稿意见不知如何回复——每一个环节都可能拖上数月。思研学术 SCI 特刊快速通道，将上述问题一并纳入标准服务流程：精准匹配已授权的正规特刊、编委团队前置审稿、专业编辑语言润色、审稿意见协同回应。</p><p>我们不替您写论文，不替您伪造审稿，只做一件事——帮您把合格的稿件，高效、合规地送进特刊的录用通道。</p><p>您负责把研究做扎实，我们把发表做简单。</p><div class="solution-actions"><a class="primary" href="?consult=1&subject=SCI%E5%85%A8%E6%B5%81%E7%A8%8B%E6%96%B9%E6%A1%88&targetType=SCI" data-consult-subject="SCI全流程方案" data-consult-target="SCI" onclick="window.__iesstConsultationFromElement && window.__iesstConsultationFromElement(this)">了解更多</a></div></div></div>
+      <div class="shell solution-grid"><figure class="solution-cover"><img src="/images/sci-journals-books-cutout.png" alt="SCI 期刊封面组合" /></figure><div class="solution-copy"><h2 class="solution-title">可靠的SCI全流程解决方案</h2><p>论文写完了，发表才刚刚开始。选刊拿不准、流程摸不透、语言不过关、审稿意见不知如何回复——每一个环节都可能拖上数月。思研学术 SCI 特刊快速通道，将上述问题一并纳入标准服务流程：精准匹配已授权的正规特刊、编委团队前置审稿、专业编辑语言润色、审稿意见协同回应。</p><p>我们不替您写论文，不替您伪造审稿，只做一件事——帮您把合格的稿件，高效、合规地送进特刊的录用通道。</p><p>您负责把研究做扎实，我们把发表做简单。</p><div class="solution-actions"><RouterLink class="primary" to="/SCI">了解更多</RouterLink></div></div></div>
     </section>
 
     <section class="section shell">
@@ -188,18 +179,11 @@ onBeforeUnmount(() => clearInterval(carouselTimer));
       <div v-else class="empty-state"><b>没有匹配的期刊</b><span>调整筛选条件或提交稿件信息，由顾问协助选刊。</span></div>
     </section>
 
-    <section id="submission" class="section pale">
-      <div class="shell submit-layout">
-        <div><span class="eyebrow">ONLINE SUBMISSION</span><h2>提交稿件信息，获取初步建议</h2><p>填写研究方向、稿件标题与联系方式。管理员会在后台收到记录，并持续更新处理状态。</p><ul><li>稿件信息仅用于服务评估</li><li>支持 SCI 与 EI 方向咨询</li><li>工作时间内尽快回复</li></ul></div>
-        <section v-if="submitted" class="card submit-success"><span>✓</span><h3>投稿信息已收到</h3><p>管理员后台已生成新的投稿记录，我们会尽快与您联系。</p><button class="ghost" @click="submitted = false">继续提交另一篇稿件</button></section>
-        <form v-else class="card form-grid" @submit.prevent="submitPaper">
-          <label>作者姓名<input v-model="submissionForm.authorName" required /></label>
-          <label>联系邮箱<input v-model="submissionForm.email" type="email" required /></label>
-          <label class="wide">论文标题<input v-model="submissionForm.paperTitle" required /></label>
-          <label>目标类型<select v-model="submissionForm.targetType"><option>SCI</option><option>EI</option></select></label>
-          <label>补充说明<input v-model="submissionForm.message" placeholder="研究方向、当前阶段等" /></label>
-          <button class="primary wide" :disabled="submitting">{{ submitting ? "正在提交…" : "提交稿件信息" }}</button>
-        </form>
+    <section id="submission" class="section pale home-assessment-band">
+      <div class="shell">
+        <div><span class="eyebrow">ONE CLEAR PATH</span><h2>从免费评估开始</h2><p>上传稿件或填写需求，顾问确认服务方案；登录学生账号后，可在订单中心持续查看进度与文件。</p></div>
+        <div class="home-assessment-flow"><article v-for="(step, index) in submissionSteps" :key="step.title"><b>{{ String(index + 1).padStart(2, "0") }}</b><span>{{ step.title }}</span></article></div>
+        <RouterLink class="primary" to="/submit?subject=首页统一投稿入口&target=SCI">免费评估稿件</RouterLink>
       </div>
     </section>
 

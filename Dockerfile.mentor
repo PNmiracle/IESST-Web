@@ -1,0 +1,9 @@
+FROM eclipse-temurin:17-jre
+WORKDIR /app
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p /data/iesst/uploads /data/iesst/private-uploads
+COPY mentor-runtime/iesst-app.jar /app/iesst-app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "/app/iesst-app.jar"]

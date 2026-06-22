@@ -19,6 +19,10 @@ app:
     password: ${ADMIN_PASSWORD}
     display-name: ${ADMIN_DISPLAY_NAME:IESST 管理员}
   upload-dir: ${UPLOAD_DIR:/data/iesst/uploads}
+  private-upload-dir: ${PRIVATE_UPLOAD_DIR:/data/iesst/private-uploads}
+  pii:
+    encryption-key: ${PII_ENCRYPTION_KEY}
+    lookup-key: ${PII_LOOKUP_KEY}
 
 management:
   endpoint:

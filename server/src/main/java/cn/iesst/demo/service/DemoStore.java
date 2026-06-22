@@ -7,8 +7,7 @@ import cn.iesst.demo.model.Journal;
 import cn.iesst.demo.model.PageResponse;
 import cn.iesst.demo.model.ServiceOffering;
 import cn.iesst.demo.model.Submission;
-import cn.iesst.demo.model.UploadResult;
-import jakarta.annotation.PostConstruct;
+import cn.iesst.demo.service.ManuscriptStorageService.StoredManuscript;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -19,6 +18,7 @@ import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ArrayList;
+import cn.iesst.demo.model.StoredFileInfo;
 
 @Service
 public class DemoStore {
@@ -28,8 +28,7 @@ public class DemoStore {
         this.jdbc = jdbc;
     }
 
-    @PostConstruct
-    void seed() {
+    void seedContent() {
         if (count("banners") == 0) {
             saveBanner(new Banner(null, "思研学术 SCI 特刊交流中心", "/images/hero-center.jpg", "/SCI", 1, true));
             saveBanner(new Banner(null, "SCI 特刊快速通道", "/images/hero-fast-track.jpg", "/SCI", 2, true));
@@ -39,10 +38,6 @@ public class DemoStore {
             saveJournal(new Journal(null, "SCI", "Journal of Intelligent Systems Engineering", "计算机与人工智能", "SCI", "4-7个月", "智能计算、机器学习与复杂工程应用。", null, null, true));
             saveJournal(new Journal(null, "EI", "Smart Manufacturing and Industrial Systems", "自动化与制造", "EI Compendex", "2-4个月", "智能制造、工业互联网与数字孪生。", null, null, true));
             saveJournal(new Journal(null, "EI", "Electronic Information and Communication", "电子与通信", "EI Compendex", "2-4个月", "电子信息、信号处理与通信网络。", null, null, false));
-        }
-        if (count("submissions") == 0) {
-            insertSubmission(new Submission(null, "张老师", "zhang@example.com", "AI-assisted scientific writing study", "SCI", "希望评估期刊匹配方向。", "待处理", LocalDateTime.now().minusDays(1)));
-            insertSubmission(new Submission(null, "李同学", "li@example.com", "Smart manufacturing digital twin", "EI", "需要了解预计发表周期。", "沟通中", LocalDateTime.now().minusHours(4)));
         }
         if (count("service_offerings") == 0) {
             saveService(new ServiceOffering(null, "translation", "高级翻译", "¥0.8/字", "由具备学科背景的双语专家完成中英翻译，并进行术语与逻辑复核。", "资深译员首轮翻译\n学科领域专家审核\n15天内一次免费修订", true));
@@ -136,25 +131,43 @@ public class DemoStore {
         return insertSubmission(new Submission(null, input.authorName(), input.email(), input.paperTitle(), input.targetType(), input.message(), "待处理", LocalDateTime.now()));
     }
 
-    public void attachSubmissionFile(long submissionId, String email, UploadResult upload) {
-        validateSubmissionOwner(submissionId, email);
+    public void attachSubmissionFile(long submissionId, StoredManuscript upload) {
         jdbc.update(
-                "INSERT INTO submission_files(submission_id,file_name,file_url,file_size) VALUES (?,?,?,?)",
+                "INSERT INTO submission_files(submission_id,file_name,storage_key,file_size,content_type) VALUES (?,?,?,?,?)",
                 submissionId,
                 upload.fileName(),
-                upload.url(),
-                upload.size());
+                upload.storageKey(),
+                upload.size(),
+                upload.contentType());
     }
 
-    public void validateSubmissionOwner(long submissionId, String email) {
-        Integer count = jdbc.queryForObject(
-                "SELECT COUNT(*) FROM submissions WHERE id=? AND email=?",
-                Integer.class,
-                submissionId,
-                email);
-        if (count == null || count == 0) {
-            throw new IllegalArgumentException("投稿记录不存在或联系邮箱不匹配");
-        }
+    public List<StoredFileInfo> submissionFiles(long submissionId) {
+        return jdbc.query(
+                "SELECT id,file_name,file_size,content_type,uploaded_at FROM submission_files WHERE submission_id=? ORDER BY uploaded_at DESC",
+                (rs, rowNum) -> new StoredFileInfo(
+                        rs.getLong("id"),
+                        rs.getString("file_name"),
+                        rs.getLong("file_size"),
+                        rs.getString("content_type"),
+                        rs.getTimestamp("uploaded_at").toLocalDateTime()),
+                submissionId);
+    }
+
+    public StoredFileRecord submissionFile(long submissionId, long fileId) {
+        return jdbc.query(
+                        "SELECT id,file_name,storage_key,file_size,content_type,uploaded_at FROM submission_files WHERE submission_id=? AND id=?",
+                        (rs, rowNum) -> new StoredFileRecord(
+                                rs.getLong("id"),
+                                rs.getString("file_name"),
+                                rs.getString("storage_key"),
+                                rs.getLong("file_size"),
+                                rs.getString("content_type"),
+                                rs.getTimestamp("uploaded_at").toLocalDateTime()),
+                        submissionId,
+                        fileId)
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("稿件附件不存在"));
     }
     private Submission insertSubmission(Submission input) {
         long id = insert("INSERT INTO submissions(author_name,email,paper_title,target_type,message,status,created_at) VALUES (?,?,?,?,?,?,?)", input.authorName(), input.email(), input.paperTitle(), input.targetType(), input.message(), input.status(), Timestamp.valueOf(input.createdAt()));

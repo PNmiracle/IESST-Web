@@ -146,12 +146,135 @@
   margin: 6px 0 0;
 }
 
+.student-account-head {
+  align-items: center;
+}
+
+.privacy-notice {
+  display: flex;
+  align-items: center;
+  margin-bottom: 22px;
+  padding: 16px 18px;
+  color: #4b4162;
+  background: #eee9f5;
+  border: 1px solid #ddd3ea;
+  border-radius: 8px;
+  gap: 14px;
+}
+
+.privacy-notice > span {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  color: #fff;
+  background: var(--purple);
+  border-radius: 50%;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.privacy-notice p {
+  margin: 4px 0 0;
+  color: #6d647e;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.student-account-list {
+  display: grid;
+  gap: 10px;
+}
+
+.student-account-row {
+  display: grid;
+  grid-template-columns: minmax(190px, 1.2fr) minmax(180px, 1fr) 88px 104px;
+  align-items: center;
+  min-height: 82px;
+  padding: 16px 18px;
+  gap: 20px;
+}
+
+.student-identity {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 12px;
+}
+
+.student-identity > span {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  color: var(--purple);
+  background: #f0ebf5;
+  border-radius: 50%;
+  place-items: center;
+  font-weight: 900;
+}
+
+.student-identity div,
+.student-mobile {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.student-identity small,
+.student-mobile small {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.student-mobile b {
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.account-status {
+  padding: 6px 9px;
+  color: #27735f;
+  background: #e7f5ef;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.account-status.disabled {
+  color: #7a6570;
+  background: #eee9ec;
+}
+
+.danger-outline {
+  min-height: 38px;
+  padding: 8px 12px;
+  color: #a33749;
+  background: #fff;
+  border: 1px solid #e8cbd1;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
 @media (max-width: 950px) {
   .dashboard-stats { grid-template-columns: repeat(2, 1fr); }
   .dashboard-grid { grid-template-columns: 1fr; }
+  .student-account-row { grid-template-columns: minmax(160px, 1fr) minmax(150px, 1fr) 80px 100px; gap: 12px; }
 }
 
 @media (max-width: 650px) {
+  .admin-sidebar { overflow: hidden; }
+  .admin-sidebar nav {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .admin-sidebar nav::-webkit-scrollbar { display: none; }
+  .admin-sidebar nav a { flex: 0 0 76px; }
+
   .dashboard-stats {
     grid-template-columns: 1fr 1fr;
     gap: 10px;
@@ -168,4 +291,12 @@
   .latest-list > a > div:last-child {
     justify-items: start;
   }
+
+  .student-account-head .segmented { width: 100%; }
+  .student-account-head .segmented button { flex: 1; }
+  .privacy-notice { align-items: flex-start; }
+  .student-account-row { grid-template-columns: 1fr auto; gap: 14px; }
+  .student-mobile { grid-column: 1; }
+  .account-status { grid-column: 2; grid-row: 1; }
+  .student-account-row > button { grid-column: 2; grid-row: 2; min-width: 96px; }
 }
