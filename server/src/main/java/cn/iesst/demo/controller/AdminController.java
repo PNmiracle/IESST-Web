@@ -12,9 +12,12 @@ import cn.iesst.demo.model.ServiceOffering;
 import cn.iesst.demo.model.SimpleStatusRequest;
 import cn.iesst.demo.model.StatusRequest;
 import cn.iesst.demo.model.StudentAccount;
-import cn.iesst.demo.model.StudentAccountInput;
+import cn.iesst.demo.model.StudentEnabledRequest;
 import cn.iesst.demo.model.StudentOrder;
 import cn.iesst.demo.model.Submission;
+import cn.iesst.demo.model.StoredFileInfo;
+import cn.iesst.demo.service.ManuscriptStorageService;
+import cn.iesst.demo.service.PrivateDownloadResponseFactory;
 import cn.iesst.demo.service.DemoStore;
 import cn.iesst.demo.service.AdminUserService;
 import cn.iesst.demo.service.AuditLogService;
@@ -33,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.transaction.annotation.Transactional;
 import jakarta.validation.Valid;
 
 import java.util.List;
@@ -46,12 +50,22 @@ public class AdminController {
     private final AdminUserService adminUserService;
     private final AuditLogService auditLogService;
     private final StudentUserService studentUserService;
+    private final ManuscriptStorageService manuscriptStorageService;
+    private final PrivateDownloadResponseFactory downloadResponseFactory;
 
-    public AdminController(DemoStore store, AdminUserService adminUserService, AuditLogService auditLogService, StudentUserService studentUserService) {
+    public AdminController(
+            DemoStore store,
+            AdminUserService adminUserService,
+            AuditLogService auditLogService,
+            StudentUserService studentUserService,
+            ManuscriptStorageService manuscriptStorageService,
+            PrivateDownloadResponseFactory downloadResponseFactory) {
         this.store = store;
         this.adminUserService = adminUserService;
         this.auditLogService = auditLogService;
         this.studentUserService = studentUserService;
+        this.manuscriptStorageService = manuscriptStorageService;
+        this.downloadResponseFactory = downloadResponseFactory;
     }
 
     @PutMapping("/account/password")
@@ -131,6 +145,20 @@ public class AdminController {
         return store.submissions(status, keyword, page, size);
     }
 
+    @GetMapping("/submissions/{id}/files")
+    public List<StoredFileInfo> submissionFiles(@PathVariable long id) {
+        return store.submissionFiles(id);
+    }
+
+    @GetMapping("/submissions/{submissionId}/files/{fileId}/download")
+    public ResponseEntity<?> downloadSubmissionFile(
+            @PathVariable long submissionId,
+            @PathVariable long fileId) {
+        var file = store.submissionFile(submissionId, fileId);
+        return downloadResponseFactory.create(manuscriptStorageService.download(
+                file.storageKey(), file.fileName(), file.contentType()));
+    }
+
     @GetMapping(value = "/submissions/export", produces = "text/csv;charset=UTF-8")
     public ResponseEntity<String> exportSubmissions(
             @RequestParam(defaultValue = "全部") String status,
@@ -154,8 +182,17 @@ public class AdminController {
     }
 
     @PutMapping("/submissions/{id}/status")
+    @Transactional
     public Submission updateStatus(@PathVariable long id, @Valid @RequestBody StatusRequest request) {
-        return store.updateSubmissionStatus(id, request.status());
+        Submission submission = store.updateSubmissionStatus(id, request.status());
+        String orderStatus = switch (request.status()) {
+            case "待处理" -> "NEW";
+            case "沟通中" -> "IN_PROGRESS";
+            case "已完成" -> "COMPLETED";
+            default -> throw new IllegalArgumentException("处理状态不正确");
+        };
+        studentUserService.updateOrderStatusBySubmission(id, orderStatus);
+        return submission;
     }
 
     @GetMapping("/services")
@@ -181,20 +218,11 @@ public class AdminController {
         return studentUserService.students();
     }
 
-    @PostMapping("/students")
-    public StudentAccount createStudent(@Valid @RequestBody StudentAccountInput input) {
-        return studentUserService.save(input);
-    }
-
-    @PutMapping("/students/{id}")
-    public StudentAccount updateStudent(@PathVariable long id, @Valid @RequestBody StudentAccountInput input) {
-        return studentUserService.save(new StudentAccountInput(id, input.mobile(), input.displayName(), input.password(), input.enabled()));
-    }
-
-    @DeleteMapping("/students/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteStudent(@PathVariable long id) {
-        studentUserService.delete(id);
+    @PutMapping("/students/{id}/enabled")
+    public StudentAccount setStudentEnabled(
+            @PathVariable long id,
+            @RequestBody StudentEnabledRequest request) {
+        return studentUserService.setEnabled(id, request.enabled());
     }
 
     @GetMapping("/orders")
@@ -203,8 +231,19 @@ public class AdminController {
     }
 
     @PutMapping("/orders/{id}/status")
+    @Transactional
     public StudentOrder updateOrderStatus(@PathVariable long id, @Valid @RequestBody SimpleStatusRequest request) {
-        return studentUserService.updateOrderStatus(id, request.status());
+        StudentOrder order = studentUserService.updateOrderStatus(id, request.status());
+        if (order.sourceSubmissionId() != null && !"CANCELLED".equals(order.orderStatus())) {
+            String submissionStatus = switch (order.orderStatus()) {
+                case "NEW" -> "待处理";
+                case "IN_PROGRESS" -> "沟通中";
+                case "COMPLETED" -> "已完成";
+                default -> throw new IllegalArgumentException("不支持的订单状态");
+            };
+            store.updateSubmissionStatus(order.sourceSubmissionId(), submissionStatus);
+        }
+        return order;
     }
 
     @GetMapping("/invoices")

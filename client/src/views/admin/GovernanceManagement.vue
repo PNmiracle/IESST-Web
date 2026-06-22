@@ -42,7 +42,7 @@ async function changePassword() {
 }
 
 function actionLabel(action) {
-  return { POST: "新增", PUT: "更新", PATCH: "更新", DELETE: "删除" }[action] || action;
+  return { POST: "新增", PUT: "更新", PATCH: "更新", DELETE: "删除", READ_SENSITIVE: "敏感查看" }[action] || action;
 }
 
 function chooseAction(action) {
@@ -74,7 +74,7 @@ onMounted(loadLogs);
       <div><span>SECURITY & AUDIT</span><h1>安全与审计</h1><p>维护管理员凭据，并追踪后台关键写操作。</p></div>
       <div class="submission-tools">
         <input v-model.trim="filters.keyword" type="search" placeholder="搜索账号、路径或 IP" />
-        <div class="segmented"><button v-for="action in ['全部', 'POST', 'PUT', 'DELETE']" :key="action" :class="{ active: filters.action === action }" @click="chooseAction(action)">{{ action === "全部" ? "全部" : actionLabel(action) }}</button></div>
+        <div class="segmented"><button v-for="action in ['全部', 'READ_SENSITIVE', 'POST', 'PUT', 'DELETE']" :key="action" :class="{ active: filters.action === action }" @click="chooseAction(action)">{{ action === "全部" ? "全部" : actionLabel(action) }}</button></div>
         <button class="ghost" :disabled="loading" @click="loadLogs">刷新日志</button>
       </div>
     </header>

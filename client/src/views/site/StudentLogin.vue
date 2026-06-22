@@ -6,7 +6,7 @@ import { studentSession } from "../../stores/studentSession";
 
 const router = useRouter();
 const route = useRoute();
-const form = reactive({ username: "18800000088", password: "student123" });
+const form = reactive({ username: "", password: "" });
 const loading = ref(false);
 const error = ref("");
 
@@ -37,11 +37,11 @@ onMounted(async () => {
       <p>登录后可查看自己提交过的稿件评估、服务咨询和处理进度。</p>
       <div v-if="error" class="inline-error">{{ error }}</div>
       <form @submit.prevent="login">
-        <label>手机号<input v-model="form.username" autocomplete="username" /></label>
-        <label>密码<input v-model="form.password" type="password" autocomplete="current-password" /></label>
+        <label>手机号<input v-model="form.username" inputmode="tel" autocomplete="username" required /></label>
+        <label>密码<input v-model="form.password" type="password" autocomplete="current-password" required /></label>
         <button class="primary" :disabled="loading">{{ loading ? "正在登录…" : "登录并查看订单" }}</button>
       </form>
-      <small>演示账号：18800000088 / student123</small>
+      <small>忘记密码？短信验证重置功能正在接入中，请暂时联系顾问协助核验账号。</small>
     </div>
   </section>
 </template>

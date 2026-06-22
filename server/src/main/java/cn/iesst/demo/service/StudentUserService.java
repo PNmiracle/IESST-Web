@@ -4,12 +4,14 @@ import cn.iesst.demo.model.InvoiceRequest;
 import cn.iesst.demo.model.ConsultationRecord;
 import cn.iesst.demo.model.ConsultationRequest;
 import cn.iesst.demo.model.StudentAccount;
-import cn.iesst.demo.model.StudentAccountInput;
 import cn.iesst.demo.model.StudentOrder;
 import cn.iesst.demo.model.StudentOrderProgress;
 import cn.iesst.demo.model.Submission;
-import cn.iesst.demo.model.UploadResult;
-import jakarta.annotation.PostConstruct;
+import cn.iesst.demo.model.PageResponse;
+import cn.iesst.demo.model.StoredFileInfo;
+import cn.iesst.demo.service.ManuscriptStorageService.StoredManuscript;
+import cn.iesst.demo.security.PiiCryptoService;
+import cn.iesst.demo.security.StudentAuthenticationException;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,20 +26,23 @@ import java.util.Optional;
 
 @Service
 public class StudentUserService {
-    public static final String SESSION_STUDENT_MOBILE = "STUDENT_MOBILE";
+    public static final String SESSION_STUDENT_ID = "STUDENT_ID";
+    private static final int MAX_FAILED_LOGINS = 5;
+    private static final int LOCK_MINUTES = 15;
 
     private final JdbcTemplate jdbc;
     private final PasswordEncoder passwordEncoder;
     private final DemoStore store;
+    private final PiiCryptoService piiCrypto;
 
-    public StudentUserService(JdbcTemplate jdbc, PasswordEncoder passwordEncoder, DemoStore store) {
+    public StudentUserService(JdbcTemplate jdbc, PasswordEncoder passwordEncoder, DemoStore store, PiiCryptoService piiCrypto) {
         this.jdbc = jdbc;
         this.passwordEncoder = passwordEncoder;
         this.store = store;
+        this.piiCrypto = piiCrypto;
     }
 
-    @PostConstruct
-    void ensureDemoStudents() {
+    void initializeDemoData() {
         Integer count = jdbc.queryForObject("SELECT COUNT(*) FROM student_users", Integer.class);
         if (count != null && count == 0) {
             createStudent("18800000088", "student123", "张同学");
@@ -47,52 +52,88 @@ public class StudentUserService {
         ensureDemoSubmission("18800000099", "李同学", "EI 智能制造方向投稿咨询");
         ensureDemoOrderCenter("18800000088", "SCI 特刊论文初评与期刊匹配", "SCI", "王顾问", new BigDecimal("2980.00"), true);
         ensureDemoOrderCenter("18800000099", "EI 智能制造方向投稿咨询", "EI", "陈顾问", new BigDecimal("1280.00"), false);
+        reconcileLinkedSubmissionStatuses();
     }
 
     public Map<String, Object> login(String mobile, String password, HttpSession session) {
         StudentCredential account = findCredentialByMobile(mobile)
                 .orElseThrow(() -> new IllegalArgumentException("手机号或密码错误"));
-        if (!account.enabled() || !passwordEncoder.matches(password, account.passwordHash())) {
+        if (account.lockedUntil() != null && account.lockedUntil().isAfter(LocalDateTime.now())) {
+            throw new IllegalArgumentException("登录失败次数过多，请15分钟后重试");
+        }
+        if (!account.enabled()) {
             throw new IllegalArgumentException("手机号或密码错误");
         }
-        session.setAttribute(SESSION_STUDENT_MOBILE, account.mobile());
-        return profile(account.mobile());
+        if (!passwordEncoder.matches(password, account.passwordHash())) {
+            recordFailedLogin(account);
+            throw new IllegalArgumentException(account.failedLoginAttempts() + 1 >= MAX_FAILED_LOGINS
+                    ? "登录失败次数过多，请15分钟后重试"
+                    : "手机号或密码错误");
+        }
+        jdbc.update(
+                "UPDATE student_users SET failed_login_attempts=0,locked_until=NULL,last_login_at=CURRENT_TIMESTAMP WHERE id=?",
+                account.id());
+        session.setAttribute(SESSION_STUDENT_ID, account.id());
+        return profile(account.id());
     }
 
     public Map<String, Object> register(String mobile, String displayName, String password, String confirmPassword, HttpSession session) {
         if (!password.equals(confirmPassword)) {
             throw new IllegalArgumentException("两次输入的密码不一致");
         }
-        if (findCredentialByMobile(mobile).isPresent()) {
+        String normalizedMobile = piiCrypto.normalizeMobile(mobile);
+        if (findCredentialByMobile(normalizedMobile).isPresent()) {
             throw new IllegalArgumentException("该手机号已注册，请直接登录");
         }
         jdbc.update(
-                "INSERT INTO student_users(mobile,password_hash,display_name,enabled) VALUES (?,?,?,TRUE)",
-                mobile,
+                "INSERT INTO student_users(mobile_ciphertext,mobile_lookup_hash,mobile_last4,password_hash,display_name,enabled) VALUES (?,?,?,?,?,TRUE)",
+                piiCrypto.encryptMobile(normalizedMobile),
+                piiCrypto.mobileLookupHash(normalizedMobile),
+                piiCrypto.mobileLastFour(normalizedMobile),
                 passwordEncoder.encode(password),
                 displayName);
-        session.setAttribute(SESSION_STUDENT_MOBILE, mobile);
-        return profile(mobile);
+        StudentCredential account = findCredentialByMobile(normalizedMobile)
+                .orElseThrow(() -> new IllegalStateException("学生账号创建失败"));
+        session.setAttribute(SESSION_STUDENT_ID, account.id());
+        return profile(account.id());
     }
 
     public Map<String, Object> me(HttpSession session) {
-        Object mobile = session.getAttribute(SESSION_STUDENT_MOBILE);
-        if (!(mobile instanceof String value)) {
+        Object studentId = session.getAttribute(SESSION_STUDENT_ID);
+        if (!(studentId instanceof Long value)) {
+            return Map.of("authenticated", false);
+        }
+        Optional<StudentCredential> account = findCredentialById(value);
+        if (account.isEmpty() || !account.get().enabled()) {
+            session.removeAttribute(SESSION_STUDENT_ID);
             return Map.of("authenticated", false);
         }
         return profile(value);
     }
 
     public void logout(HttpSession session) {
-        session.removeAttribute(SESSION_STUDENT_MOBILE);
+        session.removeAttribute(SESSION_STUDENT_ID);
     }
 
-    public List<StudentOrder> orders(HttpSession session) {
+    public PageResponse<StudentOrder> orders(HttpSession session, String status, int page, int size) {
         Long studentId = currentStudentId(session);
-        return jdbc.query(
-                "SELECT * FROM student_orders WHERE student_user_id=? ORDER BY created_at DESC",
+        int safePage = Math.max(page, 1);
+        int safeSize = Math.min(Math.max(size, 1), 20);
+        boolean filtered = status != null && !status.isBlank() && !"ALL".equals(status);
+        String where = filtered ? " WHERE student_user_id=? AND order_status=?" : " WHERE student_user_id=?";
+        List<Object> args = new java.util.ArrayList<>();
+        args.add(studentId);
+        if (filtered) {
+            args.add(status);
+        }
+        Long total = jdbc.queryForObject("SELECT COUNT(*) FROM student_orders" + where, Long.class, args.toArray());
+        args.add(safeSize);
+        args.add((safePage - 1) * safeSize);
+        List<StudentOrder> items = jdbc.query(
+                "SELECT * FROM student_orders" + where + " ORDER BY created_at DESC LIMIT ? OFFSET ?",
                 (rs, rowNum) -> mapOrder(rs),
-                studentId);
+                args.toArray());
+        return PageResponse.of(items, safePage, safeSize, total == null ? 0 : total);
     }
 
     public List<StudentOrderProgress> orderProgress(long orderId, HttpSession session) {
@@ -120,11 +161,11 @@ public class StudentUserService {
     }
 
     public Optional<StudentOrder> createOrderFromSubmissionIfLoggedIn(HttpSession session, Submission submission) {
-        Object mobile = session.getAttribute(SESSION_STUDENT_MOBILE);
-        if (!(mobile instanceof String value) || value.isBlank()) {
+        Long studentId = currentStudentIdIfPresent(session);
+        if (studentId == null) {
             return Optional.empty();
         }
-        StudentCredential student = findCredentialByMobile(value)
+        StudentCredential student = findCredentialById(studentId)
                 .orElseThrow(() -> new IllegalArgumentException("学生账号不存在，请重新登录"));
         String targetType = submission.targetType() == null || submission.targetType().isBlank()
                 ? "咨询"
@@ -168,11 +209,11 @@ public class StudentUserService {
                 null));
         Long studentId = currentStudentIdIfPresent(session);
         long id = store.insertAndReturnId(
-                "INSERT INTO consultation_records(student_user_id,source_submission_id,contact_name,mobile,email,source_channel,subject,content,follow_up_status) VALUES (?,?,?,?,?,?,?,?,?)",
+                "INSERT INTO consultation_records(student_user_id,source_submission_id,contact_name,mobile_ciphertext,email,source_channel,subject,content,follow_up_status) VALUES (?,?,?,?,?,?,?,?,?)",
                 studentId,
                 submission.id(),
                 request.contactName(),
-                request.mobile(),
+                encryptOptionalMobile(request.mobile()),
                 request.email(),
                 "WEB",
                 request.subject(),
@@ -181,7 +222,7 @@ public class StudentUserService {
         return findConsultation(id);
     }
 
-    public void attachSubmissionFileToOrderIfLoggedIn(HttpSession session, long submissionId, UploadResult upload) {
+    public void attachSubmissionFileToOrderIfLoggedIn(HttpSession session, long submissionId, StoredManuscript upload) {
         Long studentId = currentStudentIdIfPresent(session);
         if (studentId == null) {
             return;
@@ -192,12 +233,62 @@ public class StudentUserService {
                 studentId,
                 submissionId);
         orderIds.forEach(orderId -> store.insertAndReturnId(
-                "INSERT INTO student_order_files(order_id,file_category,file_name,file_url,visible_to_student,uploaded_by) VALUES (?,?,?,?,TRUE,?)",
+                "INSERT INTO student_order_files(order_id,file_category,file_name,storage_key,file_size,content_type,visible_to_student,uploaded_by) VALUES (?,?,?,?,?,?,TRUE,?)",
                 orderId,
                 "MANUSCRIPT",
                 upload.fileName(),
-                upload.url(),
+                upload.storageKey(),
+                upload.size(),
+                upload.contentType(),
                 "学生"));
+    }
+
+    public List<StoredFileInfo> orderFiles(long orderId, HttpSession session) {
+        Long studentId = currentStudentId(session);
+        requireOwnedOrder(orderId, studentId);
+        return jdbc.query(
+                "SELECT f.id,f.file_name,f.file_size,f.content_type,f.created_at FROM student_order_files f " +
+                        "JOIN student_orders o ON o.id=f.order_id WHERE f.order_id=? AND o.student_user_id=? AND f.visible_to_student=TRUE ORDER BY f.created_at DESC",
+                (rs, rowNum) -> new StoredFileInfo(
+                        rs.getLong("id"),
+                        rs.getString("file_name"),
+                        rs.getLong("file_size"),
+                        rs.getString("content_type"),
+                        rs.getTimestamp("created_at").toLocalDateTime()),
+                orderId,
+                studentId);
+    }
+
+    public StoredFileRecord orderFile(long orderId, long fileId, HttpSession session) {
+        Long studentId = currentStudentId(session);
+        requireOwnedOrder(orderId, studentId);
+        return jdbc.query(
+                        "SELECT f.id,f.file_name,f.storage_key,f.file_size,f.content_type,f.created_at FROM student_order_files f " +
+                                "JOIN student_orders o ON o.id=f.order_id WHERE f.order_id=? AND f.id=? AND o.student_user_id=? AND f.visible_to_student=TRUE",
+                        (rs, rowNum) -> new StoredFileRecord(
+                                rs.getLong("id"),
+                                rs.getString("file_name"),
+                                rs.getString("storage_key"),
+                                rs.getLong("file_size"),
+                                rs.getString("content_type"),
+                                rs.getTimestamp("created_at").toLocalDateTime()),
+                        orderId,
+                        fileId,
+                        studentId)
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("订单附件不存在或无权查看"));
+    }
+
+    private void requireOwnedOrder(long orderId, long studentId) {
+        Integer count = jdbc.queryForObject(
+                "SELECT COUNT(*) FROM student_orders WHERE id=? AND student_user_id=?",
+                Integer.class,
+                orderId,
+                studentId);
+        if (count == null || count == 0) {
+            throw new IllegalArgumentException("订单不存在或无权查看");
+        }
     }
 
     public List<StudentOrder> adminOrders() {
@@ -216,6 +307,10 @@ public class StudentUserService {
             case "CANCELLED" -> "订单已取消";
             default -> throw new IllegalArgumentException("不支持的订单状态");
         };
+        StudentOrder current = findOrder(id);
+        if (status.equals(current.orderStatus())) {
+            return current;
+        }
         int updated = jdbc.update(
                 "UPDATE student_orders SET order_status=?,current_stage=?,updated_at=CURRENT_TIMESTAMP WHERE id=?",
                 status,
@@ -229,6 +324,16 @@ public class StudentUserService {
                 .filter(item -> item.id().equals(id))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("订单不存在"));
+    }
+
+    public Optional<StudentOrder> updateOrderStatusBySubmission(long submissionId, String status) {
+        return jdbc.query(
+                        "SELECT id FROM student_orders WHERE source_submission_id=?",
+                        (rs, rowNum) -> rs.getLong("id"),
+                        submissionId)
+                .stream()
+                .findFirst()
+                .map(orderId -> updateOrderStatus(orderId, status));
     }
 
     public InvoiceRequest updateInvoiceStatus(long id, String status) {
@@ -250,60 +355,35 @@ public class StudentUserService {
 
     public List<StudentAccount> students() {
         return jdbc.query(
-                "SELECT id,mobile,display_name,enabled FROM student_users ORDER BY id DESC",
+                "SELECT id,mobile_ciphertext,display_name,enabled FROM student_users ORDER BY id DESC",
                 (rs, rowNum) -> new StudentAccount(
                         rs.getLong("id"),
-                        rs.getString("mobile"),
+                        piiCrypto.decryptMobile(rs.getString("mobile_ciphertext")),
                         rs.getString("display_name"),
                         rs.getBoolean("enabled")));
     }
 
-    public StudentAccount save(StudentAccountInput input) {
-        if (input.id() == null) {
-            if (input.password() == null || input.password().isBlank()) {
-                throw new IllegalArgumentException("新增学生账号时请填写密码");
-            }
-            jdbc.update(
-                    "INSERT INTO student_users(mobile,password_hash,display_name,enabled) VALUES (?,?,?,?)",
-                    input.mobile(),
-                    passwordEncoder.encode(input.password()),
-                    input.displayName(),
-                    input.enabled());
-            return students().stream().filter(item -> item.mobile().equals(input.mobile())).findFirst()
-                    .orElseThrow(() -> new IllegalStateException("学生账号创建失败"));
+    public StudentAccount setEnabled(long id, boolean enabled) {
+        int updated = jdbc.update(
+                "UPDATE student_users SET enabled=?,failed_login_attempts=0,locked_until=NULL WHERE id=?",
+                enabled,
+                id);
+        if (updated == 0) {
+            throw new IllegalArgumentException("学生账号不存在");
         }
-        jdbc.update(
-                "UPDATE student_users SET mobile=?,display_name=?,enabled=? WHERE id=?",
-                input.mobile(),
-                input.displayName(),
-                input.enabled(),
-                input.id());
-        if (input.password() != null && !input.password().isBlank()) {
-            jdbc.update(
-                    "UPDATE student_users SET password_hash=? WHERE id=?",
-                    passwordEncoder.encode(input.password()),
-                    input.id());
-        }
-        return students().stream().filter(item -> item.id().equals(input.id())).findFirst()
-                .orElseThrow(() -> new IllegalStateException("学生账号更新失败"));
-    }
-
-    public void delete(long id) {
-        jdbc.update("DELETE FROM student_users WHERE id=?", id);
-    }
-
-    public String currentMobile(HttpSession session) {
-        Object mobile = session.getAttribute(SESSION_STUDENT_MOBILE);
-        if (!(mobile instanceof String value) || value.isBlank()) {
-            throw new IllegalArgumentException("学生登录已失效，请重新登录");
-        }
-        return value;
+        return students().stream()
+                .filter(item -> item.id().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("学生账号状态更新失败"));
     }
 
     private void createStudent(String mobile, String password, String displayName) {
+        String normalizedMobile = piiCrypto.normalizeMobile(mobile);
         jdbc.update(
-                "INSERT INTO student_users(mobile,password_hash,display_name,enabled) VALUES (?,?,?,TRUE)",
-                mobile,
+                "INSERT INTO student_users(mobile_ciphertext,mobile_lookup_hash,mobile_last4,password_hash,display_name,enabled) VALUES (?,?,?,?,?,TRUE)",
+                piiCrypto.encryptMobile(normalizedMobile),
+                piiCrypto.mobileLookupHash(normalizedMobile),
+                piiCrypto.mobileLastFour(normalizedMobile),
                 passwordEncoder.encode(password),
                 displayName);
     }
@@ -362,7 +442,7 @@ public class StudentUserService {
         addProgress(orderId, "FOLLOW_UP", "等待沟通确认", "顾问将确认服务节点、周期与交付材料。", consultantName);
         if (createInvoice) {
             store.insertAndReturnId(
-                    "INSERT INTO invoice_requests(order_id,student_user_id,invoice_title,tax_number,invoice_type,invoice_amount,receiver_email,receiver_phone,receiver_address,status,remark) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                    "INSERT INTO invoice_requests(order_id,student_user_id,invoice_title,tax_number,invoice_type,invoice_amount,receiver_email,receiver_phone_ciphertext,receiver_address,status,remark) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
                     orderId,
                     student.id(),
                     "张同学科研服务费",
@@ -370,7 +450,7 @@ public class StudentUserService {
                     "ELECTRONIC",
                     amount,
                     mobile + "@example.com",
-                    mobile,
+                    piiCrypto.encryptMobile(mobile),
                     "线上交付",
                     "ISSUED",
                     "演示发票：模拟投稿后台我的发票记录。");
@@ -387,42 +467,102 @@ public class StudentUserService {
                 operatorName);
     }
 
-    private Map<String, Object> profile(String mobile) {
-        return findCredentialByMobile(mobile)
+    private void reconcileLinkedSubmissionStatuses() {
+        jdbc.query(
+                "SELECT o.id,s.status FROM student_orders o JOIN submissions s ON s.id=o.source_submission_id",
+                (rs, rowNum) -> new LinkedSubmissionStatus(rs.getLong("id"), rs.getString("status")))
+                .forEach(item -> {
+                    String orderStatus = switch (item.submissionStatus()) {
+                        case "待处理" -> "NEW";
+                        case "沟通中" -> "IN_PROGRESS";
+                        case "已完成" -> "COMPLETED";
+                        default -> null;
+                    };
+                    if (orderStatus != null) {
+                        updateOrderStatus(item.orderId(), orderStatus);
+                    }
+                });
+    }
+
+    private Map<String, Object> profile(long studentId) {
+        return findCredentialById(studentId)
                 .map(account -> Map.<String, Object>of(
                         "authenticated", true,
-                        "mobile", account.mobile(),
+                        "mobile", piiCrypto.decryptMobile(account.mobileCiphertext()),
                         "displayName", account.displayName()))
                 .orElse(Map.<String, Object>of("authenticated", false));
     }
 
     private Optional<StudentCredential> findCredentialByMobile(String mobile) {
         return jdbc.query(
-                        "SELECT id,mobile,password_hash,display_name,enabled FROM student_users WHERE mobile=?",
-                        (rs, rowNum) -> new StudentCredential(
-                                rs.getLong("id"),
-                                rs.getString("mobile"),
-                                rs.getString("password_hash"),
-                                rs.getString("display_name"),
-                                rs.getBoolean("enabled")),
-                        mobile)
+                        "SELECT id,mobile_ciphertext,password_hash,display_name,enabled,failed_login_attempts,locked_until FROM student_users WHERE mobile_lookup_hash=?",
+                        this::mapCredential,
+                        piiCrypto.mobileLookupHash(mobile))
                 .stream()
                 .findFirst();
     }
 
+    private Optional<StudentCredential> findCredentialById(long id) {
+        return jdbc.query(
+                        "SELECT id,mobile_ciphertext,password_hash,display_name,enabled,failed_login_attempts,locked_until FROM student_users WHERE id=?",
+                        this::mapCredential,
+                        id)
+                .stream()
+                .findFirst();
+    }
+
+    private StudentCredential mapCredential(java.sql.ResultSet rs, int rowNum) throws java.sql.SQLException {
+        Timestamp lockedUntil = rs.getTimestamp("locked_until");
+        return new StudentCredential(
+                rs.getLong("id"),
+                rs.getString("mobile_ciphertext"),
+                rs.getString("password_hash"),
+                rs.getString("display_name"),
+                rs.getBoolean("enabled"),
+                rs.getInt("failed_login_attempts"),
+                lockedUntil == null ? null : lockedUntil.toLocalDateTime());
+    }
+
+    private void recordFailedLogin(StudentCredential account) {
+        int attempts = account.failedLoginAttempts() + 1;
+        LocalDateTime lockedUntil = attempts >= MAX_FAILED_LOGINS
+                ? LocalDateTime.now().plusMinutes(LOCK_MINUTES)
+                : null;
+        jdbc.update(
+                "UPDATE student_users SET failed_login_attempts=?,locked_until=? WHERE id=?",
+                attempts,
+                lockedUntil == null ? null : Timestamp.valueOf(lockedUntil),
+                account.id());
+    }
+
     private Long currentStudentId(HttpSession session) {
-        String mobile = currentMobile(session);
-        return findCredentialByMobile(mobile)
-                .map(StudentCredential::id)
-                .orElseThrow(() -> new IllegalArgumentException("学生账号不存在，请重新登录"));
+        Object studentId = session.getAttribute(SESSION_STUDENT_ID);
+        if (!(studentId instanceof Long value)) {
+            throw new StudentAuthenticationException("学生登录已失效，请重新登录");
+        }
+        StudentCredential account = findCredentialById(value)
+                .orElseThrow(() -> new StudentAuthenticationException("学生账号不存在，请重新登录"));
+        if (!account.enabled()) {
+            session.removeAttribute(SESSION_STUDENT_ID);
+            throw new StudentAuthenticationException("学生账号已停用，请联系管理员");
+        }
+        return account.id();
     }
 
     private Long currentStudentIdIfPresent(HttpSession session) {
-        Object mobile = session.getAttribute(SESSION_STUDENT_MOBILE);
-        if (!(mobile instanceof String value) || value.isBlank()) {
+        Object studentId = session.getAttribute(SESSION_STUDENT_ID);
+        if (!(studentId instanceof Long value)) {
             return null;
         }
-        return findCredentialByMobile(value).map(StudentCredential::id).orElse(null);
+        Optional<StudentCredential> account = findCredentialById(value);
+        if (account.isEmpty() || !account.get().enabled()) {
+            session.removeAttribute(SESSION_STUDENT_ID);
+            return null;
+        }
+        return account
+                .filter(StudentCredential::enabled)
+                .map(StudentCredential::id)
+                .orElse(null);
     }
 
     private ConsultationRecord findConsultation(long id) {
@@ -433,7 +573,7 @@ public class StudentUserService {
                                 nullableLong(rs, "student_user_id"),
                                 nullableLong(rs, "source_submission_id"),
                                 rs.getString("contact_name"),
-                                rs.getString("mobile"),
+                                decryptOptionalMobile(rs.getString("mobile_ciphertext")),
                                 rs.getString("email"),
                                 rs.getString("source_channel"),
                                 rs.getString("subject"),
@@ -468,6 +608,16 @@ public class StudentUserService {
                 timestamp(rs, "updated_at"));
     }
 
+    private StudentOrder findOrder(long id) {
+        return jdbc.query(
+                        "SELECT * FROM student_orders WHERE id=?",
+                        (rs, rowNum) -> mapOrder(rs),
+                        id)
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("订单不存在"));
+    }
+
     private StudentOrderProgress mapOrderProgress(java.sql.ResultSet rs) throws java.sql.SQLException {
         return new StudentOrderProgress(
                 rs.getLong("id"),
@@ -490,7 +640,7 @@ public class StudentUserService {
                 rs.getString("invoice_type"),
                 rs.getBigDecimal("invoice_amount"),
                 rs.getString("receiver_email"),
-                rs.getString("receiver_phone"),
+                decryptOptionalMobile(rs.getString("receiver_phone_ciphertext")),
                 rs.getString("receiver_address"),
                 rs.getString("status"),
                 rs.getString("remark"),
@@ -503,11 +653,29 @@ public class StudentUserService {
         return rs.wasNull() ? null : value;
     }
 
+    private String encryptOptionalMobile(String mobile) {
+        return mobile == null || mobile.isBlank() ? null : piiCrypto.encryptMobile(mobile);
+    }
+
+    private String decryptOptionalMobile(String ciphertext) {
+        return ciphertext == null || ciphertext.isBlank() ? null : piiCrypto.decryptMobile(ciphertext);
+    }
+
     private LocalDateTime timestamp(java.sql.ResultSet rs, String column) throws java.sql.SQLException {
         Timestamp value = rs.getTimestamp(column);
         return value == null ? null : value.toLocalDateTime();
     }
 
-    private record StudentCredential(Long id, String mobile, String passwordHash, String displayName, boolean enabled) {
+    private record StudentCredential(
+            Long id,
+            String mobileCiphertext,
+            String passwordHash,
+            String displayName,
+            boolean enabled,
+            int failedLoginAttempts,
+            LocalDateTime lockedUntil) {
+    }
+
+    private record LinkedSubmissionStatus(Long orderId, String submissionStatus) {
     }
 }

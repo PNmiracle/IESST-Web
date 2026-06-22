@@ -7,16 +7,29 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+      clamav:
+        condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: prod
       DB_URL: jdbc:mysql://mysql:3306/iesst?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
       DB_USERNAME: iesst
-      DB_PASSWORD: ${DB_PASSWORD:-iesst123}
-      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-ChangeMe123!}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:?ADMIN_USERNAME is required}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD is required}
       ADMIN_DISPLAY_NAME: ${ADMIN_DISPLAY_NAME:-IESST 管理员}
-      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
+      SESSION_COOKIE_SECURE: "true"
+      PII_ENCRYPTION_KEY: ${PII_ENCRYPTION_KEY:?PII_ENCRYPTION_KEY is required}
+      PII_LOOKUP_KEY: ${PII_LOOKUP_KEY:?PII_LOOKUP_KEY is required}
       UPLOAD_DIR: /data/iesst/uploads
+      MANUSCRIPT_STORAGE_BACKEND: oss
+      OSS_ENDPOINT: ${OSS_ENDPOINT:?OSS_ENDPOINT is required}
+      OSS_BUCKET: ${OSS_BUCKET:?OSS_BUCKET is required}
+      OSS_ACCESS_KEY_ID: ${OSS_ACCESS_KEY_ID:?OSS_ACCESS_KEY_ID is required}
+      OSS_ACCESS_KEY_SECRET: ${OSS_ACCESS_KEY_SECRET:?OSS_ACCESS_KEY_SECRET is required}
+      OSS_MANUSCRIPT_PREFIX: ${OSS_MANUSCRIPT_PREFIX:-manuscripts}
+      MALWARE_SCAN_ENABLED: "true"
+      CLAMAV_HOST: clamav
+      CLAMAV_PORT: 3310
     ports:
       - "${APP_PORT:-8080}:8080"
     volumes:
@@ -34,19 +47,30 @@ services:
     environment:
       MYSQL_DATABASE: iesst
       MYSQL_USER: iesst
-      MYSQL_PASSWORD: ${DB_PASSWORD:-iesst123}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root123}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is required}
       TZ: Asia/Shanghai
-    ports:
-      - "${MYSQL_PORT:-3307}:3306"
     volumes:
       - iesst_mysql_prod_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${MYSQL_ROOT_PASSWORD:-root123}"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -p$$MYSQL_ROOT_PASSWORD"]
       interval: 5s
       timeout: 3s
+      retries: 20
+
+  clamav:
+    image: clamav/clamav:stable
+    container_name: iesst-clamav
+    restart: unless-stopped
+    volumes:
+      - clamav_data:/var/lib/clamav
+    healthcheck:
+      test: ["CMD-SHELL", "clamdscan --ping 1"]
+      interval: 30s
+      timeout: 10s
       retries: 20
 
 volumes:
   iesst_mysql_prod_data:
   iesst_uploads:
+  clamav_data:

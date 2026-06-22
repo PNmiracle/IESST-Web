@@ -10,17 +10,25 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
     private final String uploadDir;
     private final AuditLogInterceptor auditLogInterceptor;
+    private final SensitiveResponseHeaderInterceptor sensitiveResponseHeaderInterceptor;
 
     public WebConfig(
             @org.springframework.beans.factory.annotation.Value("${app.upload-dir:./uploads}") String uploadDir,
-            AuditLogInterceptor auditLogInterceptor) {
+            AuditLogInterceptor auditLogInterceptor,
+            SensitiveResponseHeaderInterceptor sensitiveResponseHeaderInterceptor) {
         this.uploadDir = uploadDir;
         this.auditLogInterceptor = auditLogInterceptor;
+        this.sensitiveResponseHeaderInterceptor = sensitiveResponseHeaderInterceptor;
     }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(auditLogInterceptor).addPathPatterns("/api/admin/**");
+        registry.addInterceptor(sensitiveResponseHeaderInterceptor)
+                .addPathPatterns(
+                        "/api/student/**",
+                        "/api/admin/students/**",
+                        "/api/admin/submissions/*/files/**");
     }
 
     @Override
@@ -35,6 +43,9 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         String location = java.nio.file.Path.of(uploadDir).toAbsolutePath().normalize().toUri().toString();
-        registry.addResourceHandler("/uploads/**").addResourceLocations(location);
+        registry.addResourceHandler("/uploads/images/**")
+                .addResourceLocations(location + "images/");
+        registry.addResourceHandler("/uploads/documents/**")
+                .addResourceLocations(location + "documents/");
     }
 }

@@ -1,12 +1,15 @@
 package cn.iesst.demo.controller;
 
 import cn.iesst.demo.model.ApiError;
+import cn.iesst.demo.security.StudentAuthenticationException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -30,6 +33,25 @@ public class ApiExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiError> badRequest(IllegalArgumentException exception, HttpServletRequest request) {
         return response(HttpStatus.BAD_REQUEST, exception.getMessage(), request, Map.of());
+    }
+
+    @ExceptionHandler(StudentAuthenticationException.class)
+    public ResponseEntity<ApiError> studentUnauthorized(
+            StudentAuthenticationException exception,
+            HttpServletRequest request) {
+        return response(HttpStatus.UNAUTHORIZED, exception.getMessage(), request, Map.of());
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiError> methodNotAllowed(
+            HttpRequestMethodNotSupportedException exception,
+            HttpServletRequest request) {
+        return response(HttpStatus.METHOD_NOT_ALLOWED, "该操作不被允许", request, Map.of());
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiError> notFound(NoResourceFoundException exception, HttpServletRequest request) {
+        return response(HttpStatus.NOT_FOUND, "请求的资源不存在", request, Map.of());
     }
 
     @ExceptionHandler(Exception.class)

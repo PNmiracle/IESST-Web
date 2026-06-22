@@ -70,7 +70,7 @@ export DB_USERNAME='iesst'
 export DB_PASSWORD='你的密码'
 ```
 
-首次启动时 Flyway 会自动创建数据表，应用会在空表中写入演示数据。
+首次启动时 Flyway 会自动创建数据表。官网基础内容仅在 `dev` 环境补全；学生演示账号和演示订单只有显式启用 `dev-demo` Profile 才会创建，生产环境不会初始化 Demo 数据。
 
 ## 最简单启动方式
 
@@ -185,16 +185,25 @@ export DB_USERNAME='iesst_app'
 export DB_PASSWORD='请使用强密码'
 export ADMIN_USERNAME='admin'
 export ADMIN_PASSWORD='请使用至少 12 位强密码'
-export SESSION_COOKIE_SECURE=true
+export PII_ENCRYPTION_KEY="$(openssl rand -base64 32)"
+export PII_LOOKUP_KEY="$(openssl rand -base64 32)"
+export MANUSCRIPT_STORAGE_BACKEND=oss
+export OSS_ENDPOINT='https://oss-cn-hangzhou.aliyuncs.com'
+export OSS_BUCKET='你的私有 Bucket'
+export OSS_ACCESS_KEY_ID='仅限该 Bucket 的 RAM AccessKey'
+export OSS_ACCESS_KEY_SECRET='RAM AccessKey Secret'
+export MALWARE_SCAN_ENABLED=true
+export CLAMAV_HOST=clamav
 java -jar server/target/iesst-demo-server-0.1.0.jar
 ```
 
-生产环境应通过 HTTPS 反向代理访问，`uploads/` 目录需要挂载持久化磁盘。
+生产环境应通过 HTTPS 反向代理访问。稿件保存到私有 OSS Bucket，下载经登录鉴权后生成短期签名地址；图片和公开资料仍使用挂载卷。PII 和 OSS 密钥应存入阿里云 KMS/容器密钥，不得提交到 Git 或写入镜像。
 
 Docker 生产示例：
 
 ```bash
-cp .env.example .env  # 如需可自行创建并覆盖 DB_PASSWORD / ADMIN_PASSWORD
+cp .env.example .env
+# 将 .env 中每一个 replace/please-change 占位值替换为真实强密钥
 docker compose -f docker-compose.prod.yml up -d --build
 ```
 
@@ -204,9 +213,15 @@ docker compose -f docker-compose.prod.yml up -d --build
 ./scripts/backup-mysql.sh
 ```
 
+清理旧 Demo 与自动化测试记录（脚本会先备份数据库）：
+
+```bash
+./scripts/cleanup-demo-data.sh
+```
+
 ## 下一版建议
 
-1. 将本地上传目录替换为阿里云 OSS 或腾讯云 COS。
-2. 将官网迁移至 Nuxt，支持 SEO 和服务端渲染。
-3. 增加多管理员、角色权限、投稿导出与通知中心。
-4. 增加自动化测试、日志采集、指标监控和数据库备份策略。
+1. 将官网迁移至 Nuxt，支持 SEO 和服务端渲染。
+2. 增加多管理员、角色权限与通知中心。
+3. 接入阿里云短信完成学生自助找回密码。
+4. 增加日志采集、指标监控和自动备份告警。

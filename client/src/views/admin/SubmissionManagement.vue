@@ -8,6 +8,8 @@ const loading = ref(true);
 const loadError = ref("");
 const updatingId = ref(null);
 const exporting = ref(false);
+const filesBySubmission = ref({});
+const loadingFilesId = ref(null);
 const filters = reactive({ status: "全部", keyword: "", page: 1, size: 20 });
 const pagination = reactive({ total: 0, totalPages: 0 });
 let searchTimer = null;
@@ -72,6 +74,37 @@ async function exportCsv() {
   }
 }
 
+async function toggleFiles(id) {
+  if (filesBySubmission.value[id]) {
+    const next = { ...filesBySubmission.value };
+    delete next[id];
+    filesBySubmission.value = next;
+    return;
+  }
+  loadingFilesId.value = id;
+  try {
+    filesBySubmission.value = { ...filesBySubmission.value, [id]: await api.adminSubmissionFiles(id) };
+  } catch (error) {
+    showNotice(error.message || "附件加载失败", true);
+  } finally {
+    loadingFilesId.value = null;
+  }
+}
+
+async function downloadFile(submissionId, file) {
+  try {
+    const blob = await api.downloadAdminSubmissionFile(submissionId, file.id);
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = file.fileName;
+    link.click();
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    showNotice(error.message || "附件下载失败", true);
+  }
+}
+
 watch(() => filters.keyword, () => {
   clearTimeout(searchTimer);
   searchTimer = setTimeout(() => {
@@ -96,7 +129,7 @@ onMounted(load);
     <div v-if="loading" class="empty-state">投稿记录加载中…</div>
     <div v-else-if="loadError" class="empty-state error-state">{{ loadError }}<button class="ghost" @click="load">重新加载</button></div>
     <section v-else-if="items.length" class="card table-wrap">
-      <table><thead><tr><th>作者</th><th>论文与说明</th><th>目标</th><th>联系方式</th><th>提交时间</th><th>处理状态</th></tr></thead><tbody><tr v-for="item in items" :key="item.id"><td><b>{{ item.authorName }}</b></td><td><b>{{ item.paperTitle }}</b><small>{{ item.message || "未填写补充说明" }}</small></td><td><span class="tag">{{ item.targetType }}</span></td><td>{{ item.email }}</td><td>{{ item.createdAt?.replace("T", " ").slice(0, 16) }}</td><td><select :disabled="updatingId === item.id" :value="item.status" @change="updateStatus(item.id, $event.target.value)"><option>待处理</option><option>沟通中</option><option>已完成</option></select></td></tr></tbody></table>
+      <table><thead><tr><th>作者</th><th>论文与说明</th><th>目标</th><th>联系方式</th><th>提交时间</th><th>附件</th><th>处理状态</th></tr></thead><tbody><template v-for="item in items" :key="item.id"><tr><td><b>{{ item.authorName }}</b></td><td><b>{{ item.paperTitle }}</b><small>{{ item.message || "未填写补充说明" }}</small></td><td><span class="tag">{{ item.targetType }}</span></td><td>{{ item.email }}</td><td>{{ item.createdAt?.replace("T", " ").slice(0, 16) }}</td><td><button class="ghost compact" :disabled="loadingFilesId === item.id" @click="toggleFiles(item.id)">{{ filesBySubmission[item.id] ? "收起" : loadingFilesId === item.id ? "加载中" : "查看附件" }}</button></td><td><select :disabled="updatingId === item.id" :value="item.status" @change="updateStatus(item.id, $event.target.value)"><option>待处理</option><option>沟通中</option><option>已完成</option></select></td></tr><tr v-if="filesBySubmission[item.id]" class="submission-file-row"><td colspan="7"><div v-if="filesBySubmission[item.id].length" class="submission-file-actions"><button v-for="file in filesBySubmission[item.id]" :key="file.id" class="text-action" @click="downloadFile(item.id, file)">{{ file.fileName }}（{{ Math.max(1, Math.round(file.size / 1024)) }} KB）</button></div><small v-else>该投稿未上传附件</small></td></tr></template></tbody></table>
       <footer class="table-pagination">
         <span>共 {{ pagination.total }} 条，第 {{ filters.page }} / {{ pagination.totalPages }} 页</span>
         <div><button class="ghost" :disabled="filters.page <= 1" @click="changePage(filters.page - 1)">上一页</button><button class="ghost" :disabled="filters.page >= pagination.totalPages" @click="changePage(filters.page + 1)">下一页</button></div>

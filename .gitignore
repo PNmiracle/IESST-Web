@@ -4,6 +4,11 @@ server/target/
 server/.m2-cache/
 .tools/
 .DS_Store
+.env
 uploads/
+private-uploads/
 data/
 backups/
+release/
+.env.mentor
+mentor-runtime/

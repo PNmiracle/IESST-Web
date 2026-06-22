@@ -10,6 +10,8 @@ server:
   forward-headers-strategy: framework
 
 spring:
+  profiles:
+    default: dev
   application:
     name: iesst-demo-server
   datasource:
@@ -28,6 +30,24 @@ spring:
 
 app:
   upload-dir: ${UPLOAD_DIR:./uploads}
+  private-upload-dir: ${PRIVATE_UPLOAD_DIR:./private-uploads}
+  manuscript-storage:
+    backend: ${MANUSCRIPT_STORAGE_BACKEND:local}
+    signed-url-seconds: ${MANUSCRIPT_SIGNED_URL_SECONDS:300}
+    oss:
+      endpoint: ${OSS_ENDPOINT:}
+      bucket: ${OSS_BUCKET:}
+      access-key-id: ${OSS_ACCESS_KEY_ID:}
+      access-key-secret: ${OSS_ACCESS_KEY_SECRET:}
+      prefix: ${OSS_MANUSCRIPT_PREFIX:manuscripts}
+  malware-scan:
+    enabled: ${MALWARE_SCAN_ENABLED:false}
+    host: ${CLAMAV_HOST:127.0.0.1}
+    port: ${CLAMAV_PORT:3310}
+    timeout: ${CLAMAV_TIMEOUT:30s}
+  pii:
+    encryption-key: ${PII_ENCRYPTION_KEY:9Bethbu5tzCygaJT47X73WcQ2oaGXPXSzLaW0ObFGHo=}
+    lookup-key: ${PII_LOOKUP_KEY:ZKTvfWmq/HWuxjY6NdEzGJLg4fwiOjhl8Q38RkxKaRI=}
   admin:
     username: ${ADMIN_USERNAME:admin}
     password: ${ADMIN_PASSWORD:admin123123}

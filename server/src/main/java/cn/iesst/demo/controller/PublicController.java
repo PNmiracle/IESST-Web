@@ -7,9 +7,11 @@ import cn.iesst.demo.model.Journal;
 import cn.iesst.demo.model.Expert;
 import cn.iesst.demo.model.ServiceOffering;
 import cn.iesst.demo.model.Submission;
-import cn.iesst.demo.model.UploadResult;
+import cn.iesst.demo.model.ManuscriptUploadReceipt;
+import cn.iesst.demo.model.SubmissionReceipt;
 import cn.iesst.demo.service.DemoStore;
-import cn.iesst.demo.service.FileStorageService;
+import cn.iesst.demo.service.ManuscriptStorageService;
+import cn.iesst.demo.service.SubmissionUploadTokenService;
 import cn.iesst.demo.service.StudentUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,12 +32,18 @@ import java.util.List;
 public class PublicController {
     private final DemoStore store;
     private final StudentUserService studentUserService;
-    private final FileStorageService fileStorageService;
+    private final ManuscriptStorageService manuscriptStorageService;
+    private final SubmissionUploadTokenService uploadTokenService;
 
-    public PublicController(DemoStore store, StudentUserService studentUserService, FileStorageService fileStorageService) {
+    public PublicController(
+            DemoStore store,
+            StudentUserService studentUserService,
+            ManuscriptStorageService manuscriptStorageService,
+            SubmissionUploadTokenService uploadTokenService) {
         this.store = store;
         this.studentUserService = studentUserService;
-        this.fileStorageService = fileStorageService;
+        this.manuscriptStorageService = manuscriptStorageService;
+        this.uploadTokenService = uploadTokenService;
     }
 
     @GetMapping("/banners")
@@ -60,10 +68,11 @@ public class PublicController {
     public List<Expert> experts() { return store.publicExperts(); }
 
     @PostMapping("/submissions")
-    public Submission submit(@Valid @RequestBody Submission submission, HttpSession session) {
+    public SubmissionReceipt submit(@Valid @RequestBody Submission submission, HttpSession session) {
         Submission saved = store.createSubmission(submission);
         studentUserService.createOrderFromSubmissionIfLoggedIn(session, saved);
-        return saved;
+        String uploadToken = uploadTokenService.issue(saved.id());
+        return new SubmissionReceipt(saved.id(), saved.status(), saved.createdAt(), uploadToken);
     }
 
     @PostMapping("/consultations")
@@ -72,15 +81,20 @@ public class PublicController {
     }
 
     @PostMapping(value = "/submissions/{id}/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public UploadResult uploadSubmissionFile(
+    public ManuscriptUploadReceipt uploadSubmissionFile(
             @PathVariable long id,
-            @RequestParam String email,
+            @RequestParam String uploadToken,
             @RequestParam("file") MultipartFile file,
             HttpSession session) {
-        store.validateSubmissionOwner(id, email);
-        UploadResult upload = fileStorageService.saveManuscript(file);
-        store.attachSubmissionFile(id, email, upload);
-        studentUserService.attachSubmissionFileToOrderIfLoggedIn(session, id, upload);
-        return upload;
+        uploadTokenService.claim(id, uploadToken);
+        try {
+            var upload = manuscriptStorageService.save(file);
+            store.attachSubmissionFile(id, upload);
+            studentUserService.attachSubmissionFileToOrderIfLoggedIn(session, id, upload);
+            return new ManuscriptUploadReceipt(upload.fileName(), upload.size());
+        } catch (RuntimeException exception) {
+            uploadTokenService.release(id);
+            throw exception;
+        }
     }
 }
