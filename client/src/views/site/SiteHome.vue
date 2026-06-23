@@ -1,8 +1,12 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { api } from "../../api";
 
-const banners = ref([]);
+const defaultBanners = [
+  { id: "default-center", title: "思研学术 SCI 特刊交流中心", imageUrl: "/images/optimized/hero-center-1200.webp", linkUrl: "/SCI", sortOrder: 1, enabled: true },
+  { id: "default-fast-track", title: "SCI 特刊快速通道", imageUrl: "/images/optimized/hero-fast-track-1200.webp", linkUrl: "/SCI", sortOrder: 2, enabled: true },
+];
+const banners = ref(defaultBanners);
 const journals = ref([]);
 const experts = ref([]);
 const currentSlide = ref(0);
@@ -49,6 +53,22 @@ const advantages = [
   },
 ];
 let carouselTimer;
+const optimizedImageMap = {
+  "/images/hero-center.jpg": "/images/optimized/hero-center-1200.webp",
+  "/images/hero-fast-track.jpg": "/images/optimized/hero-fast-track-1200.webp",
+  "/images/optimized/hero-center-2000.webp": "/images/optimized/hero-center-1200.webp",
+  "/images/optimized/hero-fast-track-2000.webp": "/images/optimized/hero-fast-track-1200.webp",
+};
+const heroImageSets = {
+  "/images/hero-center.jpg": "/images/optimized/hero-center-800.webp 800w, /images/optimized/hero-center-1200.webp 1200w, /images/optimized/hero-center-2000.webp 2000w",
+  "/images/optimized/hero-center-1200.webp": "/images/optimized/hero-center-800.webp 800w, /images/optimized/hero-center-1200.webp 1200w, /images/optimized/hero-center-2000.webp 2000w",
+  "/images/optimized/hero-center-2000.webp": "/images/optimized/hero-center-800.webp 800w, /images/optimized/hero-center-1200.webp 1200w, /images/optimized/hero-center-2000.webp 2000w",
+  "/images/hero-fast-track.jpg": "/images/optimized/hero-fast-track-800.webp 800w, /images/optimized/hero-fast-track-1200.webp 1200w, /images/optimized/hero-fast-track-2000.webp 2000w",
+  "/images/optimized/hero-fast-track-1200.webp": "/images/optimized/hero-fast-track-800.webp 800w, /images/optimized/hero-fast-track-1200.webp 1200w, /images/optimized/hero-fast-track-2000.webp 2000w",
+  "/images/optimized/hero-fast-track-2000.webp": "/images/optimized/hero-fast-track-800.webp 800w, /images/optimized/hero-fast-track-1200.webp 1200w, /images/optimized/hero-fast-track-2000.webp 2000w",
+};
+const heroImageSizes = "(max-width: 650px) calc(100vw - 24px), 1200px";
+const preloadedImages = new Set();
 
 const activeBanner = computed(() => banners.value[currentSlide.value] || null);
 const previousBanner = computed(() => {
@@ -68,6 +88,29 @@ const filteredJournals = computed(() => {
   });
 });
 
+function optimizedBannerImage(url) {
+  return optimizedImageMap[url] || url;
+}
+
+function bannerSrcset(url) {
+  return heroImageSets[url] || "";
+}
+
+function preloadImage(url) {
+  if (!url || preloadedImages.has(url)) return;
+  preloadedImages.add(url);
+  const link = document.createElement("link");
+  link.rel = "preload";
+  link.as = "image";
+  link.href = url;
+  const srcset = bannerSrcset(url);
+  if (srcset) {
+    link.imageSrcset = srcset;
+    link.imageSizes = heroImageSizes;
+  }
+  document.head.appendChild(link);
+}
+
 function showSlide(index) {
   if (!banners.value.length) return;
   currentSlide.value = (index + banners.value.length) % banners.value.length;
@@ -84,7 +127,10 @@ async function loadData() {
   loading.value = true;
   loadError.value = "";
   try {
-    [banners.value, journals.value, experts.value] = await Promise.all([api.publicBanners(), api.publicJournals(), api.publicExperts()]);
+    const [bannerItems, journalItems, expertItems] = await Promise.all([api.publicBanners(), api.publicJournals(), api.publicExperts()]);
+    banners.value = bannerItems.length ? bannerItems : defaultBanners;
+    journals.value = journalItems;
+    experts.value = expertItems;
     startCarousel();
   } catch (error) {
     loadError.value = "官网数据加载失败，请确认后端服务已启动。";
@@ -95,6 +141,7 @@ async function loadData() {
 
 onMounted(loadData);
 onBeforeUnmount(() => clearInterval(carouselTimer));
+watch(activeBanner, (banner) => preloadImage(optimizedBannerImage(banner?.imageUrl)), { immediate: true });
 </script>
 
 <template>
@@ -104,11 +151,11 @@ onBeforeUnmount(() => clearInterval(carouselTimer));
       <div class="shell">
         <div v-if="activeBanner" class="hero-image hero-carousel" @mouseenter="paused = true" @mouseleave="paused = false">
           <button v-if="previousBanner" class="hero-preview hero-preview-left" type="button" aria-label="预览上一张轮播图" @click="showSlide(currentSlide - 1)">
-            <img :src="previousBanner.imageUrl" :alt="previousBanner.title" />
+            <img :src="optimizedBannerImage(previousBanner.imageUrl)" :srcset="bannerSrcset(previousBanner.imageUrl)" :sizes="heroImageSizes" :alt="previousBanner.title" loading="lazy" decoding="async" />
           </button>
           <button class="hero-arrow hero-arrow-left" aria-label="上一张" @click="showSlide(currentSlide - 1)">‹</button>
           <RouterLink class="hero-main-slide" to="/submit?subject=首页首屏&target=SCI">
-            <img :src="activeBanner.imageUrl" :alt="activeBanner.title" />
+            <img :src="optimizedBannerImage(activeBanner.imageUrl)" :srcset="bannerSrcset(activeBanner.imageUrl)" :sizes="heroImageSizes" :alt="activeBanner.title" loading="eager" fetchpriority="high" decoding="async" />
             <span class="mobile-hero-caption">
               <b>{{ activeBanner.title }}</b>
               <small>提交稿件后，顾问将协助完成方向评估、期刊匹配与服务建议。</small>
@@ -116,7 +163,7 @@ onBeforeUnmount(() => clearInterval(carouselTimer));
           </RouterLink>
           <button class="hero-arrow hero-arrow-right" aria-label="下一张" @click="showSlide(currentSlide + 1)">›</button>
           <button v-if="nextBanner" class="hero-preview hero-preview-right" type="button" aria-label="预览下一张轮播图" @click="showSlide(currentSlide + 1)">
-            <img :src="nextBanner.imageUrl" :alt="nextBanner.title" />
+            <img :src="optimizedBannerImage(nextBanner.imageUrl)" :srcset="bannerSrcset(nextBanner.imageUrl)" :sizes="heroImageSizes" :alt="nextBanner.title" loading="lazy" decoding="async" />
           </button>
         </div>
         <div v-else-if="loading" class="hero-skeleton">轮播内容加载中…</div>
@@ -133,7 +180,7 @@ onBeforeUnmount(() => clearInterval(carouselTimer));
               <h3>{{ item.title }}</h3>
               <p>{{ item.text }}</p>
             </div>
-            <img class="advantage-icon" :src="`/images/advantage-icons/${item.icon}.png`" alt="" aria-hidden="true" />
+            <img class="advantage-icon" :src="`/images/advantage-icons/${item.icon}.png`" alt="" aria-hidden="true" loading="lazy" decoding="async" />
           </article>
         </div>
         <div class="advantage-actions">
@@ -143,7 +190,7 @@ onBeforeUnmount(() => clearInterval(carouselTimer));
     </section>
 
     <section class="section pale">
-      <div class="shell solution-grid"><figure class="solution-cover"><img src="/images/sci-journals-books-cutout.png" alt="SCI 期刊封面组合" /></figure><div class="solution-copy"><h2 class="solution-title">可靠的SCI全流程解决方案</h2><p>论文写完了，发表才刚刚开始。选刊拿不准、流程摸不透、语言不过关、审稿意见不知如何回复——每一个环节都可能拖上数月。思研学术 SCI 特刊快速通道，将上述问题一并纳入标准服务流程：精准匹配已授权的正规特刊、编委团队前置审稿、专业编辑语言润色、审稿意见协同回应。</p><p>我们不替您写论文，不替您伪造审稿，只做一件事——帮您把合格的稿件，高效、合规地送进特刊的录用通道。</p><p>您负责把研究做扎实，我们把发表做简单。</p><div class="solution-actions"><RouterLink class="primary" to="/SCI">了解更多</RouterLink></div></div></div>
+      <div class="shell solution-grid"><figure class="solution-cover"><img src="/images/optimized/sci-journals-books-cutout-720.webp" srcset="/images/optimized/sci-journals-books-cutout-520.webp 520w, /images/optimized/sci-journals-books-cutout-720.webp 720w, /images/optimized/sci-journals-books-cutout-900.webp 900w" sizes="(max-width: 650px) 88vw, 42vw" alt="SCI 期刊封面组合" loading="eager" fetchpriority="low" decoding="async" /></figure><div class="solution-copy"><h2 class="solution-title">可靠的SCI全流程解决方案</h2><p>论文写完了，发表才刚刚开始。选刊拿不准、流程摸不透、语言不过关、审稿意见不知如何回复——每一个环节都可能拖上数月。思研学术 SCI 特刊快速通道，将上述问题一并纳入标准服务流程：精准匹配已授权的正规特刊、编委团队前置审稿、专业编辑语言润色、审稿意见协同回应。</p><p>我们不替您写论文，不替您伪造审稿，只做一件事——帮您把合格的稿件，高效、合规地送进特刊的录用通道。</p><p>您负责把研究做扎实，我们把发表做简单。</p><div class="solution-actions"><RouterLink class="primary" to="/SCI">了解更多</RouterLink></div></div></div>
     </section>
 
     <section class="section shell">
@@ -190,10 +237,10 @@ onBeforeUnmount(() => clearInterval(carouselTimer));
     <section class="section shell">
       <div class="heading"><div><span>GLOBAL EXPERTS</span><h2>专家团队，汇聚全球学者</h2></div><RouterLink to="/about">了解团队与机构 →</RouterLink></div>
       <div class="expert-grid">
-        <article v-for="expert in experts" :key="expert.id" class="card"><img :src="expert.imageUrl" :alt="expert.name" /><div><h3>{{ expert.name }}</h3><p>{{ expert.institution }}</p><small>{{ expert.role }}</small></div></article>
+        <article v-for="expert in experts" :key="expert.id" class="card"><img :src="expert.imageUrl" :alt="expert.name" loading="lazy" decoding="async" /><div><h3>{{ expert.name }}</h3><p>{{ expert.institution }}</p><small>{{ expert.role }}</small></div></article>
       </div>
     </section>
 
-    <section class="section pale"><div class="shell partner-block"><div><span class="eyebrow">PUBLISHER NETWORK</span><h2>国际期刊和出版社合作资源</h2><p>正式版本可将合作单位拆分为后台可维护的独立数据项，并增加资质与合作说明。</p><RouterLink class="ghost" to="/about">了解机构介绍</RouterLink></div><img src="/images/publisher-partners.jpg" alt="国际期刊和出版社合作资源" /></div></section>
+    <section class="section pale"><div class="shell partner-block"><div><span class="eyebrow">PUBLISHER NETWORK</span><h2>国际期刊和出版社合作资源</h2><p>正式版本可将合作单位拆分为后台可维护的独立数据项，并增加资质与合作说明。</p><RouterLink class="ghost" to="/about">了解机构介绍</RouterLink></div><img src="/images/optimized/publisher-partners-1200.webp" alt="国际期刊和出版社合作资源" loading="lazy" decoding="async" /></div></section>
   </div>
 </template>

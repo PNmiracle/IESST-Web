@@ -596,16 +596,33 @@
 
   .translation-intro-card {
     grid-template-columns: 1fr;
-    padding: 18px;
-    gap: 22px;
+    padding: 14px;
+    border-radius: 12px;
+    gap: 20px;
+  }
+
+  .translation-visual img {
+    aspect-ratio: 1.66;
+    border-radius: 12px;
+    object-position: center;
+  }
+
+  .translation-visual.editing-visual figcaption {
+    display: none;
   }
 
   .translation-intro-copy {
-    padding: 0;
+    padding: 0 2px 4px;
   }
 
   .translation-intro-copy h1 {
-    font-size: 24px;
+    font-size: 25px;
+    line-height: 1.28;
+  }
+
+  .translation-intro-copy li {
+    font-size: 16px;
+    line-height: 1.55;
   }
 
   .translation-intro-actions {

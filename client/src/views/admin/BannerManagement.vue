@@ -13,7 +13,7 @@ const deleting = ref(null);
 const form = reactive(emptyForm());
 
 function emptyForm() {
-  return { id: null, title: "", imageUrl: "/images/hero-center.jpg", linkUrl: "/SCI", sortOrder: 1, enabled: true };
+  return { id: null, title: "", imageUrl: "/images/optimized/hero-center-1200.webp", linkUrl: "/SCI", sortOrder: 1, enabled: true };
 }
 
 function resetForm() {

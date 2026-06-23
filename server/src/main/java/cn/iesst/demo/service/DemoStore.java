@@ -30,8 +30,8 @@ public class DemoStore {
 
     void seedContent() {
         if (count("banners") == 0) {
-            saveBanner(new Banner(null, "思研学术 SCI 特刊交流中心", "/images/hero-center.jpg", "/SCI", 1, true));
-            saveBanner(new Banner(null, "SCI 特刊快速通道", "/images/hero-fast-track.jpg", "/SCI", 2, true));
+            saveBanner(new Banner(null, "思研学术 SCI 特刊交流中心", "/images/optimized/hero-center-1200.webp", "/SCI", 1, true));
+            saveBanner(new Banner(null, "SCI 特刊快速通道", "/images/optimized/hero-fast-track-1200.webp", "/SCI", 2, true));
         }
         if (count("journals") == 0) {
             saveJournal(new Journal(null, "SCI", "International Journal of Mental Health Studies", "医学与健康", "SCI / SSCI", "3-6个月", "心理健康、公共卫生与临床实践方向。", null, null, true));
