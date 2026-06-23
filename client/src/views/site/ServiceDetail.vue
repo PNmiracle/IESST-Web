@@ -21,7 +21,7 @@ const submitForm = ref({
 });
 const meta = {
   translation: { eyebrow:"LANGUAGE SERVICES",title:"论文翻译/润色服务",navTitle:"翻译润色",subtitle:"让研究成果以准确、自然、符合国际期刊规范的语言呈现。",image:"/images/translation-service-visual.jpg",highlights:["9大学科领域的翻译团队，学术背景深厚","2000+专家，深耕学术翻译","严格的质量控制体系，确保您的研究领域成果忠于原文"] },
-  editing: { eyebrow:"SCIENTIFIC EDITING",title:"论文科学编辑/极速出版服务",navTitle:"科学编辑",subtitle:"从稿件诊断、科学编辑到出版准备，帮助作者清晰呈现研究价值。",image:"/images/scientific-editing-service-visual.png",highlights:["9大学科领域编辑团队，学术背景深厚","2000+学科专家，深耕科学编辑","严格质量控制，确保研究成果忠于原意"] },
+  editing: { eyebrow:"SCIENTIFIC EDITING",title:"论文科学编辑/极速出版服务",navTitle:"科学编辑",subtitle:"从稿件诊断、科学编辑到出版准备，帮助作者清晰呈现研究价值。",image:"/images/optimized/scientific-editing-service-visual-1000.webp",highlights:["9大学科领域编辑团队，学术背景深厚","2000+学科专家，深耕科学编辑","严格质量控制，确保研究成果忠于原意"] },
 };
 const service = computed(() => ({ ...(meta[route.params.kind] || meta.translation), items:items.value.filter(item => item.category === route.params.kind) }));
 const isTranslation = computed(() => route.params.kind === "translation");
@@ -195,7 +195,7 @@ onMounted(async () => {
   <section v-if="isPremiumService" class="section shell translation-intro-section">
     <article class="translation-intro-card">
       <figure :class="['translation-visual', { 'editing-visual': isEditing }]">
-        <img :src="service.image" :alt="service.title" />
+        <img :src="service.image" :alt="service.title" loading="eager" fetchpriority="high" decoding="async" />
         <figcaption v-if="isEditing"><b>论文科学编辑</b><b>极速出版支持</b></figcaption>
       </figure>
       <div class="translation-intro-copy">
