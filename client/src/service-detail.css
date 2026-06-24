@@ -63,7 +63,9 @@
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
   align-items: center;
+  width: min(100%, 1000px);
   min-height: 230px;
+  margin: 0 auto;
   padding: 24px 28px;
   overflow: hidden;
   background: #fff;
@@ -97,7 +99,7 @@
   left: 28px;
   display: grid;
   color: #fff;
-  font-size: 21px;
+  font-size: 16px;
   line-height: 1.45;
   transform: translateY(-50%);
 }
@@ -239,8 +241,13 @@
 }
 
 .editing-capability-section {
+  max-width: 1000px;
   padding-top: 44px;
   padding-bottom: 28px;
+}
+
+.editing-list-section {
+  max-width: 1000px;
 }
 
 .editing-capability-section .service-type-heading {

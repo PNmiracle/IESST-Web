@@ -52,8 +52,18 @@ public class PublicController {
     }
 
     @GetMapping("/journals")
-    public List<Journal> journals() {
-        return store.publicJournals();
+    public List<Journal> journals(
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String discipline,
+            @RequestParam(required = false) String deadline,
+            @RequestParam(required = false) String journalLevel,
+            @RequestParam(required = false) String casZone,
+            @RequestParam(required = false) String jcrQuartile,
+            @RequestParam(required = false) Double impactMin,
+            @RequestParam(required = false) Double impactMax,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String sort) {
+        return store.publicJournals(type, discipline, deadline, journalLevel, casZone, jcrQuartile, impactMin, impactMax, keyword, sort);
     }
 
     @GetMapping("/journals/{id}")

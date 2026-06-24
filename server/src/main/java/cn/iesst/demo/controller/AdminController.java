@@ -127,7 +127,7 @@ public class AdminController {
 
     @PutMapping("/journals/{id}")
     public Journal updateJournal(@PathVariable long id, @Valid @RequestBody Journal journal) {
-        return store.saveJournal(new Journal(id, journal.type(), journal.title(), journal.field(), journal.indexType(), journal.cycle(), journal.description(), journal.documentName(), journal.documentUrl(), journal.published()));
+        return store.saveJournal(new Journal(id, journal.type(), journal.title(), journal.field(), journal.indexType(), journal.cycle(), journal.description(), journal.imageUrl(), journal.journalLevel(), journal.impactFactorLabel(), journal.impactFactorValue(), journal.journalPartition(), journal.acceptanceTime(), journal.submissionDeadlineText(), journal.submissionDeadlineDate(), journal.disciplineCategory(), journal.casZone(), journal.jcrQuartile(), journal.viewCount(), journal.documentName(), journal.documentUrl(), journal.published()));
     }
 
     @DeleteMapping("/journals/{id}")

@@ -36,15 +36,12 @@ function openAboutConsultation() {
       </div>
 
       <section class="about-section">
-        <h2>机构简介</h2>
+        <h2>协会简介</h2>
         <div class="about-copy">
-          <p>思研学术 (IESST) 成立于 2019 年，是一家持有自主出版资质的学术出版机构，总部设于英国伦敦，中国办公室位于浙江省杭州市。</p>
-          <p>本机构专注于 SCI 及 ESCI 期刊特刊的策划、申报与出版服务，致力于为全球科研人员提供具备学术确定性、成本可控且流程高效的特刊发表解决方案。</p>
-          <p>艾斯希旗下设国际编委委员会，现有在册编委 150 余人，均为来自欧美及亚洲主要国家科研机构的现职学者。编委团队学科覆盖理工、工农、医及交叉领域，其中含教授职称核心编委多名，具备直接向 SCI 期刊方申请并主导特刊的法定学术资格。</p>
-          <p class="english">IESST (International Elite Scientific Publishing) is an academic publishing institution with independent publishing qualifications, headquartered in London, United Kingdom.</p>
-          <p class="english">The institution specializes in the planning, application, and publication of special issues in SCI and ESCI journals, committed to providing global researchers with academically reliable, cost-effective, and efficient solutions for special issue publication.</p>
-          <p class="english">IESST has established an International Editorial Board, currently comprising over 150 registered editorial members, all of whom are active scholars from research institutions in major countries across Europe, the Americas, and Asia.</p>
-          <p class="english">The editorial team covers natural sciences, engineering, agriculture, medicine, and interdisciplinary fields, and includes multiple core editorial members with full professor titles, possessing the formal academic qualification to directly apply for and lead special issues from SCI journals.</p>
+          <p>思研学术（IESST）成立于 2019 年，是一家拥有自主出版资质的学术出版协会，总部设于英国伦敦。中国办公室位于浙江省杭州市。旗下设国际编委会，现有在册编委 150 余人，均为来自欧美及亚洲主要国家科研机构的现职学者。编委团队学科覆盖理工、工农、医及交叉领域，其中含教授职称核心编委多名，具备直接向 SCI 期刊方申请并主导特刊的法定学术资格。</p>
+          <p>本协会专注于 SCI 及 ESCI 期刊特刊的策划、申报与出版服务，致力于为全球科研人员提供具备学术确定性、成本可控且流程高效的特刊发表解决方案。</p>
+          <p class="english">IESST (International Elite Scientific Publishing) was founded in 2019 as an academic publishing association with independent publishing qualifications, headquartered in London, United Kingdom, with its China office located in Hangzhou, Zhejiang Province.</p>
+          <p class="english">IESST specializes in the planning, application, and publication services of special issues in SCI and ESCI journals, and is committed to providing global researchers with academically reliable, cost-controlled, and efficient special issue publication solutions.</p>
         </div>
       </section>
 

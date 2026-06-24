@@ -70,29 +70,12 @@ watch(
 <template>
   <div>
     <header class="site-header">
-      <div class="site-top">
-        <div class="shell site-top-inner">
-          <div>服务热线：0371-65867066</div>
-          <nav class="site-top-links">
-            <template v-if="studentSession.isLoggedIn.value">
-              <RouterLink to="/student/orders">{{ studentSession.state.displayName || studentSession.state.mobile }}</RouterLink>
-              <RouterLink to="/student/orders">我的订单</RouterLink>
-              <button type="button" @click="logoutStudent">退出</button>
-            </template>
-            <template v-else>
-              <RouterLink class="login-link" to="/student/login">请登录</RouterLink>
-              <span class="divider">|</span>
-              <RouterLink to="/student/register">快速注册</RouterLink>
-            </template>
-          </nav>
-        </div>
-      </div>
       <div class="shell site-nav">
         <RouterLink class="brand brand-logo" to="/" aria-label="IESST 思研学术首页">
           <img class="brand-mark" src="/images/logo-icon.png" alt="IESST" />
           <img class="brand-wordmark" src="/images/logo-wordmark.png" alt="IESST 思研学术 · SCI 特刊交流中心" />
         </RouterLink>
-        <nav>
+        <nav class="site-main-menu" aria-label="主导航">
           <RouterLink to="/">首页</RouterLink>
           <RouterLink to="/EI">EI期刊</RouterLink>
           <RouterLink to="/SCI">SCI期刊</RouterLink>
@@ -100,7 +83,19 @@ watch(
           <RouterLink to="/services/editing">科学编辑</RouterLink>
           <RouterLink to="/about">关于我们</RouterLink>
         </nav>
-        <RouterLink class="primary compact" to="/submit">免费评估稿件</RouterLink>
+        <div class="site-nav-actions">
+          <RouterLink class="primary compact" to="/submit">免费评估稿件</RouterLink>
+          <nav class="site-auth-links" aria-label="学生账号">
+            <template v-if="studentSession.isLoggedIn.value">
+              <RouterLink to="/student/orders">{{ studentSession.state.displayName || studentSession.state.mobile }}</RouterLink>
+              <RouterLink to="/student/orders">我的订单</RouterLink>
+              <button type="button" @click="logoutStudent">退出</button>
+            </template>
+            <template v-else>
+              <RouterLink class="login-link" to="/student/login">登录/注册</RouterLink>
+            </template>
+          </nav>
+        </div>
       </div>
     </header>
     <main><RouterView /></main>
