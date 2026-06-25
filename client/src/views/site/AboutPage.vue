@@ -210,7 +210,7 @@ function openAboutConsultation() {
   color: #252932;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 650px) and (hover: none) and (pointer: coarse) {
   .about-content {
     width: min(calc(100% - 28px), 1120px);
     padding: 46px 0 68px;

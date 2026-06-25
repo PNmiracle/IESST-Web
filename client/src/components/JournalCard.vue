@@ -1,9 +1,10 @@
 <script setup>
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 const props = defineProps({
   journal: { type: Object, required: true },
 });
+const imageFailed = ref(false);
 
 const submitLink = computed(() => ({
   path: "/submit",
@@ -22,11 +23,12 @@ function display(value, fallback = "-") {
   <article class="journal-showcase-card">
     <figure class="journal-cover-frame">
       <img
-        v-if="journal.imageUrl"
+        v-if="journal.imageUrl && !imageFailed"
         :src="journal.imageUrl"
         :alt="journal.title"
         loading="lazy"
         decoding="async"
+        @error="imageFailed = true"
       />
       <div v-else class="journal-cover-placeholder">
         <b>{{ display(journal.type) }}</b>

@@ -21,6 +21,14 @@ const submissionSteps = [
   { title: "顾问初步评估", text: "结合研究方向、目标类型和稿件阶段判断服务范围。" },
   { title: "同步进度反馈", text: "登录学生账号提交时，可在我的订单中查看处理状态。" },
 ];
+const mobileShortcutItems = [
+  { label: "首页", icon: "home", to: "/" },
+  { label: "SCI期刊", icon: "book", to: "/SCI" },
+  { label: "EI期刊", icon: "journal", to: "/EI" },
+  { label: "翻译润色", icon: "translate", to: "/services/translation" },
+  { label: "科学编辑", icon: "edit", to: "/services/editing" },
+  { label: "提交评估", icon: "submit", to: "/submit" },
+];
 const advantages = [
   {
     title: "权威期刊资源",
@@ -72,7 +80,7 @@ const heroImageSets = {
   "/images/optimized/hero-fast-track-1600.webp": "/images/optimized/hero-fast-track-800.webp 800w, /images/optimized/hero-fast-track-1200.webp 1200w, /images/optimized/hero-fast-track-1600.webp 1600w, /images/optimized/hero-fast-track-2400.webp 2400w, /images/optimized/hero-fast-track-3200.webp 3200w",
   "/images/optimized/hero-fast-track-2000.webp": "/images/optimized/hero-fast-track-800.webp 800w, /images/optimized/hero-fast-track-1200.webp 1200w, /images/optimized/hero-fast-track-1600.webp 1600w, /images/optimized/hero-fast-track-2400.webp 2400w, /images/optimized/hero-fast-track-3200.webp 3200w",
 };
-const heroImageSizes = "100vw";
+const heroImageSizes = "(max-width: 650px) 100vw, 1200px";
 const preloadedImages = new Set();
 
 const activeBanner = computed(() => banners.value[currentSlide.value] || null);
@@ -169,6 +177,15 @@ watch(activeBanner, (banner) => preloadImage(optimizedBannerImage(banner?.imageU
         </div>
         <div v-else-if="loading" class="hero-skeleton">轮播内容加载中…</div>
         <div v-else class="hero-skeleton error-state">{{ loadError }}<button class="ghost" @click="loadData">重新加载</button></div>
+      </div>
+    </section>
+
+    <section class="mobile-shortcut-section" aria-label="移动端快捷入口">
+      <div class="mobile-shortcut-grid">
+        <RouterLink v-for="item in mobileShortcutItems" :key="item.label" :to="item.to" class="mobile-shortcut-item">
+          <span :class="['mobile-shortcut-icon', `icon-${item.icon}`]" aria-hidden="true"></span>
+          <b>{{ item.label }}</b>
+        </RouterLink>
       </div>
     </section>
 

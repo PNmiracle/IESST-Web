@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeUnmount, onMounted, watch } from "vue";
+import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import ConsultationModal from "../components/ConsultationModal.vue";
 import { openConsultation } from "../stores/consultation";
@@ -7,6 +7,12 @@ import { studentSession } from "../stores/studentSession";
 
 const route = useRoute();
 const router = useRouter();
+const mobileMenuOpen = ref(false);
+
+function syncPreviewMode() {
+  const forceMobile = route.query.preview === "mobile";
+  document.documentElement.classList.toggle("mobile-preview", forceMobile);
+}
 
 function consultHref(subject, targetType = "SCI") {
   const query = new URLSearchParams({ consult: "1", subject, targetType });
@@ -32,6 +38,7 @@ async function logoutStudent() {
 onMounted(() => {
   document.addEventListener("click", handleConsultClick);
   studentSession.restore();
+  syncPreviewMode();
 });
 onMounted(() => {
   window.__iesstConsultationFromElement = (trigger) => {
@@ -45,6 +52,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener("click", handleConsultClick);
   delete window.__iesstConsultationFromElement;
+  document.documentElement.classList.remove("mobile-preview");
 });
 
 watch(
@@ -65,17 +73,29 @@ watch(
   },
   { immediate: true },
 );
+
+watch(
+  () => route.fullPath,
+  () => {
+    mobileMenuOpen.value = false;
+    syncPreviewMode();
+  },
+);
 </script>
 
 <template>
-  <div>
+  <div class="site-app">
     <header class="site-header">
       <div class="shell site-nav">
         <RouterLink class="brand brand-logo" to="/" aria-label="IESST 思研学术首页">
           <img class="brand-mark" src="/images/logo-icon.png" alt="IESST" />
           <img class="brand-wordmark" src="/images/logo-wordmark.png" alt="IESST 思研学术 · SCI 特刊交流中心" />
         </RouterLink>
-        <nav class="site-main-menu" aria-label="主导航">
+        <div class="mobile-header-contact">服务热线：0371-65867066</div>
+        <button class="mobile-menu-toggle" type="button" :aria-expanded="mobileMenuOpen" aria-label="打开导航菜单" @click="mobileMenuOpen = !mobileMenuOpen">
+          <span></span><span></span><span></span>
+        </button>
+        <nav :class="['site-main-menu', { open: mobileMenuOpen }]" aria-label="主导航">
           <RouterLink to="/">首页</RouterLink>
           <RouterLink to="/EI">EI期刊</RouterLink>
           <RouterLink to="/SCI">SCI期刊</RouterLink>
@@ -101,7 +121,7 @@ watch(
     <main><RouterView /></main>
     <footer class="site-footer">
       <div class="shell site-footer-grid">
-        <div class="brand light"><span>IESST</span><small>思研学术 · SCI 特刊交流中心</small></div>
+        <div class="brand light"><span>IESST</span><small>思研学术 SCI 特刊交流中心</small></div>
         <nav><RouterLink to="/SCI">SCI期刊</RouterLink><RouterLink to="/EI">EI期刊</RouterLink><RouterLink to="/services/translation">翻译润色</RouterLink><RouterLink to="/services/editing">科学编辑</RouterLink></nav>
         <div><b>提交评估</b><p>上传稿件或填写需求</p><RouterLink class="footer-consult" to="/submit">开始免费评估 →</RouterLink></div>
       </div>
