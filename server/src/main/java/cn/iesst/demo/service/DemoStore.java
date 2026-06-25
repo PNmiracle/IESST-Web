@@ -15,7 +15,9 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ArrayList;
 import cn.iesst.demo.model.StoredFileInfo;
@@ -30,14 +32,14 @@ public class DemoStore {
 
     void seedContent() {
         if (count("banners") == 0) {
-            saveBanner(new Banner(null, "思研学术 SCI 特刊交流中心", "/images/optimized/hero-center-1200.webp", "/SCI", 1, true));
-            saveBanner(new Banner(null, "SCI 特刊快速通道", "/images/optimized/hero-fast-track-1200.webp", "/SCI", 2, true));
+            saveBanner(new Banner(null, "思研学术 SCI 特刊交流中心", "/images/optimized/hero-center-1600.webp", "/SCI", 1, true));
+            saveBanner(new Banner(null, "SCI 特刊快速通道", "/images/optimized/hero-fast-track-1600.webp", "/SCI", 2, true));
         }
         if (count("journals") == 0) {
-            saveJournal(new Journal(null, "SCI", "International Journal of Mental Health Studies", "医学与健康", "SCI / SSCI", "3-6个月", "心理健康、公共卫生与临床实践方向。", null, null, true));
-            saveJournal(new Journal(null, "SCI", "Journal of Intelligent Systems Engineering", "计算机与人工智能", "SCI", "4-7个月", "智能计算、机器学习与复杂工程应用。", null, null, true));
-            saveJournal(new Journal(null, "EI", "Smart Manufacturing and Industrial Systems", "自动化与制造", "EI Compendex", "2-4个月", "智能制造、工业互联网与数字孪生。", null, null, true));
-            saveJournal(new Journal(null, "EI", "Electronic Information and Communication", "电子与通信", "EI Compendex", "2-4个月", "电子信息、信号处理与通信网络。", null, null, false));
+            saveJournal(new Journal(null, "SCI", "International Journal of Mental Health Studies", "医学与健康", "SCI / SSCI", "3-6个月", "心理健康、公共卫生与临床实践方向。", null, "SCI&SSCI", "0-6", 3.2, "1-4区，Q1、Q2、Q3、Q4", "预计2-3个月", "长期征稿", null, "生物学", "-", "Q2", 0L, null, null, true));
+            saveJournal(new Journal(null, "SCI", "Journal of Intelligent Systems Engineering", "计算机与人工智能", "SCI", "4-7个月", "智能计算、机器学习与复杂工程应用。", null, "SCI", "1.5+", 1.5, "4区，Q3", "预计1-2个月", "长期征稿", null, "计算机信息工程", "-", "Q3", 0L, null, null, true));
+            saveJournal(new Journal(null, "EI", "Smart Manufacturing and Industrial Systems", "自动化与制造", "EI Compendex", "2-4个月", "智能制造、工业互联网与数字孪生。", null, "EI", "-", null, "-", "预计1-2个月", "长期征稿", null, "机械电子工程", "-", "-", 0L, null, null, true));
+            saveJournal(new Journal(null, "EI", "Electronic Information and Communication", "电子与通信", "EI Compendex", "2-4个月", "电子信息、信号处理与通信网络。", null, "EI", "-", null, "-", "预计1-2个月", "长期征稿", null, "机械电子工程", "-", "-", 0L, null, null, false));
         }
         if (count("service_offerings") == 0) {
             saveService(new ServiceOffering(null, "translation", "高级翻译", "¥0.8/字", "由具备学科背景的双语专家完成中英翻译，并进行术语与逻辑复核。", "资深译员首轮翻译\n学科领域专家审核\n15天内一次免费修订", true));
@@ -78,12 +80,12 @@ public class DemoStore {
     }
 
     public List<Banner> publicBanners() {
-        return jdbc.query("SELECT * FROM banners WHERE enabled=TRUE ORDER BY sort_order", (rs, n) ->
+        return jdbc.query("SELECT * FROM banners WHERE enabled=TRUE ORDER BY sort_order, id", (rs, n) ->
                 new Banner(rs.getLong("id"), rs.getString("title"), rs.getString("image_url"), rs.getString("link_url"), rs.getInt("sort_order"), rs.getBoolean("enabled")));
     }
 
     public List<Banner> banners() {
-        return jdbc.query("SELECT * FROM banners ORDER BY sort_order", (rs, n) ->
+        return jdbc.query("SELECT * FROM banners ORDER BY sort_order, id", (rs, n) ->
                 new Banner(rs.getLong("id"), rs.getString("title"), rs.getString("image_url"), rs.getString("link_url"), rs.getInt("sort_order"), rs.getBoolean("enabled")));
     }
 
@@ -100,8 +102,33 @@ public class DemoStore {
     public void deleteBanner(long id) { jdbc.update("DELETE FROM banners WHERE id=?", id); }
 
     public List<Journal> publicJournals() { return queryJournals("SELECT * FROM journals WHERE published=TRUE ORDER BY id"); }
+    public List<Journal> publicJournals(
+            String type,
+            String discipline,
+            String deadline,
+            String journalLevel,
+            String casZone,
+            String jcrQuartile,
+            Double impactMin,
+            Double impactMax,
+            String keyword,
+            String sort) {
+        Comparator<Journal> comparator = journalComparator(sort);
+        return publicJournals().stream()
+                .filter(item -> matchesOption(item.type(), type))
+                .filter(item -> matchesOption(item.disciplineCategory(), discipline))
+                .filter(item -> matchesOption(item.journalLevel(), journalLevel))
+                .filter(item -> matchesOption(item.casZone(), casZone))
+                .filter(item -> matchesOption(item.jcrQuartile(), jcrQuartile))
+                .filter(item -> impactWithin(item.impactFactorValue(), impactMin, impactMax))
+                .filter(item -> deadlineWithin(item.submissionDeadlineDate(), deadline))
+                .filter(item -> matchesKeyword(item, keyword))
+                .sorted(comparator)
+                .toList();
+    }
     public List<Journal> journals() { return queryJournals("SELECT * FROM journals ORDER BY id"); }
     public Journal publicJournal(long id) {
+        jdbc.update("UPDATE journals SET view_count=view_count+1 WHERE id=? AND published=TRUE", id);
         return jdbc.query(
                         "SELECT * FROM journals WHERE published=TRUE AND id=?",
                         (rs, n) -> mapJournal(rs),
@@ -115,12 +142,12 @@ public class DemoStore {
     }
     public Journal saveJournal(Journal input) {
         if (input.id() == null) {
-            long id = insert("INSERT INTO journals(type,title,field_name,index_type,cycle,description,document_name,document_url,published) VALUES (?,?,?,?,?,?,?,?,?)", input.type(), input.title(), input.field(), input.indexType(), input.cycle(), input.description(), input.documentName(), input.documentUrl(), input.published());
-            return new Journal(id, input.type(), input.title(), input.field(), input.indexType(), input.cycle(), input.description(), input.documentName(), input.documentUrl(), input.published());
+            long id = insert("INSERT INTO journals(type,title,field_name,index_type,cycle,description,image_url,journal_level,impact_factor_label,impact_factor_value,journal_partition,acceptance_time,submission_deadline_text,submission_deadline_date,discipline_category,cas_zone,jcr_quartile,view_count,document_name,document_url,published) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", input.type(), input.title(), input.field(), input.indexType(), input.cycle(), input.description(), input.imageUrl(), input.journalLevel(), input.impactFactorLabel(), input.impactFactorValue(), input.journalPartition(), input.acceptanceTime(), input.submissionDeadlineText(), blankToNull(input.submissionDeadlineDate()), input.disciplineCategory(), input.casZone(), input.jcrQuartile(), safeViewCount(input.viewCount()), input.documentName(), input.documentUrl(), input.published());
+            return withJournalId(id, input);
         }
         long id = input.id();
-        jdbc.update("UPDATE journals SET type=?,title=?,field_name=?,index_type=?,cycle=?,description=?,document_name=?,document_url=?,published=? WHERE id=?", input.type(), input.title(), input.field(), input.indexType(), input.cycle(), input.description(), input.documentName(), input.documentUrl(), input.published(), id);
-        return new Journal(id, input.type(), input.title(), input.field(), input.indexType(), input.cycle(), input.description(), input.documentName(), input.documentUrl(), input.published());
+        jdbc.update("UPDATE journals SET type=?,title=?,field_name=?,index_type=?,cycle=?,description=?,image_url=?,journal_level=?,impact_factor_label=?,impact_factor_value=?,journal_partition=?,acceptance_time=?,submission_deadline_text=?,submission_deadline_date=?,discipline_category=?,cas_zone=?,jcr_quartile=?,view_count=?,document_name=?,document_url=?,published=? WHERE id=?", input.type(), input.title(), input.field(), input.indexType(), input.cycle(), input.description(), input.imageUrl(), input.journalLevel(), input.impactFactorLabel(), input.impactFactorValue(), input.journalPartition(), input.acceptanceTime(), input.submissionDeadlineText(), blankToNull(input.submissionDeadlineDate()), input.disciplineCategory(), input.casZone(), input.jcrQuartile(), safeViewCount(input.viewCount()), input.documentName(), input.documentUrl(), input.published(), id);
+        return withJournalId(id, input);
     }
     public void deleteJournal(long id) { jdbc.update("DELETE FROM journals WHERE id=?", id); }
 
@@ -277,6 +304,7 @@ public class DemoStore {
     }
 
     private Journal mapJournal(java.sql.ResultSet rs) throws java.sql.SQLException {
+        var deadline = rs.getDate("submission_deadline_date");
         return new Journal(
                 rs.getLong("id"),
                 rs.getString("type"),
@@ -285,9 +313,102 @@ public class DemoStore {
                 rs.getString("index_type"),
                 rs.getString("cycle"),
                 rs.getString("description"),
+                rs.getString("image_url"),
+                rs.getString("journal_level"),
+                rs.getString("impact_factor_label"),
+                nullableDouble(rs, "impact_factor_value"),
+                rs.getString("journal_partition"),
+                rs.getString("acceptance_time"),
+                rs.getString("submission_deadline_text"),
+                deadline == null ? null : deadline.toLocalDate().toString(),
+                rs.getString("discipline_category"),
+                rs.getString("cas_zone"),
+                rs.getString("jcr_quartile"),
+                rs.getLong("view_count"),
                 rs.getString("document_name"),
                 rs.getString("document_url"),
                 rs.getBoolean("published"));
+    }
+
+    private Journal withJournalId(long id, Journal input) {
+        return new Journal(id, input.type(), input.title(), input.field(), input.indexType(), input.cycle(), input.description(), input.imageUrl(), input.journalLevel(), input.impactFactorLabel(), input.impactFactorValue(), input.journalPartition(), input.acceptanceTime(), input.submissionDeadlineText(), input.submissionDeadlineDate(), input.disciplineCategory(), input.casZone(), input.jcrQuartile(), safeViewCount(input.viewCount()), input.documentName(), input.documentUrl(), input.published());
+    }
+
+    private long safeViewCount(Long viewCount) {
+        return viewCount == null ? 0L : viewCount;
+    }
+
+    private Double nullableDouble(java.sql.ResultSet rs, String column) throws java.sql.SQLException {
+        double value = rs.getDouble(column);
+        return rs.wasNull() ? null : value;
+    }
+
+    private boolean matchesOption(String actual, String expected) {
+        if (expected == null || expected.isBlank() || "ALL".equalsIgnoreCase(expected) || "全部".equals(expected) || "不限".equals(expected)) return true;
+        return expected.equalsIgnoreCase(actual == null ? "" : actual);
+    }
+
+    private boolean impactWithin(Double value, Double min, Double max) {
+        if (value == null) return min == null && max == null;
+        return (min == null || value >= min) && (max == null || value <= max);
+    }
+
+    private boolean deadlineWithin(String dateText, String range) {
+        if (range == null || range.isBlank() || "不限".equals(range) || "ALL".equalsIgnoreCase(range)) return true;
+        LocalDate deadline = parseDate(dateText);
+        if (deadline == null) return false;
+        LocalDate today = LocalDate.now();
+        int days = switch (range) {
+            case "week" -> 7;
+            case "month" -> 30;
+            case "quarter" -> 90;
+            case "halfYear" -> 183;
+            case "year" -> 365;
+            default -> 0;
+        };
+        if (days == 0) return true;
+        return !deadline.isBefore(today) && !deadline.isAfter(today.plusDays(days));
+    }
+
+    private LocalDate parseDate(String dateText) {
+        if (dateText == null || dateText.isBlank()) return null;
+        try {
+            return LocalDate.parse(dateText);
+        } catch (RuntimeException exception) {
+            return null;
+        }
+    }
+
+    private boolean matchesKeyword(Journal item, String keyword) {
+        if (keyword == null || keyword.isBlank()) return true;
+        String haystack = String.join(" ",
+                nullToEmpty(item.title()),
+                nullToEmpty(item.field()),
+                nullToEmpty(item.description()),
+                nullToEmpty(item.journalLevel()),
+                nullToEmpty(item.disciplineCategory()));
+        return haystack.toLowerCase().contains(keyword.trim().toLowerCase());
+    }
+
+    private String nullToEmpty(String value) {
+        return value == null ? "" : value;
+    }
+
+    private String blankToNull(String value) {
+        return value == null || value.isBlank() ? null : value;
+    }
+
+    private Comparator<Journal> journalComparator(String sort) {
+        if ("deadline".equals(sort)) {
+            return Comparator.comparing((Journal item) -> parseDate(item.submissionDeadlineDate()), Comparator.nullsLast(Comparator.naturalOrder()));
+        }
+        if ("impact".equals(sort)) {
+            return Comparator.comparing((Journal item) -> item.impactFactorValue(), Comparator.nullsLast(Comparator.reverseOrder()));
+        }
+        if ("click".equals(sort)) {
+            return Comparator.comparing((Journal item) -> item.viewCount() == null ? 0L : item.viewCount(), Comparator.reverseOrder());
+        }
+        return Comparator.comparing(Journal::id);
     }
 
     private Submission mapSubmission(java.sql.ResultSet rs) throws java.sql.SQLException {

@@ -1,10 +1,11 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { api } from "../../api";
+import JournalCard from "../../components/JournalCard.vue";
 
 const defaultBanners = [
-  { id: "default-center", title: "思研学术 SCI 特刊交流中心", imageUrl: "/images/optimized/hero-center-1200.webp", linkUrl: "/SCI", sortOrder: 1, enabled: true },
-  { id: "default-fast-track", title: "SCI 特刊快速通道", imageUrl: "/images/optimized/hero-fast-track-1200.webp", linkUrl: "/SCI", sortOrder: 2, enabled: true },
+  { id: "default-center", title: "思研学术 SCI 特刊交流中心", imageUrl: "/images/optimized/hero-center-1600.webp", linkUrl: "/SCI", sortOrder: 1, enabled: true },
+  { id: "default-fast-track", title: "SCI 特刊快速通道", imageUrl: "/images/optimized/hero-fast-track-1600.webp", linkUrl: "/SCI", sortOrder: 2, enabled: true },
 ];
 const banners = ref(defaultBanners);
 const journals = ref([]);
@@ -20,6 +21,14 @@ const submissionSteps = [
   { title: "顾问初步评估", text: "结合研究方向、目标类型和稿件阶段判断服务范围。" },
   { title: "同步进度反馈", text: "登录学生账号提交时，可在我的订单中查看处理状态。" },
 ];
+const mobileShortcutItems = [
+  { label: "首页", icon: "home", to: "/" },
+  { label: "SCI期刊", icon: "book", to: "/SCI" },
+  { label: "EI期刊", icon: "journal", to: "/EI" },
+  { label: "翻译润色", icon: "translate", to: "/services/translation" },
+  { label: "科学编辑", icon: "edit", to: "/services/editing" },
+  { label: "提交评估", icon: "submit", to: "/submit" },
+];
 const advantages = [
   {
     title: "权威期刊资源",
@@ -28,7 +37,7 @@ const advantages = [
   },
   {
     title: "专业编辑团队",
-    text: "由 150 余位教授编委团队提前审稿，审核稿件内容，提高论文质量，确保投准、投中",
+    text: "由 150 余位专业教授编委团队提前审稿，审核稿件内容，提高论文质量，确保投准、投中",
     icon: "team",
   },
   {
@@ -54,36 +63,41 @@ const advantages = [
 ];
 let carouselTimer;
 const optimizedImageMap = {
-  "/images/hero-center.jpg": "/images/optimized/hero-center-1200.webp",
-  "/images/hero-fast-track.jpg": "/images/optimized/hero-fast-track-1200.webp",
-  "/images/optimized/hero-center-2000.webp": "/images/optimized/hero-center-1200.webp",
-  "/images/optimized/hero-fast-track-2000.webp": "/images/optimized/hero-fast-track-1200.webp",
+  "/images/hero-center.jpg": "/images/optimized/hero-center-1600.webp",
+  "/images/hero-fast-track.jpg": "/images/optimized/hero-fast-track-1600.webp",
+  "/images/optimized/hero-center-1200.webp": "/images/optimized/hero-center-1600.webp",
+  "/images/optimized/hero-center-2000.webp": "/images/optimized/hero-center-1600.webp",
+  "/images/optimized/hero-fast-track-1200.webp": "/images/optimized/hero-fast-track-1600.webp",
+  "/images/optimized/hero-fast-track-2000.webp": "/images/optimized/hero-fast-track-1600.webp",
 };
 const heroImageSets = {
-  "/images/hero-center.jpg": "/images/optimized/hero-center-800.webp 800w, /images/optimized/hero-center-1200.webp 1200w, /images/optimized/hero-center-2000.webp 2000w",
-  "/images/optimized/hero-center-1200.webp": "/images/optimized/hero-center-800.webp 800w, /images/optimized/hero-center-1200.webp 1200w, /images/optimized/hero-center-2000.webp 2000w",
-  "/images/optimized/hero-center-2000.webp": "/images/optimized/hero-center-800.webp 800w, /images/optimized/hero-center-1200.webp 1200w, /images/optimized/hero-center-2000.webp 2000w",
-  "/images/hero-fast-track.jpg": "/images/optimized/hero-fast-track-800.webp 800w, /images/optimized/hero-fast-track-1200.webp 1200w, /images/optimized/hero-fast-track-2000.webp 2000w",
-  "/images/optimized/hero-fast-track-1200.webp": "/images/optimized/hero-fast-track-800.webp 800w, /images/optimized/hero-fast-track-1200.webp 1200w, /images/optimized/hero-fast-track-2000.webp 2000w",
-  "/images/optimized/hero-fast-track-2000.webp": "/images/optimized/hero-fast-track-800.webp 800w, /images/optimized/hero-fast-track-1200.webp 1200w, /images/optimized/hero-fast-track-2000.webp 2000w",
+  "/images/hero-center.jpg": "/images/optimized/hero-center-800.webp 800w, /images/optimized/hero-center-1200.webp 1200w, /images/optimized/hero-center-1600.webp 1600w, /images/optimized/hero-center-2400.webp 2400w, /images/optimized/hero-center-3200.webp 3200w",
+  "/images/optimized/hero-center-1200.webp": "/images/optimized/hero-center-800.webp 800w, /images/optimized/hero-center-1200.webp 1200w, /images/optimized/hero-center-1600.webp 1600w, /images/optimized/hero-center-2400.webp 2400w, /images/optimized/hero-center-3200.webp 3200w",
+  "/images/optimized/hero-center-1600.webp": "/images/optimized/hero-center-800.webp 800w, /images/optimized/hero-center-1200.webp 1200w, /images/optimized/hero-center-1600.webp 1600w, /images/optimized/hero-center-2400.webp 2400w, /images/optimized/hero-center-3200.webp 3200w",
+  "/images/optimized/hero-center-2000.webp": "/images/optimized/hero-center-800.webp 800w, /images/optimized/hero-center-1200.webp 1200w, /images/optimized/hero-center-1600.webp 1600w, /images/optimized/hero-center-2400.webp 2400w, /images/optimized/hero-center-3200.webp 3200w",
+  "/images/hero-fast-track.jpg": "/images/optimized/hero-fast-track-800.webp 800w, /images/optimized/hero-fast-track-1200.webp 1200w, /images/optimized/hero-fast-track-1600.webp 1600w, /images/optimized/hero-fast-track-2400.webp 2400w, /images/optimized/hero-fast-track-3200.webp 3200w",
+  "/images/optimized/hero-fast-track-1200.webp": "/images/optimized/hero-fast-track-800.webp 800w, /images/optimized/hero-fast-track-1200.webp 1200w, /images/optimized/hero-fast-track-1600.webp 1600w, /images/optimized/hero-fast-track-2400.webp 2400w, /images/optimized/hero-fast-track-3200.webp 3200w",
+  "/images/optimized/hero-fast-track-1600.webp": "/images/optimized/hero-fast-track-800.webp 800w, /images/optimized/hero-fast-track-1200.webp 1200w, /images/optimized/hero-fast-track-1600.webp 1600w, /images/optimized/hero-fast-track-2400.webp 2400w, /images/optimized/hero-fast-track-3200.webp 3200w",
+  "/images/optimized/hero-fast-track-2000.webp": "/images/optimized/hero-fast-track-800.webp 800w, /images/optimized/hero-fast-track-1200.webp 1200w, /images/optimized/hero-fast-track-1600.webp 1600w, /images/optimized/hero-fast-track-2400.webp 2400w, /images/optimized/hero-fast-track-3200.webp 3200w",
 };
-const heroImageSizes = "(max-width: 650px) calc(100vw - 24px), 1200px";
+const heroImageSizes = "(max-width: 650px) 100vw, 1200px";
 const preloadedImages = new Set();
 
 const activeBanner = computed(() => banners.value[currentSlide.value] || null);
-const previousBanner = computed(() => {
-  if (banners.value.length < 2) return null;
-  return banners.value[(currentSlide.value - 1 + banners.value.length) % banners.value.length];
-});
-const nextBanner = computed(() => {
-  if (banners.value.length < 2) return null;
-  return banners.value[(currentSlide.value + 1) % banners.value.length];
-});
 const filteredJournals = computed(() => {
   const query = keyword.value.trim().toLowerCase();
   return journals.value.filter((item) => {
     const matchesType = journalType.value === "ALL" || item.type === journalType.value;
-    const matchesKeyword = !query || `${item.title} ${item.field} ${item.description} ${item.indexType}`.toLowerCase().includes(query);
+    const searchable = [
+      item.title,
+      item.field,
+      item.description,
+      item.indexType,
+      item.journalLevel,
+      item.disciplineCategory,
+      item.journalPartition,
+    ].filter(Boolean).join(" ");
+    const matchesKeyword = !query || searchable.toLowerCase().includes(query);
     return matchesType && matchesKeyword;
   });
 });
@@ -145,29 +159,33 @@ watch(activeBanner, (banner) => preloadImage(optimizedBannerImage(banner?.imageU
 </script>
 
 <template>
-  <div>
+  <div class="home-page">
     <h1 class="visually-hidden">思研学术 SCI 特刊交流中心</h1>
     <section class="site-hero">
       <div class="shell">
         <div v-if="activeBanner" class="hero-image hero-carousel" @mouseenter="paused = true" @mouseleave="paused = false">
-          <button v-if="previousBanner" class="hero-preview hero-preview-left" type="button" aria-label="预览上一张轮播图" @click="showSlide(currentSlide - 1)">
-            <img :src="optimizedBannerImage(previousBanner.imageUrl)" :srcset="bannerSrcset(previousBanner.imageUrl)" :sizes="heroImageSizes" :alt="previousBanner.title" loading="lazy" decoding="async" />
-          </button>
           <button class="hero-arrow hero-arrow-left" aria-label="上一张" @click="showSlide(currentSlide - 1)">‹</button>
           <RouterLink class="hero-main-slide" to="/submit?subject=首页首屏&target=SCI">
             <img :src="optimizedBannerImage(activeBanner.imageUrl)" :srcset="bannerSrcset(activeBanner.imageUrl)" :sizes="heroImageSizes" :alt="activeBanner.title" loading="eager" fetchpriority="high" decoding="async" />
-            <span class="mobile-hero-caption">
+            <span class="hero-copy" aria-hidden="true">
               <b>{{ activeBanner.title }}</b>
               <small>提交稿件后，顾问将协助完成方向评估、期刊匹配与服务建议。</small>
+              <em>了解更多</em>
             </span>
           </RouterLink>
           <button class="hero-arrow hero-arrow-right" aria-label="下一张" @click="showSlide(currentSlide + 1)">›</button>
-          <button v-if="nextBanner" class="hero-preview hero-preview-right" type="button" aria-label="预览下一张轮播图" @click="showSlide(currentSlide + 1)">
-            <img :src="optimizedBannerImage(nextBanner.imageUrl)" :srcset="bannerSrcset(nextBanner.imageUrl)" :sizes="heroImageSizes" :alt="nextBanner.title" loading="lazy" decoding="async" />
-          </button>
         </div>
         <div v-else-if="loading" class="hero-skeleton">轮播内容加载中…</div>
         <div v-else class="hero-skeleton error-state">{{ loadError }}<button class="ghost" @click="loadData">重新加载</button></div>
+      </div>
+    </section>
+
+    <section class="mobile-shortcut-section" aria-label="移动端快捷入口">
+      <div class="mobile-shortcut-grid">
+        <RouterLink v-for="item in mobileShortcutItems" :key="item.label" :to="item.to" class="mobile-shortcut-item">
+          <span :class="['mobile-shortcut-icon', `icon-${item.icon}`]" aria-hidden="true"></span>
+          <b>{{ item.label }}</b>
+        </RouterLink>
       </div>
     </section>
 
@@ -214,14 +232,8 @@ watch(activeBanner, (banner) => preloadImage(optimizedBannerImage(banner?.imageU
         <input v-model="keyword" type="search" placeholder="搜索期刊名称、学科方向或关键词" />
       </div>
       <div v-if="loading" class="empty-state">期刊列表加载中…</div>
-      <div v-else-if="filteredJournals.length" class="journal-grid">
-        <article v-for="journal in filteredJournals" :key="journal.id">
-          <span class="tag">{{ journal.type }} · {{ journal.field }}</span>
-          <h3>{{ journal.title }}</h3>
-          <p>{{ journal.description }}</p>
-          <div><b>{{ journal.indexType }}</b><small>{{ journal.cycle }}</small></div>
-          <RouterLink :to="`/${journal.type}/${journal.id}`">查看期刊详情 →</RouterLink>
-        </article>
+      <div v-else-if="filteredJournals.length" class="journal-showcase-grid home-journal-grid">
+        <JournalCard v-for="journal in filteredJournals" :key="journal.id" :journal="journal" />
       </div>
       <div v-else class="empty-state"><b>没有匹配的期刊</b><span>调整筛选条件或提交稿件信息，由顾问协助选刊。</span></div>
     </section>

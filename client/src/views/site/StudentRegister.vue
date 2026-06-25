@@ -25,6 +25,7 @@ async function register() {
 }
 
 onMounted(async () => {
+  if (typeof route.query.mobile === "string") form.mobile = route.query.mobile;
   if (await studentSession.restore()) router.replace("/student/orders");
 });
 </script>

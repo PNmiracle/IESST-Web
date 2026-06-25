@@ -76,7 +76,7 @@ function queryString(parameters) {
 
 export const api = {
   publicBanners: () => request("/api/public/banners"),
-  publicJournals: () => request("/api/public/journals"),
+  publicJournals: (parameters = {}) => request(`/api/public/journals?${queryString(parameters)}`),
   publicJournal: (id) => request(`/api/public/journals/${id}`),
   publicServices: () => request("/api/public/services"),
   publicExperts: () => request("/api/public/experts"),

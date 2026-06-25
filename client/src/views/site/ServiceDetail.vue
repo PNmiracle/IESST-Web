@@ -234,7 +234,7 @@ onMounted(async () => {
       </article>
     </div>
   </section>
-  <section class="section shell service-list-section">
+  <section :class="['section shell service-list-section', { 'editing-list-section': isEditing }]">
     <div v-if="!isPremiumService" class="journal-tools service-tools">
       <div><span class="tag">{{ service.navTitle || service.title }}专区</span></div>
       <div class="service-highlight-inline">
