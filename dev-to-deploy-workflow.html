@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IESST-Web 开发到部署完整流程</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --paper: #ffffff;
+      --text: #172033;
+      --muted: #607086;
+      --line: #dfe5ee;
+      --accent: #0f766e;
+      --accent-soft: #e7f5f3;
+      --warn: #9f1239;
+      --warn-soft: #fff1f2;
+      --code-bg: #111827;
+      --code-text: #f8fafc;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+        "Microsoft YaHei", sans-serif;
+      line-height: 1.72;
+    }
+
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 36px 18px 68px;
+    }
+
+    article {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 34px;
+      box-shadow: 0 18px 48px rgba(15, 23, 42, 0.06);
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 31px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      margin: 34px 0 12px;
+      padding-top: 22px;
+      border-top: 1px solid var(--line);
+      font-size: 21px;
+      line-height: 1.32;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 20px 0 8px;
+      font-size: 17px;
+      line-height: 1.35;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 10px 0;
+    }
+
+    ul {
+      margin: 8px 0 8px 1.2rem;
+      padding: 0;
+    }
+
+    li {
+      margin: 5px 0;
+    }
+
+    code {
+      padding: 2px 6px;
+      border-radius: 5px;
+      background: var(--accent-soft);
+      color: #0f4f4a;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", monospace;
+      font-size: 0.94em;
+    }
+
+    pre {
+      overflow-x: auto;
+      margin: 13px 0;
+      padding: 16px;
+      border-radius: 8px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      font-size: 14px;
+      line-height: 1.62;
+    }
+
+    pre code {
+      padding: 0;
+      background: transparent;
+      color: inherit;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    .lead {
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .callout,
+    .warning {
+      margin: 16px 0;
+      padding: 13px 15px;
+      border-radius: 6px;
+    }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .warning {
+      border-left: 4px solid var(--warn);
+      background: var(--warn-soft);
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fbfcfe;
+    }
+
+    .box strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    @media (max-width: 720px) {
+      main {
+        padding: 16px 10px 44px;
+      }
+
+      article {
+        padding: 22px 15px;
+      }
+
+      h1 {
+        font-size: 25px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <article>
+      <h1>IESST-Web 开发到部署完整流程</h1>
+      <p class="lead">这份文档讲清楚：你在本地开发环境改代码，推送到 GitHub，然后在阿里云 Workbench 更新线上部署环境。线上统一只用 <code>main</code> 分支。</p>
+
+      <div class="flow">
+        <div class="box">
+          <strong>本地开发环境</strong>
+          <p>你的电脑。访问 <code>http://127.0.0.1:8080</code> 或 <code>http://127.0.0.1:5173</code>。</p>
+        </div>
+        <div class="box">
+          <strong>GitHub</strong>
+          <p>代码仓库。最终版本统一推到 <code>main</code>。</p>
+        </div>
+        <div class="box">
+          <strong>阿里云部署环境</strong>
+          <p>ECS 服务器。通过 Workbench 登录，在 <code>/opt/iesst-web</code> 更新并重建 Docker。</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        最终规则：以后不要再拉开发分支部署。线上服务器只同步 <code>origin/main</code>。
+      </div>
+
+      <h2>0. 先理解 127.0.0.1</h2>
+      <p><code>127.0.0.1</code> 永远代表“当前这台机器自己”。</p>
+      <pre><code>你电脑浏览器里的 127.0.0.1:8080
+= 你的 Mac 本机开发环境
+
+阿里云服务器命令行里的 127.0.0.1:8080
+= ECS 服务器内部的 Spring Boot
+
+外部用户访问线上网站
+= https://iesst.xyz</code></pre>
+      <p>线上链路是：</p>
+      <pre><code>浏览器 -> https://iesst.xyz -> Nginx 443 -> http://127.0.0.1:8080 -> Docker 里的 Spring Boot</code></pre>
+
+      <h2>1. 本地开发前同步 main</h2>
+      <p>在你电脑本地项目目录执行：</p>
+      <pre><code>cd /Users/chengxinzhi/Downloads/IESST-Academic-Platform
+git switch main
+git fetch origin
+git reset --hard origin/main</code></pre>
+      <p>这样保证你本地开发是从 GitHub 最新 <code>main</code> 开始。</p>
+      <div class="warning">
+        <code>git reset --hard</code> 会丢弃本地未提交改动。执行前如果有正在改的内容，先提交或备份。
+      </div>
+
+      <h2>2. 本地启动开发环境</h2>
+      <p>如果只想跑单体后端页面：</p>
+      <pre><code>./scripts/start-mysql.sh
+./scripts/start-server.sh</code></pre>
+      <p>打开：</p>
+      <pre><code>http://127.0.0.1:8080</code></pre>
+      <p>如果要前端热更新：</p>
+      <pre><code>./scripts/start-mysql.sh
+./scripts/start-server.sh
+./scripts/start-client.sh</code></pre>
+      <p>打开：</p>
+      <pre><code>http://127.0.0.1:5173</code></pre>
+
+      <h2>3. 本地改代码并测试</h2>
+      <p>修改前端、后端或配置后，至少做这几项检查：</p>
+      <pre><code>curl http://127.0.0.1:8080/actuator/health
+curl -i http://127.0.0.1:8080/api/public/journals</code></pre>
+      <p>后端测试：</p>
+      <pre><code>./.tools/apache-maven-3.9.9/bin/mvn -f server/pom.xml test</code></pre>
+      <p>前端构建：</p>
+      <pre><code>cd client
+npm run build</code></pre>
+
+      <h2>4. 提交并推送到 GitHub main</h2>
+      <p>确认改动：</p>
+      <pre><code>git status</code></pre>
+      <p>提交：</p>
+      <pre><code>git add .
+git commit -m "说明这次更新了什么"
+git push origin main</code></pre>
+      <p>推送成功后，GitHub 的 <code>main</code> 就是你准备部署的最新版本。</p>
+
+      <h2>5. 登录阿里云 Workbench</h2>
+      <p>进入：</p>
+      <pre><code>阿里云 ECS 控制台 -> 实例 -> 远程连接 -> Workbench</code></pre>
+      <p>登录服务器后进入线上项目目录：</p>
+      <pre><code>cd /opt/iesst-web</code></pre>
+
+      <h2>6. 部署前看当前状态</h2>
+      <pre><code>git status
+git branch --show-current
+git log --oneline -5
+docker compose -f docker-compose.prod.yml ps</code></pre>
+      <p>正常情况下服务器在 <code>main</code> 分支。即使它不在，也可以用下一步强制同步回来。</p>
+
+      <h2>7. Workbench 上同步 GitHub main</h2>
+      <p>以后服务器更新统一用这两条，不用 <code>git pull</code>：</p>
+      <pre><code>git fetch origin
+git reset --hard origin/main</code></pre>
+      <p>这样可以避免 <code>divergent branches</code> 分叉错误。服务器只负责运行，不在服务器上开发代码。</p>
+      <div class="warning">
+        如果你曾经直接在服务器里改过代码，这一步会丢掉那些服务器本地改动。正确做法是：代码改动只在本地电脑完成，再推到 GitHub。
+      </div>
+
+      <h2>8. 重新构建并启动线上 Docker</h2>
+      <pre><code>docker compose -f docker-compose.prod.yml up -d --build</code></pre>
+      <p>刚启动完时，<code>iesst-app</code> 可能显示 <code>health: starting</code>，这时访问域名可能短暂出现 <code>502 Bad Gateway</code>。等 30 秒到 2 分钟再检查。</p>
+
+      <h2>9. 检查容器健康</h2>
+      <pre><code>docker compose -f docker-compose.prod.yml ps</code></pre>
+      <p>理想状态：</p>
+      <pre><code>iesst-app         Up ... (healthy)
+iesst-mysql-prod  Up ... (healthy)
+iesst-clamav      Up ... (healthy)</code></pre>
+      <p>如果 <code>iesst-app</code> 一直不是 healthy，看日志：</p>
+      <pre><code>docker logs --tail=150 iesst-app</code></pre>
+
+      <h2>10. 检查服务器内部后端</h2>
+      <pre><code>curl http://127.0.0.1:8080/actuator/health
+curl -i http://127.0.0.1:8080/api/public/journals</code></pre>
+      <p>健康检查应该返回：</p>
+      <pre><code>{"status":"UP"}</code></pre>
+      <p>API 应该包含：</p>
+      <pre><code>Content-Type: application/json</code></pre>
+
+      <h2>11. 检查线上域名 API</h2>
+      <pre><code>curl -i https://iesst.xyz/api/public/journals</code></pre>
+      <p>正确结果应该包含：</p>
+      <pre><code>Content-Type: application/json</code></pre>
+      <p>如果看到这个，说明 Nginx 又把 API 请求返回成前端页面了：</p>
+      <pre><code>Content-Type: text/html
+&lt;!doctype html&gt;</code></pre>
+      <p>这时检查 Nginx 启用站点：</p>
+      <pre><code>ls -l /etc/nginx/sites-enabled/</code></pre>
+      <p>正常只保留 <code>iesst.xyz</code>。如果又出现旧配置：</p>
+      <pre><code>sudo unlink /etc/nginx/sites-enabled/iesst
+sudo unlink /etc/nginx/sites-enabled/certbot-temp
+sudo nginx -t
+sudo systemctl reload nginx</code></pre>
+
+      <h2>12. 浏览器最终检查</h2>
+      <p>打开：</p>
+      <pre><code>https://iesst.xyz
+https://iesst.xyz/services/translation
+https://iesst.xyz/EI
+https://iesst.xyz/admin</code></pre>
+      <p>如果看起来还是旧页面，强制刷新：</p>
+      <pre><code>Mac：Command + Shift + R
+Windows：Ctrl + F5</code></pre>
+
+      <h2>13. 如果线上还是旧版本</h2>
+      <p>先确认服务器已经拿到 GitHub 最新提交：</p>
+      <pre><code>git log --oneline -5</code></pre>
+      <p>再无缓存重建：</p>
+      <pre><code>docker compose -f docker-compose.prod.yml down
+docker image rm iesst-academic-platform:latest
+docker compose -f docker-compose.prod.yml build --no-cache
+docker compose -f docker-compose.prod.yml up -d</code></pre>
+      <p>然后重复健康检查和 API 检查。</p>
+
+      <h2>14. 如果要回滚</h2>
+      <p>查看最近版本：</p>
+      <pre><code>git log --oneline -10</code></pre>
+      <p>临时切回某个旧 commit：</p>
+      <pre><code>git checkout 旧commitID
+docker compose -f docker-compose.prod.yml up -d --build</code></pre>
+      <p>恢复到最新 main：</p>
+      <pre><code>git switch main
+git fetch origin
+git reset --hard origin/main
+docker compose -f docker-compose.prod.yml up -d --build</code></pre>
+
+      <h2>15. 每次更新最短命令</h2>
+      <h3>本地电脑</h3>
+      <pre><code>git status
+git add .
+git commit -m "说明这次更新了什么"
+git push origin main</code></pre>
+      <h3>阿里云 Workbench</h3>
+      <pre><code>cd /opt/iesst-web
+git fetch origin
+git reset --hard origin/main
+docker compose -f docker-compose.prod.yml up -d --build
+docker compose -f docker-compose.prod.yml ps
+curl http://127.0.0.1:8080/actuator/health
+curl -i https://iesst.xyz/api/public/journals</code></pre>
+
+      <h2>16. 不要做的事</h2>
+      <ul>
+        <li>不要在服务器上直接改代码然后再 <code>git pull</code>。</li>
+        <li>不要把 <code>.env</code> 提交到 GitHub。</li>
+        <li>不要随便执行 <code>docker compose -f docker-compose.prod.yml down -v</code>，它会删除数据库 volume。</li>
+        <li>不要用浏览器访问自己电脑的 <code>127.0.0.1</code> 来判断线上是否成功。线上看 <code>https://iesst.xyz</code>。</li>
+      </ul>
+
+      <h2>常用链接</h2>
+      <p>
+        <a href="https://github.com/PNmiracle/IESST-Web">GitHub 仓库</a> |
+        <a href="https://ecs.console.aliyun.com/">阿里云 ECS 控制台</a> |
+        <a href="https://dns.console.aliyun.com/">阿里云 DNS 控制台</a> |
+        <a href="https://oss.console.aliyun.com/">阿里云 OSS 控制台</a>
+      </p>
+    </article>
+  </main>
+</body>
+</html>

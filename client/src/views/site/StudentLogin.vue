@@ -49,7 +49,7 @@ onMounted(async () => {
         <button class="primary" :disabled="loading">{{ loading ? "正在登录…" : "登录并查看订单" }}</button>
       </form>
       <small class="auth-secondary">还没有账号？<RouterLink :to="registerTarget">立即注册</RouterLink></small>
-      <small>忘记密码？短信验证重置功能正在接入中，请暂时联系顾问协助核验账号。</small>
+      <small>忘记密码？短信验证重置功能正在接入中，请暂时联系编辑协助核验账号。</small>
     </div>
   </section>
 </template>

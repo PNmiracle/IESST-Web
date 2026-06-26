@@ -233,11 +233,12 @@
 }
 
 .translation-pricing-grid {
-  width: min(100%, 820px);
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: min(100%, 760px);
+  grid-template-columns: repeat(2, minmax(300px, 1fr));
   align-items: stretch;
+  justify-content: center;
   margin: 0 auto;
-  gap: 50px;
+  gap: 34px;
 }
 
 .editing-capability-section {
@@ -373,7 +374,7 @@
 }
 
 .translation-plan-card {
-  min-height: 540px;
+  min-height: 520px;
   padding: 0 10px 10px;
   overflow: hidden;
   background: linear-gradient(135deg, #744bb8, #526ee5);
@@ -401,7 +402,7 @@
 .translation-plan-card header > span {
   display: block;
   margin: 0;
-  padding: 30px 24px 14px;
+  padding: 26px 24px 12px;
   color: #f27639;
   background: #fff;
   border-radius: 8px 8px 0 0;
@@ -418,11 +419,11 @@
   display: grid;
   flex: 1;
   margin: 0;
-  padding: 20px 42px 16px;
+  padding: 20px 34px 14px;
   color: #303544;
   background: #fff;
   list-style: none;
-  gap: 14px;
+  gap: 12px;
 }
 
 .translation-plan-card li {

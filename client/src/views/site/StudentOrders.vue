@@ -140,8 +140,8 @@ onMounted(() => loadOrders(true));
         <div class="student-order-main">
           <div class="student-order-kicker"><span>{{ order.orderNo }}</span><span>{{ order.targetType || "咨询" }}</span></div>
           <h3>{{ order.title }}</h3>
-          <p>{{ order.notes || "顾问正在确认需求，后续说明会同步到这里。" }}</p>
-          <small>顾问：{{ order.consultantName || "待分配" }} · 创建时间：{{ formatDate(order.createdAt) }}</small>
+          <p>{{ order.notes || "编辑正在确认需求，后续说明会同步到这里。" }}</p>
+          <small>编辑：{{ order.consultantName || "待分配" }} · 创建时间：{{ formatDate(order.createdAt) }}</small>
 
           <div v-if="expandedOrderId === order.id" class="student-order-details">
             <section><h4>服务进度</h4><ol v-if="progressByOrder[order.id]?.length" class="student-progress"><li v-for="item in progressByOrder[order.id]" :key="item.id"><b>{{ item.stageLabel }}</b><span>{{ item.progressNote }}</span><small>{{ item.operatorName || "系统" }} · {{ formatDate(item.createdAt) }}</small></li></ol><p v-else class="student-detail-empty">暂无公开进度</p></section>
@@ -157,7 +157,7 @@ onMounted(() => loadOrders(true));
       </article>
       <footer v-if="pagination.totalPages > 1" class="student-pagination"><span>第 {{ filters.page }} / {{ pagination.totalPages }} 页</span><div><button class="ghost" :disabled="filters.page <= 1" @click="changePage(filters.page - 1)">上一页</button><button class="ghost" :disabled="filters.page >= pagination.totalPages" @click="changePage(filters.page + 1)">下一页</button></div></footer>
     </div>
-    <div v-else class="empty-state"><b>{{ filters.status === "ALL" ? "暂时没有订单" : "该状态下没有订单" }}</b><span>提交免费评估后，顾问确认的进度会显示在这里。</span><RouterLink class="primary" to="/submit">免费评估稿件</RouterLink></div>
+    <div v-else class="empty-state"><b>{{ filters.status === "ALL" ? "暂时没有订单" : "该状态下没有订单" }}</b><span>提交免费评估后，编辑确认的进度会显示在这里。</span><RouterLink class="primary" to="/submit">免费评估稿件</RouterLink></div>
 
     <section class="student-invoices">
       <div class="student-orders-head compact"><div><span class="eyebrow">INVOICES</span><h2>发票记录</h2></div></div>

@@ -49,12 +49,12 @@ public class DemoStore {
             saveService(new ServiceOffering(null, "editing", "返修支持", "按轮评估", "协助梳理审稿意见、制定回复策略，并优化逐条回复的科学表达。", "审稿意见分类\n回复策略建议\nResponse Letter 编辑", true));
         }
         if (count("experts") == 0) {
-            saveExpert(new Expert(null, "Sos S. Agaian", "City University of New York", "学术顾问 · 编辑专家", "/images/experts/sos-agaian.jpg", true));
-            saveExpert(new Expert(null, "Om P. Malik", "University of Calgary", "学术顾问 · 编辑专家", "/images/experts/om-malik.jpg", true));
-            saveExpert(new Expert(null, "Maike Neuhaus", "The University of Queensland", "学术顾问 · 编辑专家", "/images/experts/maike-neuhaus.jpg", true));
-            saveExpert(new Expert(null, "Jumril Yunas", "Universiti Kebangsaan Malaysia", "学术顾问 · 编辑专家", "/images/experts/jumril-yunas.jpg", true));
-            saveExpert(new Expert(null, "Oussama Khatib", "Stanford University", "学术顾问 · 编辑专家", "/images/experts/oussama-khatib.jpg", true));
-            saveExpert(new Expert(null, "Ali M. Eltamaly", "King Saud University", "学术顾问 · 编辑专家", "/images/experts/ali-eltamaly.jpg", true));
+            saveExpert(new Expert(null, "Sos S. Agaian", "City University of New York", "学术编辑 · 编辑专家", "/images/experts/sos-agaian.jpg", true));
+            saveExpert(new Expert(null, "Om P. Malik", "University of Calgary", "学术编辑 · 编辑专家", "/images/experts/om-malik.jpg", true));
+            saveExpert(new Expert(null, "Maike Neuhaus", "The University of Queensland", "学术编辑 · 编辑专家", "/images/experts/maike-neuhaus.jpg", true));
+            saveExpert(new Expert(null, "Jumril Yunas", "Universiti Kebangsaan Malaysia", "学术编辑 · 编辑专家", "/images/experts/jumril-yunas.jpg", true));
+            saveExpert(new Expert(null, "Oussama Khatib", "Stanford University", "学术编辑 · 编辑专家", "/images/experts/oussama-khatib.jpg", true));
+            saveExpert(new Expert(null, "Ali M. Eltamaly", "King Saud University", "学术编辑 · 编辑专家", "/images/experts/ali-eltamaly.jpg", true));
         }
     }
 

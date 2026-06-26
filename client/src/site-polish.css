@@ -54,11 +54,27 @@
 }
 
 .site-auth-links .login-link {
-  padding: 5px 14px;
-  color: #d78c2d;
-  border: 1px solid #dfa14f;
-  border-radius: 999px;
-  font-weight: 800;
+  display: inline-flex;
+  min-width: 98px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px !important;
+  color: #5d348a;
+  background: #f6f1fb;
+  border: 1px solid rgba(112, 67, 154, 0.18);
+  border-radius: 8px;
+  font-weight: 850 !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.64), 0 8px 18px rgba(64, 35, 91, 0.08);
+  transition: color 0.18s ease, background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.site-auth-links .login-link:hover {
+  color: #fff;
+  background: #5d348a;
+  border-color: #5d348a;
+  box-shadow: 0 12px 24px rgba(93, 52, 138, 0.2);
+  transform: translateY(-1px);
 }
 
 .site-auth-links .divider {
@@ -175,10 +191,11 @@
 }
 
 .site-auth-links .login-link {
-  color: #d78c2d;
-  padding: 0 !important;
-  border: 0;
-  border-radius: 0;
+  color: #5d348a;
+  padding: 0 18px !important;
+  border: 1px solid rgba(112, 67, 154, 0.18);
+  border-radius: 8px;
+  background: #f6f1fb;
   font-weight: 850 !important;
 }
 
@@ -301,7 +318,7 @@
   width: 100%;
   height: 100%;
   display: block;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
   filter: none;
   transform: none;
@@ -312,6 +329,18 @@
   inset: 0;
   content: "";
   background: transparent;
+  pointer-events: none;
+}
+
+.hero-carousel::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 4;
+  height: 72px;
+  content: "";
+  background: linear-gradient(180deg, rgba(13, 15, 24, 0), rgba(13, 15, 24, 0.78) 38%, #0d0f18 62%);
   pointer-events: none;
 }
 
@@ -399,6 +428,49 @@
 
 .hero-arrow-right {
   right: max(22px, calc((100vw - 1200px) / 2 + 22px));
+}
+
+.hero-dots {
+  position: absolute;
+  right: 0;
+  bottom: 20px;
+  left: 0;
+  z-index: 5;
+  display: flex;
+  width: max-content;
+  max-width: min(90%, 520px);
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  padding: 0;
+  background: transparent;
+  gap: 10px;
+}
+
+.hero-dots .hero-dot {
+  appearance: none;
+  width: 10px !important;
+  height: 10px !important;
+  padding: 0;
+  border: 0;
+  background: rgba(255, 255, 255, 0.46);
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
+}
+
+.hero-dots .hero-dot.is-active {
+  width: 10px !important;
+  height: 10px !important;
+  background: #fff;
+  transform: scale(1.16);
+}
+
+.hero-dots .hero-dot::before,
+.hero-dots .hero-dot::after {
+  display: none;
+  content: none;
 }
 
 .solution-grid {
@@ -1234,7 +1306,7 @@
   }
 
   .hero-main-slide img {
-    object-fit: contain;
+    object-fit: cover;
     object-position: center;
     filter: none;
     transform: none;
@@ -1404,10 +1476,10 @@
   }
 
   .site-auth-links .login-link {
-    min-height: auto;
-    padding: 0 !important;
-    border: 0;
-    border-radius: 0;
+    min-height: 38px;
+    padding: 0 18px !important;
+    border: 1px solid rgba(112, 67, 154, 0.18);
+    border-radius: 8px;
     font-size: 15px !important;
   }
 
@@ -1587,7 +1659,8 @@
     width: 286px;
     min-width: 286px;
     height: 90px;
-    margin-bottom: 10px;
+    margin-right: 20px;
+    margin-bottom: 25px;
     margin-left: 0;
     object-fit: contain;
     object-position: left center;
@@ -1809,6 +1882,8 @@
 .journal-showcase-card {
   display: grid;
   grid-template-columns: 154px minmax(0, 1fr);
+  align-items: stretch;
+  height: 100%;
   min-height: 0;
   padding: 28px;
   background: #fff;
@@ -1858,7 +1933,8 @@
 
 .journal-card-body {
   display: flex;
-  min-height: 100%;
+  height: 100%;
+  min-height: 0;
   min-width: 0;
   flex-direction: column;
   align-items: flex-start;
@@ -1914,7 +1990,7 @@
   min-height: 38px;
   align-items: center;
   justify-content: center;
-  margin-top: 22px;
+  margin-top: auto;
   padding: 8px 20px;
   color: #ff7800;
   border: 1px solid #ff7800;
@@ -1928,6 +2004,7 @@
 }
 
 .home-journal-grid .journal-showcase-card {
+  min-height: 410px;
   padding: 24px;
 }
 
@@ -2081,7 +2158,7 @@
 
   .journal-submit-button {
     min-height: 34px;
-    margin-top: 14px;
+    margin-top: auto;
     padding: 7px 16px;
   }
 
@@ -2168,7 +2245,7 @@
     width: 250px;
     min-width: 250px;
     height: 70px;
-    margin: 0;
+    margin: 0 20px 25px 0;
   }
 
   .site-app .site-nav .site-main-menu {
@@ -2222,14 +2299,16 @@
 
   .site-app .hero-carousel {
     width: 100%;
-    aspect-ratio: auto;
-    height: 258px;
+    aspect-ratio: 4001 / 834;
+    height: auto;
     max-height: none;
     min-height: 0;
   }
 
   .site-app .hero-main-slide img {
-    object-fit: contain;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
     filter: none;
   }
 
@@ -2272,6 +2351,15 @@
   .site-app .service-card-grid,
   .site-app .expert-grid {
     grid-template-columns: repeat(3, 1fr);
+  }
+
+  .site-app .translation-pricing-grid {
+    width: min(100%, 760px);
+    grid-template-columns: repeat(2, minmax(300px, 1fr));
+    justify-content: center;
+    margin-right: auto;
+    margin-left: auto;
+    gap: 34px;
   }
 
   .site-app .solution-grid {
@@ -2596,6 +2684,10 @@
     grid-template-columns: 1fr;
   }
 
+  .site-app .translation-pricing-grid {
+    grid-template-columns: 1fr;
+  }
+
   .site-app .advantage-card {
     width: 100%;
     min-height: 0;
@@ -2891,6 +2983,10 @@
     grid-template-columns: 1fr;
   }
 
+  html.mobile-preview .translation-pricing-grid {
+    grid-template-columns: 1fr;
+  }
+
   html.mobile-preview .advantage-card {
     width: 100%;
     min-height: 0;
@@ -3183,7 +3279,7 @@
   html.mobile-preview .journal-submit-button {
     width: 100%;
     min-height: 34px;
-    margin-top: 12px;
+    margin-top: auto;
     padding: 7px 12px;
     border-radius: 8px;
     font-size: 13px;
@@ -3399,7 +3495,7 @@
   .site-app .journal-submit-button {
     width: 100%;
     min-height: 34px;
-    margin-top: 12px;
+    margin-top: auto;
     padding: 7px 12px;
     border-radius: 8px;
     font-size: 13px;

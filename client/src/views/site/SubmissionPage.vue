@@ -20,7 +20,7 @@ const form = reactive({
 });
 const conversionSteps = [
   { title: "免费评估稿件", text: "上传稿件或填写当前需求，系统生成后台记录。" },
-  { title: "顾问确认方案", text: "结合方向、服务类型和稿件阶段判断处理路径。" },
+  { title: "编辑确认方案", text: "结合方向、服务类型和稿件阶段判断处理路径。" },
   { title: "同步处理进度", text: "登录学生账号提交后，可在我的订单查看节点。" },
 ];
 
@@ -92,7 +92,7 @@ onMounted(async () => {
   <section class="section shell submit-page-grid unified-submit-page">
     <div>
       <h2>一条清晰的提交路径</h2>
-      <p class="submit-page-lead">不需要先判断该点“咨询”还是“提交”。先完成免费评估，顾问会根据稿件阶段推荐 SCI/EI、翻译润色或科学编辑服务。</p>
+      <p class="submit-page-lead">不需要先判断该点“咨询”还是“提交”。先完成免费评估，编辑会根据稿件阶段推荐 SCI/EI、翻译润色或科学编辑服务。</p>
       <div class="submission-flow">
         <article v-for="(step, index) in conversionSteps" :key="step.title">
           <b>{{ String(index + 1).padStart(2, "0") }}</b>
@@ -107,7 +107,7 @@ onMounted(async () => {
     <section v-if="result" class="card submit-success">
       <span>✓</span>
       <h3>评估需求已收到</h3>
-      <p>记录编号：#{{ result.id }}，当前状态：{{ result.status }}。{{ uploadResult ? `附件已同步：${uploadResult.fileName}。` : "未上传附件，顾问会先根据需求说明评估。" }}</p>
+      <p>记录编号：#{{ result.id }}，当前状态：{{ result.status }}。{{ uploadResult ? `附件已同步：${uploadResult.fileName}。` : "未上传附件，编辑会先根据需求说明评估。" }}</p>
       <ol>
         <li v-for="step in conversionSteps" :key="step.title">{{ step.title }}</li>
       </ol>

@@ -36,7 +36,7 @@ const editingCapabilities = [
 ];
 const submissionFlow = [
   { title: "上传稿件", text: "支持 PDF、Word 文件，系统写入后台投稿与附件记录。" },
-  { title: "顾问评估", text: "根据服务类型、字数、研究方向和当前阶段确认处理范围。" },
+  { title: "编辑评估", text: "根据服务类型、字数、研究方向和当前阶段确认处理范围。" },
   { title: "进度同步", text: "登录学生提交会同步生成订单，后续可查看处理节点。" },
 ];
 const translationPlanContent = {
@@ -243,7 +243,7 @@ onMounted(async () => {
     </div>
     <div class="heading service-type-heading">
       <div><h2>服务类型</h2></div>
-      <p v-if="!isPremiumService">根据稿件阶段和实际需求选择服务，提交后由顾问进一步确认范围。</p>
+      <p v-if="!isPremiumService">根据稿件阶段和实际需求选择服务，提交后由编辑进一步确认范围。</p>
     </div>
     <div :class="['service-card-grid', { 'translation-pricing-grid': isTranslation, 'editing-pricing-grid': isEditing }]"><article v-for="item in displayItems" :key="item.id" :class="['card service-card', { 'translation-plan-card': isPremiumService, 'editing-plan-card': isEditing }]"><header><h3>{{ item.title }}</h3><span>{{ item.price }}</span></header><p>{{ item.description }}</p><ul><li v-for="feature in item.features.split('\n').filter(Boolean)" :key="feature">{{ feature }}</li></ul><div class="translation-plan-actions"><button class="primary" type="button" @click="openSubmitDialog(item)">提交稿件评估</button></div></article></div>
   </section>
@@ -255,7 +255,7 @@ onMounted(async () => {
           <div class="translation-submit-success">
             <span>✓</span>
             <h2 id="translation-submit-title">稿件信息已提交</h2>
-            <p>记录编号：#{{ submitResult.id }}，文件：{{ submitResult.upload?.fileName }}。管理员后台已生成投稿与附件记录，顾问会按流程完成初步评估。</p>
+            <p>记录编号：#{{ submitResult.id }}，文件：{{ submitResult.upload?.fileName }}。管理员后台已生成投稿与附件记录，编辑会按流程完成初步评估。</p>
             <div class="submission-next-steps">
               <article v-for="(step, index) in submissionFlow" :key="step.title">
                 <b>{{ String(index + 1).padStart(2, "0") }}</b>

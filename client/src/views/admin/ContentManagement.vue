@@ -9,7 +9,7 @@ const experts = ref([]);
 const serviceForm = reactive(emptyService());
 const expertForm = reactive(emptyExpert());
 function emptyService(){return {id:null,category:"translation",title:"",price:"",description:"",features:"",published:true};}
-function emptyExpert(){return {id:null,name:"",institution:"",role:"学术顾问 · 编辑专家",imageUrl:"/images/experts/sos-agaian.jpg",published:true};}
+function emptyExpert(){return {id:null,name:"",institution:"",role:"学术编辑 · 编辑专家",imageUrl:"/images/experts/sos-agaian.jpg",published:true};}
 function resetService(){Object.assign(serviceForm,emptyService());}
 function resetExpert(){Object.assign(expertForm,emptyExpert());}
 async function load(){[services.value,experts.value]=await Promise.all([api.adminServices(),api.adminExperts()]);}

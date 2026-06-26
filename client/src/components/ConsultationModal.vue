@@ -68,14 +68,14 @@ watch(() => consultation.seed, () => show(consultation.payload), { immediate: tr
       <section class="consult-modal card" role="dialog" aria-modal="true" aria-labelledby="consult-title">
         <button class="consult-close" type="button" aria-label="关闭弹窗" @click="close">×</button>
         <template v-if="done">
-          <div class="consult-success"><span>✓</span><h2 id="consult-title">信息已收到</h2><p>咨询编号：#{{ result?.id }}。顾问会根据您填写的内容进行初步判断，后台已同步生成咨询与跟进记录。</p><button class="primary" type="button" @click="close">好的</button></div>
+          <div class="consult-success"><span>✓</span><h2 id="consult-title">信息已收到</h2><p>咨询编号：#{{ result?.id }}。编辑会根据您填写的内容进行初步判断，后台已同步生成咨询与跟进记录。</p><button class="primary" type="button" @click="close">好的</button></div>
         </template>
         <template v-else>
           <div class="consult-heading"><span>CONTACT CONSULTANT</span><h2 id="consult-title">预约一对一沟通</h2><p>留下基础信息即可，不会跳转离开当前页面。</p></div>
           <form class="consult-form" @submit.prevent="submit">
             <label>作者姓名<input v-model="form.authorName" required placeholder="请输入姓名" /></label>
-            <label>联系邮箱<input v-model="form.email" type="email" required placeholder="用于接收顾问回复" /></label>
-            <label>联系电话<input v-model="form.mobile" inputmode="tel" placeholder="选填，便于顾问及时联系" /></label>
+            <label>联系邮箱<input v-model="form.email" type="email" required placeholder="用于接收编辑回复" /></label>
+            <label>联系电话<input v-model="form.mobile" inputmode="tel" placeholder="选填，便于编辑及时联系" /></label>
             <label class="wide">咨询主题<input v-model="form.paperTitle" required placeholder="例如 SCI 全流程方案 / 翻译润色 / 期刊适配" /></label>
             <label>目标类型<select v-model="form.targetType"><option>SCI</option><option>EI</option><option>翻译润色</option><option>科学编辑</option></select></label>
             <label class="wide">补充说明<textarea v-model="form.message" placeholder="可填写研究方向、当前稿件阶段、希望解决的问题"></textarea></label>

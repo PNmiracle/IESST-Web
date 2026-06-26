@@ -17,8 +17,8 @@ const paused = ref(false);
 const journalType = ref("ALL");
 const keyword = ref("");
 const submissionSteps = [
-  { title: "后台生成记录", text: "稿件信息会进入管理员投稿列表，便于顾问跟进。" },
-  { title: "顾问初步评估", text: "结合研究方向、目标类型和稿件阶段判断服务范围。" },
+  { title: "后台生成记录", text: "稿件信息会进入管理员投稿列表，便于编辑跟进。" },
+  { title: "编辑初步评估", text: "结合研究方向、目标类型和稿件阶段判断服务范围。" },
   { title: "同步进度反馈", text: "登录学生账号提交时，可在我的订单中查看处理状态。" },
 ];
 const mobileShortcutItems = [
@@ -80,7 +80,7 @@ const heroImageSets = {
   "/images/optimized/hero-fast-track-1600.webp": "/images/optimized/hero-fast-track-800.webp 800w, /images/optimized/hero-fast-track-1200.webp 1200w, /images/optimized/hero-fast-track-1600.webp 1600w, /images/optimized/hero-fast-track-2400.webp 2400w, /images/optimized/hero-fast-track-3200.webp 3200w",
   "/images/optimized/hero-fast-track-2000.webp": "/images/optimized/hero-fast-track-800.webp 800w, /images/optimized/hero-fast-track-1200.webp 1200w, /images/optimized/hero-fast-track-1600.webp 1600w, /images/optimized/hero-fast-track-2400.webp 2400w, /images/optimized/hero-fast-track-3200.webp 3200w",
 };
-const heroImageSizes = "(max-width: 650px) 100vw, 1200px";
+const heroImageSizes = "100vw";
 const preloadedImages = new Set();
 
 const activeBanner = computed(() => banners.value[currentSlide.value] || null);
@@ -143,6 +143,7 @@ async function loadData() {
   try {
     const [bannerItems, journalItems, expertItems] = await Promise.all([api.publicBanners(), api.publicJournals(), api.publicExperts()]);
     banners.value = bannerItems.length ? bannerItems : defaultBanners;
+    if (currentSlide.value >= banners.value.length) currentSlide.value = 0;
     journals.value = journalItems;
     experts.value = expertItems;
     startCarousel();
@@ -169,11 +170,23 @@ watch(activeBanner, (banner) => preloadImage(optimizedBannerImage(banner?.imageU
             <img :src="optimizedBannerImage(activeBanner.imageUrl)" :srcset="bannerSrcset(activeBanner.imageUrl)" :sizes="heroImageSizes" :alt="activeBanner.title" loading="eager" fetchpriority="high" decoding="async" />
             <span class="hero-copy" aria-hidden="true">
               <b>{{ activeBanner.title }}</b>
-              <small>提交稿件后，顾问将协助完成方向评估、期刊匹配与服务建议。</small>
+              <small>提交稿件后，编辑将协助完成方向评估、期刊匹配与服务建议。</small>
               <em>了解更多</em>
             </span>
           </RouterLink>
           <button class="hero-arrow hero-arrow-right" aria-label="下一张" @click="showSlide(currentSlide + 1)">›</button>
+          <div v-if="banners.length > 1" class="hero-dots" aria-label="轮播图切换状态">
+            <button
+              v-for="(banner, index) in banners"
+              :key="banner.id || `${banner.imageUrl}-${index}`"
+              type="button"
+              class="hero-dot"
+              :class="{ 'is-active': index === currentSlide }"
+              :aria-label="`切换到第 ${index + 1} 张：${banner.title}`"
+              :aria-current="index === currentSlide ? 'true' : undefined"
+              @click="showSlide(index)"
+            ></button>
+          </div>
         </div>
         <div v-else-if="loading" class="hero-skeleton">轮播内容加载中…</div>
         <div v-else class="hero-skeleton error-state">{{ loadError }}<button class="ghost" @click="loadData">重新加载</button></div>
@@ -235,12 +248,12 @@ watch(activeBanner, (banner) => preloadImage(optimizedBannerImage(banner?.imageU
       <div v-else-if="filteredJournals.length" class="journal-showcase-grid home-journal-grid">
         <JournalCard v-for="journal in filteredJournals" :key="journal.id" :journal="journal" />
       </div>
-      <div v-else class="empty-state"><b>没有匹配的期刊</b><span>调整筛选条件或提交稿件信息，由顾问协助选刊。</span></div>
+      <div v-else class="empty-state"><b>没有匹配的期刊</b><span>调整筛选条件或提交稿件信息，由编辑协助选刊。</span></div>
     </section>
 
     <section id="submission" class="section pale home-assessment-band">
       <div class="shell">
-        <div><span class="eyebrow">ONE CLEAR PATH</span><h2>从免费评估开始</h2><p>上传稿件或填写需求，顾问确认服务方案；登录学生账号后，可在订单中心持续查看进度与文件。</p></div>
+        <div><span class="eyebrow">ONE CLEAR PATH</span><h2>从免费评估开始</h2><p>上传稿件或填写需求，编辑确认服务方案；登录学生账号后，可在订单中心持续查看进度与文件。</p></div>
         <div class="home-assessment-flow"><article v-for="(step, index) in submissionSteps" :key="step.title"><b>{{ String(index + 1).padStart(2, "0") }}</b><span>{{ step.title }}</span></article></div>
         <RouterLink class="primary" to="/submit?subject=首页统一投稿入口&target=SCI">免费评估稿件</RouterLink>
       </div>

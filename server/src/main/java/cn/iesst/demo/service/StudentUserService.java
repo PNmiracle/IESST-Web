@@ -50,8 +50,8 @@ public class StudentUserService {
         }
         ensureDemoSubmission("18800000088", "张同学", "SCI 特刊论文初评与期刊匹配");
         ensureDemoSubmission("18800000099", "李同学", "EI 智能制造方向投稿咨询");
-        ensureDemoOrderCenter("18800000088", "SCI 特刊论文初评与期刊匹配", "SCI", "王顾问", new BigDecimal("2980.00"), true);
-        ensureDemoOrderCenter("18800000099", "EI 智能制造方向投稿咨询", "EI", "陈顾问", new BigDecimal("1280.00"), false);
+        ensureDemoOrderCenter("18800000088", "SCI 特刊论文初评与期刊匹配", "SCI", "王编辑", new BigDecimal("2980.00"), true);
+        ensureDemoOrderCenter("18800000099", "EI 智能制造方向投稿咨询", "EI", "陈编辑", new BigDecimal("1280.00"), false);
         reconcileLinkedSubmissionStatuses();
     }
 
@@ -191,7 +191,7 @@ public class StudentUserService {
                 "NEW",
                 null,
                 submission.message());
-        addProgress(orderId, "SUBMITTED", "信息已提交", "你的稿件评估信息已进入后台，顾问将进行初步判断。", "系统");
+        addProgress(orderId, "SUBMITTED", "信息已提交", "你的稿件评估信息已进入后台，编辑将进行初步判断。", "系统");
         return adminOrders().stream()
                 .filter(item -> item.id().equals(orderId))
                 .findFirst();
@@ -301,7 +301,7 @@ public class StudentUserService {
 
     public StudentOrder updateOrderStatus(long id, String status) {
         String currentStage = switch (status) {
-            case "NEW" -> "待顾问确认";
+            case "NEW" -> "待编辑确认";
             case "IN_PROGRESS" -> "服务进行中";
             case "COMPLETED" -> "服务已完成";
             case "CANCELLED" -> "订单已取消";
@@ -437,9 +437,9 @@ public class StudentUserService {
                 "IN_PROGRESS",
                 consultantName,
                 "演示订单：用于学生端查看订单、进度与发票信息。");
-        addProgress(orderId, "SUBMITTED", "已提交信息", "稿件基础信息已进入顾问工作台。", "系统");
+        addProgress(orderId, "SUBMITTED", "已提交信息", "稿件基础信息已进入编辑工作台。", "系统");
         addProgress(orderId, "ASSESSING", "稿件评估中", "正在评估研究方向、服务范围与可匹配期刊。", consultantName);
-        addProgress(orderId, "FOLLOW_UP", "等待沟通确认", "顾问将确认服务节点、周期与交付材料。", consultantName);
+        addProgress(orderId, "FOLLOW_UP", "等待沟通确认", "编辑将确认服务节点、周期与交付材料。", consultantName);
         if (createInvoice) {
             store.insertAndReturnId(
                     "INSERT INTO invoice_requests(order_id,student_user_id,invoice_title,tax_number,invoice_type,invoice_amount,receiver_email,receiver_phone_ciphertext,receiver_address,status,remark) VALUES (?,?,?,?,?,?,?,?,?,?,?)",

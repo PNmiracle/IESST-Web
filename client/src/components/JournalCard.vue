@@ -43,24 +43,28 @@ function display(value, fallback = "-") {
           <dd>{{ display(journal.journalLevel || journal.indexType) }}</dd>
         </div>
         <div>
-          <dt>影响因子：</dt>
-          <dd>{{ display(journal.impactFactorLabel) }}</dd>
+          <dt>期刊名称：</dt>
+          <dd>{{ display(journal.title) }}</dd>
+        </div>
+        <div>
+          <dt>图片：</dt>
+          <dd>{{ display(journal.imageUrl ? "已上传" : "") }}</dd>
         </div>
         <div>
           <dt>学科领域：</dt>
           <dd>{{ display(journal.disciplineCategory || journal.field) }}</dd>
         </div>
         <div>
-          <dt>期刊分区：</dt>
-          <dd>{{ display(journal.journalPartition) }}</dd>
+          <dt>中科院分区：</dt>
+          <dd>{{ display(journal.casZone) }}</dd>
         </div>
         <div>
-          <dt>录用时间：</dt>
-          <dd>{{ display(journal.acceptanceTime || journal.cycle) }}</dd>
+          <dt>JCR分区：</dt>
+          <dd>{{ display(journal.jcrQuartile) }}</dd>
         </div>
         <div>
-          <dt>截稿时间：</dt>
-          <dd class="deadline">{{ display(journal.submissionDeadlineText) }}</dd>
+          <dt>影响因子：</dt>
+          <dd>{{ display(journal.impactFactorLabel) }}</dd>
         </div>
       </dl>
       <RouterLink class="journal-submit-button" :to="submitLink">立即投稿</RouterLink>

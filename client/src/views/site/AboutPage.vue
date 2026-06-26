@@ -70,7 +70,7 @@ function openAboutConsultation() {
       <div>
         <span class="eyebrow">CONTACT US</span>
         <h2>让我们从稿件初评开始</h2>
-        <p>提交基础信息，顾问会根据目标方向和当前阶段提供初步建议。</p>
+        <p>提交基础信息，编辑会根据目标方向和当前阶段提供初步建议。</p>
       </div>
       <button class="primary" type="button" @click="openAboutConsultation">预约一对一沟通</button>
     </div>

@@ -140,7 +140,7 @@ onMounted(load);
             </td>
             <td>
               <span class="tag">{{ order.targetType || "咨询" }}</span>
-              <small>学生 ID：{{ order.studentUserId }} · 顾问：{{ order.consultantName || "待分配" }}</small>
+              <small>学生 ID：{{ order.studentUserId }} · 编辑：{{ order.consultantName || "待分配" }}</small>
             </td>
             <td>
               <b>{{ order.currencyCode }} {{ Number(order.amount || 0).toFixed(2) }}</b>

@@ -39,7 +39,7 @@ onMounted(async () => {
       <div v-if="error" class="inline-error">{{ error }}</div>
       <form @submit.prevent="register">
         <label>手机号<input v-model="form.mobile" autocomplete="tel" placeholder="请输入 11 位手机号" required /></label>
-        <label>姓名<input v-model="form.displayName" autocomplete="name" placeholder="用于订单和顾问沟通" required /></label>
+        <label>姓名<input v-model="form.displayName" autocomplete="name" placeholder="用于订单和编辑沟通" required /></label>
         <label>登录密码<input v-model="form.password" type="password" autocomplete="new-password" minlength="8" maxlength="64" placeholder="8 至 64 位" required /></label>
         <label>确认密码<input v-model="form.confirmPassword" type="password" autocomplete="new-password" required /></label>
         <button class="primary" :disabled="loading">{{ loading ? "正在注册…" : "注册并进入订单中心" }}</button>
