@@ -43,14 +43,6 @@ function display(value, fallback = "-") {
           <dd>{{ display(journal.journalLevel || journal.indexType) }}</dd>
         </div>
         <div>
-          <dt>期刊名称：</dt>
-          <dd>{{ display(journal.title) }}</dd>
-        </div>
-        <div>
-          <dt>图片：</dt>
-          <dd>{{ display(journal.imageUrl ? "已上传" : "") }}</dd>
-        </div>
-        <div>
           <dt>学科领域：</dt>
           <dd>{{ display(journal.disciplineCategory || journal.field) }}</dd>
         </div>
