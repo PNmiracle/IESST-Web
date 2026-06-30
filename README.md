@@ -174,6 +174,20 @@ java -jar server/target/iesst-demo-server-0.1.0.jar
 GET /actuator/health
 ```
 
+## GitHub Pages 静态演示版
+
+仓库包含 `.github/workflows/deploy-pages.yml`，推送到 `main` 后会将 Vue 前端发布到 GitHub Pages。该版本使用内置公开演示数据，并采用 Hash 路由；GitHub Pages 无法运行 Spring Boot 与 MySQL，因此登录、投稿、咨询、文件上传和管理后台等功能仍需完整后端部署。
+
+本地预览 Pages 构建：
+
+```bash
+cd client
+VITE_STATIC_DEMO=true VITE_BASE_PATH=/IESST-Web/ npm run build:pages
+npm run preview
+```
+
+线上地址：`https://pnmiracle.github.io/IESST-Web/`
+
 ## 生产环境
 
 生产部署使用 `prod` Profile，并必须通过环境变量注入数据库和管理员初始凭据：

@@ -1,5 +1,12 @@
+import { filterStaticJournals, staticBanners, staticExperts, staticJournals, staticServices } from "./static-demo-data";
+
 let unauthorizedHandler = null;
 let csrfToken = "";
+export const isStaticDemo = import.meta.env.VITE_STATIC_DEMO === "true";
+
+function staticOnlyError() {
+  return Promise.reject(new Error("当前为 GitHub Pages 静态演示版，此功能需要连接后端服务。"));
+}
 
 export function setUnauthorizedHandler(handler) {
   unauthorizedHandler = handler;
@@ -75,21 +82,23 @@ function queryString(parameters) {
 }
 
 export const api = {
-  publicBanners: () => request("/api/public/banners"),
-  publicJournals: (parameters = {}) => request(`/api/public/journals?${queryString(parameters)}`),
-  publicJournal: (id) => request(`/api/public/journals/${id}`),
-  publicServices: () => request("/api/public/services"),
-  publicExperts: () => request("/api/public/experts"),
-  submit: (body) => request("/api/public/submissions", { method: "POST", body: JSON.stringify(body) }),
+  publicBanners: () => isStaticDemo ? Promise.resolve(staticBanners) : request("/api/public/banners"),
+  publicJournals: (parameters = {}) => isStaticDemo ? Promise.resolve(filterStaticJournals(parameters)) : request(`/api/public/journals?${queryString(parameters)}`),
+  publicJournal: (id) => isStaticDemo
+    ? Promise.resolve(staticJournals.find((item) => item.id === Number(id))).then((item) => item || Promise.reject(new Error("未找到该期刊")))
+    : request(`/api/public/journals/${id}`),
+  publicServices: () => isStaticDemo ? Promise.resolve(staticServices) : request("/api/public/services"),
+  publicExperts: () => isStaticDemo ? Promise.resolve(staticExperts) : request("/api/public/experts"),
+  submit: (body) => isStaticDemo ? staticOnlyError() : request("/api/public/submissions", { method: "POST", body: JSON.stringify(body) }),
   uploadSubmissionFile: (id, uploadToken, file) => uploadWithFields(`/api/public/submissions/${id}/file`, file, { uploadToken }),
-  consult: (body) => request("/api/public/consultations", { method: "POST", body: JSON.stringify(body) }),
-  login: (body) => request("/api/auth/login", { method: "POST", body: JSON.stringify(body) }),
+  consult: (body) => isStaticDemo ? staticOnlyError() : request("/api/public/consultations", { method: "POST", body: JSON.stringify(body) }),
+  login: (body) => isStaticDemo ? staticOnlyError() : request("/api/auth/login", { method: "POST", body: JSON.stringify(body) }),
   logout: () => request("/api/auth/logout", { method: "POST", admin: true }),
-  currentUser: () => request("/api/auth/me"),
-  studentLogin: (body) => request("/api/student/login", { method: "POST", body: JSON.stringify(body) }),
-  studentRegister: (body) => request("/api/student/register", { method: "POST", body: JSON.stringify(body) }),
+  currentUser: () => isStaticDemo ? Promise.resolve({ authenticated: false }) : request("/api/auth/me"),
+  studentLogin: (body) => isStaticDemo ? staticOnlyError() : request("/api/student/login", { method: "POST", body: JSON.stringify(body) }),
+  studentRegister: (body) => isStaticDemo ? staticOnlyError() : request("/api/student/register", { method: "POST", body: JSON.stringify(body) }),
   studentLogout: () => request("/api/student/logout", { method: "POST" }),
-  currentStudent: () => request("/api/student/me"),
+  currentStudent: () => isStaticDemo ? Promise.resolve({ authenticated: false }) : request("/api/student/me"),
   studentOrders: (parameters = {}) => request(`/api/student/orders?${queryString(parameters)}`),
   studentOrderProgress: (id) => request(`/api/student/orders/${id}/progress`),
   studentOrderFiles: (id) => request(`/api/student/orders/${id}/files`),

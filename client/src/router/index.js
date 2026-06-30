@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHashHistory, createWebHistory } from "vue-router";
 import { setUnauthorizedHandler } from "../api";
 import { session } from "../stores/session";
 import SiteHome from "../views/site/SiteHome.vue";
@@ -23,7 +23,7 @@ import StudentManagement from "../views/admin/StudentManagement.vue";
 import OrderManagement from "../views/admin/OrderManagement.vue";
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: import.meta.env.VITE_STATIC_DEMO === "true" ? createWebHashHistory(import.meta.env.BASE_URL) : createWebHistory(),
   scrollBehavior(to) {
     if (to.hash) return { el: to.hash, behavior: "smooth" };
     return { top: 0 };
