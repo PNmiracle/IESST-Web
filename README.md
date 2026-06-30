@@ -2,6 +2,11 @@
 
 可继续迭代和部署的企业应用基础版，包含 Vue 官网、独立管理后台、Spring Boot API 与 MySQL 数据层。
 
+## 在线演示
+
+- GitHub Pages 静态演示版：https://pnmiracle.github.io/IESST-Web/
+- 说明：首次启用或重新部署 GitHub Pages 后，GitHub Actions 可能需要几分钟完成构建；在部署完成前访问该地址可能会暂时返回 404。
+
 ## 技术栈
 
 - 前端：Vue 3 + Vite
