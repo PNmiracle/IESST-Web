@@ -10,7 +10,7 @@ const loading = ref(true);
 const error = ref("");
 const filters = reactive(emptyFilters());
 const currentPage = ref(1);
-const pageSize = 10;
+const pageSize = 8;
 const totalPages = computed(() => Math.max(1, Math.ceil(journals.value.length / pageSize)));
 const pagedJournals = computed(() => {
   const start = (currentPage.value - 1) * pageSize;
@@ -91,7 +91,7 @@ watch(() => props.journalType, resetFilters);
     </div>
 
     <div class="journal-sort-bar">
-      <small>共 <strong>{{ journals.length }}</strong> 条，每页 10 条</small>
+      <small>共 <strong>{{ journals.length }}</strong> 条，每页 8 条</small>
     </div>
 
     <div v-if="loading" class="empty-state">期刊列表加载中…</div>

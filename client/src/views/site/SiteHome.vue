@@ -270,8 +270,7 @@ watch(journalPageCount, (count) => {
           <h3>科学编辑</h3>
           <p>稿件诊断、科学编辑与返修支持。</p>
           <div class="service-entry-actions">
-            <a href="https://www.iaast.cn/Thesis/polish/story" target="_blank" rel="noopener noreferrer">论文润色</a>
-            <a href="https://www.iaast.cn/SCI/submission/330" target="_blank" rel="noopener noreferrer">论文提交</a>
+            <RouterLink to="/submit?mode=manuscript&target=SCI&subject=首页论文提交">论文提交</RouterLink>
             <button type="button" aria-haspopup="dialog" @click="editorQrOpen = true">咨询编辑</button>
           </div>
         </article>

@@ -164,14 +164,17 @@ public class AdminController {
             @RequestParam(defaultValue = "全部") String status,
             @RequestParam(defaultValue = "") String keyword) {
         StringBuilder csv = new StringBuilder("\uFEFF");
-        csv.append("ID,作者,邮箱,论文标题,目标类型,补充说明,状态,提交时间\n");
+        csv.append("ID,作者,邮箱,手机号,论文标题,目标类型,服务类型,是否加急,特殊要求,状态,提交时间\n");
         store.submissionsForExport(status, keyword).forEach(item -> csv
                 .append(item.id()).append(',')
                 .append(csvCell(item.authorName())).append(',')
                 .append(csvCell(item.email())).append(',')
+                .append(csvCell(item.contactPhone())).append(',')
                 .append(csvCell(item.paperTitle())).append(',')
                 .append(csvCell(item.targetType())).append(',')
-                .append(csvCell(item.message())).append(',')
+                .append(csvCell(item.serviceType())).append(',')
+                .append(csvCell(Boolean.TRUE.equals(item.expedited()) ? "是" : "否")).append(',')
+                .append(csvCell(item.specialRequirements())).append(',')
                 .append(csvCell(item.status())).append(',')
                 .append(csvCell(item.createdAt() == null ? "" : item.createdAt().toString()))
                 .append('\n'));

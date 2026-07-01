@@ -190,7 +190,9 @@ public class StudentUserService {
                 "UNPAID",
                 "NEW",
                 null,
-                submission.message());
+                submission.specialRequirements() == null || submission.specialRequirements().isBlank()
+                        ? submission.message()
+                        : submission.specialRequirements());
         addProgress(orderId, "SUBMITTED", "信息已提交", "你的稿件评估信息已进入后台，编辑将进行初步判断。", "系统");
         return adminOrders().stream()
                 .filter(item -> item.id().equals(orderId))
@@ -205,6 +207,11 @@ public class StudentUserService {
                 request.subject(),
                 request.targetType(),
                 request.content(),
+                "咨询编辑",
+                false,
+                request.mobile(),
+                null,
+                List.of(),
                 null,
                 null));
         Long studentId = currentStudentIdIfPresent(session);
@@ -401,6 +408,11 @@ public class StudentUserService {
                     paperTitle,
                     paperTitle.contains("EI") ? "EI" : "SCI",
                     "学生端演示订单，账号：" + mobile,
+                    null,
+                    false,
+                    mobile,
+                    null,
+                    List.of(),
                     null,
                     null));
         }

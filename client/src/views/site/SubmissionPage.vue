@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import { useRoute } from "vue-router";
 import { api } from "../../api";
 import { showNotice } from "../../stores/notice";
@@ -11,18 +11,50 @@ const result = ref(null);
 const uploadResult = ref(null);
 const manuscriptFile = ref(null);
 const manuscriptInput = ref(null);
+let nextAuthorKey = 2;
+
 const form = reactive({
-  authorName: "",
-  email: "",
   paperTitle: "",
   targetType: "SCI",
-  message: "",
+  serviceType: "高级翻译",
+  expedited: false,
+  contactName: "",
+  contactEmail: "",
+  contactPhone: "",
+  specialRequirements: "",
+  sourceMessage: "",
+  authors: [newAuthor(1, true)],
 });
-const conversionSteps = [
-  { title: "提交稿件评估", text: "上传稿件或填写当前需求，系统生成后台记录。" },
-  { title: "编辑确认方案", text: "结合方向、服务类型和稿件阶段判断处理路径。" },
-  { title: "同步处理进度", text: "登录学生账号提交后，可在我的订单查看节点。" },
-];
+
+const serviceOptions = ["高级翻译", "深度润色", "高级查重", "高级降重", "AI率控制", "其他服务"];
+const isServiceMode = computed(() => route.query.mode === "service" || Boolean(route.query.serviceType));
+const pageTitle = computed(() => isServiceMode.value ? "提交论文服务需求" : "论文提交");
+const pageEyebrow = computed(() => isServiceMode.value ? "ACADEMIC SERVICE REQUEST" : "MANUSCRIPT SUBMISSION");
+
+function newAuthor(key = nextAuthorKey++, correspondingAuthor = false) {
+  return { key, name: "", email: "", institution: "", correspondingAuthor };
+}
+
+function addAuthor() {
+  if (form.authors.length >= 20) {
+    showNotice("作者人数不能超过20人", true);
+    return;
+  }
+  form.authors.push(newAuthor());
+}
+
+function removeAuthor(index) {
+  if (form.authors.length === 1) return;
+  const removedWasCorresponding = form.authors[index].correspondingAuthor;
+  form.authors.splice(index, 1);
+  if (removedWasCorresponding) form.authors[0].correspondingAuthor = true;
+}
+
+function chooseCorresponding(index) {
+  form.authors.forEach((author, authorIndex) => {
+    author.correspondingAuthor = authorIndex === index;
+  });
+}
 
 function chooseManuscript(event) {
   const file = event.target.files?.[0] || null;
@@ -55,15 +87,48 @@ function resetForm() {
 
 async function submit() {
   if (submitting.value) return;
+  if (!manuscriptFile.value) {
+    showNotice("请上传论文附件", true);
+    manuscriptInput.value?.click();
+    return;
+  }
+
+  const correspondingAuthor = form.authors.find((author) => author.correspondingAuthor);
+  if (!isServiceMode.value && (!correspondingAuthor || !correspondingAuthor.email)) {
+    showNotice("请选择通讯作者并填写其邮箱", true);
+    return;
+  }
+
+  const contactName = isServiceMode.value ? form.contactName : correspondingAuthor.name;
+  const contactEmail = isServiceMode.value ? form.contactEmail : correspondingAuthor.email;
   submitting.value = true;
   uploadResult.value = null;
   try {
-    const saved = await api.submit({ ...form, id: null, status: null, createdAt: null });
+    const saved = await api.submit({
+      id: null,
+      authorName: contactName,
+      email: contactEmail,
+      paperTitle: form.paperTitle,
+      targetType: isServiceMode.value ? (route.query.target || "翻译润色") : form.targetType,
+      message: form.sourceMessage,
+      serviceType: isServiceMode.value ? form.serviceType : null,
+      expedited: isServiceMode.value ? form.expedited : false,
+      contactPhone: isServiceMode.value ? form.contactPhone : null,
+      specialRequirements: form.specialRequirements,
+      authors: isServiceMode.value ? [] : form.authors.map((author, index) => ({
+        id: null,
+        name: author.name,
+        email: author.email,
+        institution: author.institution,
+        correspondingAuthor: author.correspondingAuthor,
+        sortOrder: index,
+      })),
+      status: null,
+      createdAt: null,
+    });
     result.value = saved;
-    if (manuscriptFile.value) {
-      uploadResult.value = await api.uploadSubmissionFile(saved.id, saved.uploadToken, manuscriptFile.value);
-    }
-    showNotice(manuscriptFile.value ? "稿件与需求已提交，后台记录已同步" : "评估需求已成功提交");
+    uploadResult.value = await api.uploadSubmissionFile(saved.id, saved.uploadToken, manuscriptFile.value);
+    showNotice("论文信息与附件已提交，后台记录已同步");
   } catch (error) {
     showNotice(error.message, true);
   } finally {
@@ -73,10 +138,12 @@ async function submit() {
 
 onMounted(async () => {
   if (route.query.target) form.targetType = route.query.target;
-  if (route.query.subject) form.message = `评估来源：${route.query.subject}`;
+  if (route.query.serviceType) form.serviceType = route.query.serviceType;
+  if (route.query.subject) form.sourceMessage = `提交来源：${route.query.subject}`;
   const isReady = await studentSession.restore();
   if (isReady) {
-    form.authorName = studentSession.state.displayName || "";
+    form.contactName = studentSession.state.displayName || "";
+    form.authors[0].name = studentSession.state.displayName || "";
   }
 });
 </script>
@@ -84,50 +151,69 @@ onMounted(async () => {
 <template>
   <section class="page-hero assessment-hero">
     <div class="shell">
-      <span>MANUSCRIPT ASSESSMENT</span>
-      <h1>提交稿件评估</h1>
-      <p>统一入口：上传稿件或填写需求，后台生成记录；登录学生账号后同步生成订单进度。</p>
+      <span>{{ pageEyebrow }}</span>
+      <h1>{{ pageTitle }}</h1>
     </div>
   </section>
+
   <section class="section shell submit-page-grid unified-submit-page">
-    <div>
-      <h2>一条清晰的提交路径</h2>
-      <p class="submit-page-lead">不需要先判断该点“咨询”还是“提交”。先提交稿件评估，编辑会根据稿件阶段推荐 SCI/EI、翻译润色或科学编辑服务。</p>
-      <div class="submission-flow">
-        <article v-for="(step, index) in conversionSteps" :key="step.title">
-          <b>{{ String(index + 1).padStart(2, "0") }}</b>
-          <div><strong>{{ step.title }}</strong><span>{{ step.text }}</span></div>
-        </article>
-      </div>
-      <div class="card privacy-note">
-        <b>隐私说明</b>
-        <p>提交信息与附件仅用于稿件评估。学生登录状态下提交，会自动同步一条可追踪的订单记录。</p>
-      </div>
-    </div>
     <section v-if="result" class="card submit-success">
       <span>✓</span>
-      <h3>评估需求已收到</h3>
-      <p>记录编号：#{{ result.id }}，当前状态：{{ result.status }}。{{ uploadResult ? `附件已同步：${uploadResult.fileName}。` : "未上传附件，编辑会先根据需求说明评估。" }}</p>
-      <ol>
-        <li v-for="step in conversionSteps" :key="step.title">{{ step.title }}</li>
-      </ol>
+      <h3>提交成功</h3>
+      <p>记录编号：#{{ result.id }}，当前状态：{{ result.status }}。附件已同步：{{ uploadResult?.fileName }}。</p>
       <div class="submit-success-actions">
         <RouterLink class="primary" to="/student/orders">查看我的订单</RouterLink>
         <button class="ghost" type="button" @click="resetForm">继续提交</button>
       </div>
     </section>
-    <form v-else class="card form-grid" @submit.prevent="submit">
-      <label>作者姓名<input v-model="form.authorName" required placeholder="请输入姓名" /></label>
-      <label>联系邮箱<input v-model="form.email" type="email" required placeholder="用于接收评估反馈" /></label>
-      <label class="wide">论文标题<input v-model="form.paperTitle" required placeholder="请输入论文标题或暂定题目" /></label>
-      <label>目标类型<select v-model="form.targetType"><option>SCI</option><option>EI</option><option>翻译润色</option><option>科学编辑</option></select></label>
-      <label class="manuscript-upload-field">
-        稿件文件（可选）
-        <input ref="manuscriptInput" type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" @change="chooseManuscript" />
+
+    <form v-else class="card form-grid manuscript-submission-form" @submit.prevent="submit">
+      <header class="submission-form-heading wide">
+        <span>{{ isServiceMode ? "SERVICE DETAILS" : "MANUSCRIPT DETAILS" }}</span>
+        <h2>{{ isServiceMode ? "填写服务需求" : "填写论文信息" }}</h2>
+        <p>带 * 的项目为必填项，提交后由编辑进行初步确认。</p>
+      </header>
+
+      <label class="wide">论文题目 *<input v-model="form.paperTitle" required maxlength="500" placeholder="请输入完整论文题目" /></label>
+
+      <label class="wide manuscript-upload-field">
+        上传附件 *
+        <input ref="manuscriptInput" type="file" required accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" @change="chooseManuscript" />
         <small>支持 PDF、DOC、DOCX，单文件不超过 20MB。</small>
       </label>
-      <label class="wide">需求说明<textarea v-model="form.message" placeholder="可填写研究方向、当前阶段、目标期刊、希望解决的问题"></textarea></label>
-      <button class="primary wide" :disabled="submitting">{{ submitting ? "正在提交…" : "提交稿件评估" }}</button>
+
+      <template v-if="isServiceMode">
+        <label>服务类型 *
+          <select v-model="form.serviceType" required>
+            <option v-for="option in serviceOptions" :key="option">{{ option }}</option>
+          </select>
+        </label>
+        <label class="expedited-field">是否加急
+          <button type="button" class="expedited-toggle" :class="{ active: form.expedited }" :aria-pressed="form.expedited" @click="form.expedited = !form.expedited">
+            <span></span>{{ form.expedited ? "加急处理" : "常规处理" }}
+          </button>
+        </label>
+        <label>联系人 *<input v-model="form.contactName" required maxlength="255" placeholder="请输入联系人姓名" /></label>
+        <label>联系邮箱 *<input v-model="form.contactEmail" type="email" required maxlength="255" placeholder="用于接收服务反馈" /></label>
+        <label class="wide">手机号 *<input v-model="form.contactPhone" type="tel" required maxlength="50" placeholder="请输入联系人手机号" /></label>
+      </template>
+
+      <section v-else class="submission-authors wide">
+        <div class="submission-authors-heading">
+          <div><span>AUTHOR INFORMATION</span><h2>作者信息</h2><p>可动态添加作者，并指定一位通讯作者。</p></div>
+          <button class="ghost" type="button" @click="addAuthor">＋ 添加作者</button>
+        </div>
+        <article v-for="(author, index) in form.authors" :key="author.key" class="submission-author-card">
+          <header><b>作者 {{ index + 1 }}</b><button v-if="form.authors.length > 1" type="button" aria-label="删除作者" @click="removeAuthor(index)">删除</button></header>
+          <label>姓名 *<input v-model="author.name" required maxlength="255" placeholder="请输入作者姓名" /></label>
+          <label>单位<input v-model="author.institution" maxlength="500" placeholder="学校、医院或研究机构" /></label>
+          <label class="author-email"><span class="author-email-label">邮箱 <b v-if="author.correspondingAuthor">*</b></span><input v-model="author.email" :required="author.correspondingAuthor" type="email" maxlength="255" placeholder="请输入作者邮箱" /></label>
+          <label class="corresponding-choice"><input type="radio" name="corresponding-author" :checked="author.correspondingAuthor" @change="chooseCorresponding(index)" />设为通讯作者</label>
+        </article>
+      </section>
+
+      <label class="wide">特殊要求<textarea v-model="form.specialRequirements" maxlength="5000" placeholder="可填写目标期刊、交付时间、语言要求或其他说明"></textarea></label>
+      <button class="primary wide submission-final-button" :disabled="submitting">{{ submitting ? "正在提交…" : isServiceMode ? "提交服务需求" : "提交论文" }}</button>
     </form>
   </section>
 </template>

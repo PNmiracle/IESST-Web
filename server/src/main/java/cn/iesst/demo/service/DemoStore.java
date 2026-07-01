@@ -7,11 +7,13 @@ import cn.iesst.demo.model.Journal;
 import cn.iesst.demo.model.PageResponse;
 import cn.iesst.demo.model.ServiceOffering;
 import cn.iesst.demo.model.Submission;
+import cn.iesst.demo.model.SubmissionAuthor;
 import cn.iesst.demo.service.ManuscriptStorageService.StoredManuscript;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.sql.Statement;
@@ -151,11 +153,30 @@ public class DemoStore {
     }
     public void deleteJournal(long id) { jdbc.update("DELETE FROM journals WHERE id=?", id); }
 
+    @Transactional
     public Submission createSubmission(Submission input) {
-        if (input.authorName() == null || input.authorName().isBlank()) throw new IllegalArgumentException("请填写作者姓名");
-        if (input.email() == null || input.email().isBlank()) throw new IllegalArgumentException("请填写联系邮箱");
+        List<SubmissionAuthor> authors = input.authors() == null ? List.of() : input.authors();
+        if (authors.size() > 20) throw new IllegalArgumentException("作者人数不能超过20人");
+        if (!authors.isEmpty()) {
+            long correspondingCount = authors.stream().filter(SubmissionAuthor::correspondingAuthor).count();
+            if (correspondingCount != 1) throw new IllegalArgumentException("请选择一位通讯作者");
+            for (SubmissionAuthor author : authors) {
+                if (author.name() == null || author.name().isBlank()) throw new IllegalArgumentException("请填写完整的作者姓名");
+                if (author.correspondingAuthor() && (author.email() == null || author.email().isBlank())) {
+                    throw new IllegalArgumentException("请填写通讯作者邮箱");
+                }
+            }
+        }
+        SubmissionAuthor corresponding = authors.stream().filter(SubmissionAuthor::correspondingAuthor).findFirst().orElse(null);
+        String authorName = corresponding == null ? input.authorName() : corresponding.name();
+        String email = corresponding == null ? input.email() : corresponding.email();
+        if (authorName == null || authorName.isBlank()) throw new IllegalArgumentException("请填写作者或联系人姓名");
+        if (email == null || email.isBlank()) throw new IllegalArgumentException("请填写联系邮箱");
         if (input.paperTitle() == null || input.paperTitle().isBlank()) throw new IllegalArgumentException("请填写论文标题");
-        return insertSubmission(new Submission(null, input.authorName(), input.email(), input.paperTitle(), input.targetType(), input.message(), "待处理", LocalDateTime.now()));
+        return insertSubmission(new Submission(
+                null, authorName, email, input.paperTitle(), input.targetType(), input.message(),
+                input.serviceType(), Boolean.TRUE.equals(input.expedited()), input.contactPhone(),
+                input.specialRequirements(), authors, "待处理", LocalDateTime.now()));
     }
 
     public void attachSubmissionFile(long submissionId, StoredManuscript upload) {
@@ -197,8 +218,32 @@ public class DemoStore {
                 .orElseThrow(() -> new IllegalArgumentException("稿件附件不存在"));
     }
     private Submission insertSubmission(Submission input) {
-        long id = insert("INSERT INTO submissions(author_name,email,paper_title,target_type,message,status,created_at) VALUES (?,?,?,?,?,?,?)", input.authorName(), input.email(), input.paperTitle(), input.targetType(), input.message(), input.status(), Timestamp.valueOf(input.createdAt()));
-        return new Submission(id, input.authorName(), input.email(), input.paperTitle(), input.targetType(), input.message(), input.status(), input.createdAt());
+        long id = insert(
+                "INSERT INTO submissions(author_name,email,paper_title,target_type,message,service_type,expedited,contact_phone,special_requirements,status,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                input.authorName(), input.email(), input.paperTitle(), input.targetType(), input.message(),
+                input.serviceType(), Boolean.TRUE.equals(input.expedited()), input.contactPhone(),
+                input.specialRequirements(), input.status(), Timestamp.valueOf(input.createdAt()));
+        List<SubmissionAuthor> authors = input.authors() == null ? List.of() : input.authors();
+        for (int index = 0; index < authors.size(); index++) {
+            SubmissionAuthor author = authors.get(index);
+            jdbc.update(
+                    "INSERT INTO submission_authors(submission_id,author_name,email,institution,is_corresponding,sort_order) VALUES (?,?,?,?,?,?)",
+                    id, author.name(), blankToNull(author.email()), blankToNull(author.institution()),
+                    author.correspondingAuthor(), index);
+        }
+        return new Submission(
+                id, input.authorName(), input.email(), input.paperTitle(), input.targetType(), input.message(),
+                input.serviceType(), input.expedited(), input.contactPhone(), input.specialRequirements(),
+                authorsForSubmission(id), input.status(), input.createdAt());
+    }
+
+    private List<SubmissionAuthor> authorsForSubmission(long submissionId) {
+        return jdbc.query(
+                "SELECT id,author_name,email,institution,is_corresponding,sort_order FROM submission_authors WHERE submission_id=? ORDER BY sort_order,id",
+                (rs, rowNum) -> new SubmissionAuthor(
+                        rs.getLong("id"), rs.getString("author_name"), rs.getString("email"),
+                        rs.getString("institution"), rs.getBoolean("is_corresponding"), rs.getInt("sort_order")),
+                submissionId);
     }
     public List<Submission> submissions() {
         return jdbc.query("SELECT * FROM submissions ORDER BY created_at DESC", (rs, n) -> mapSubmission(rs));
@@ -250,8 +295,9 @@ public class DemoStore {
             arguments.add(status);
         }
         if (keyword != null && !keyword.isBlank()) {
-            where.append(" AND (author_name LIKE ? OR email LIKE ? OR paper_title LIKE ?)");
+            where.append(" AND (author_name LIKE ? OR email LIKE ? OR paper_title LIKE ? OR contact_phone LIKE ?)");
             String pattern = "%" + keyword.trim() + "%";
+            arguments.add(pattern);
             arguments.add(pattern);
             arguments.add(pattern);
             arguments.add(pattern);
@@ -421,6 +467,11 @@ public class DemoStore {
                 rs.getString("paper_title"),
                 rs.getString("target_type"),
                 rs.getString("message"),
+                rs.getString("service_type"),
+                rs.getBoolean("expedited"),
+                rs.getString("contact_phone"),
+                rs.getString("special_requirements"),
+                authorsForSubmission(rs.getLong("id")),
                 rs.getString("status"),
                 rs.getTimestamp("created_at").toLocalDateTime());
     }
