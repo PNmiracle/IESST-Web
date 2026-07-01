@@ -219,7 +219,7 @@ onMounted(async () => {
       <span>{{ service.eyebrow }}</span>
       <h1>{{ service.title }}</h1>
       <p>{{ service.subtitle }}</p>
-      <RouterLink class="primary" :to="`/submit?subject=${encodeURIComponent(service.title)}&target=${encodeURIComponent(service.title)}`">免费评估稿件</RouterLink>
+      <RouterLink class="primary" :to="`/submit?subject=${encodeURIComponent(service.title)}&target=${encodeURIComponent(service.title)}`">提交稿件评估</RouterLink>
     </div>
   </section>
   <section v-if="isEditing" class="section shell editing-capability-section">

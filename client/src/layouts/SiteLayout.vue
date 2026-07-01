@@ -104,7 +104,7 @@ watch(
           <RouterLink to="/about">关于我们</RouterLink>
         </nav>
         <div class="site-nav-actions">
-          <RouterLink class="primary compact" to="/submit">免费评估稿件</RouterLink>
+          <RouterLink class="primary compact" to="/submit">提交稿件评估</RouterLink>
           <nav class="site-auth-links" aria-label="学生账号">
             <template v-if="studentSession.isLoggedIn.value">
               <RouterLink to="/student/orders">{{ studentSession.state.displayName || studentSession.state.mobile }}</RouterLink>
@@ -120,11 +120,49 @@ watch(
     </header>
     <main><RouterView /></main>
     <footer class="site-footer">
-      <div class="shell site-footer-grid">
-        <div class="brand light"><span>IESST</span><small>思研学术 SCI 特刊交流中心</small></div>
-        <nav><RouterLink to="/SCI">SCI期刊</RouterLink><RouterLink to="/EI">EI期刊</RouterLink><RouterLink to="/services/translation">翻译润色</RouterLink><RouterLink to="/services/editing">科学编辑</RouterLink></nav>
-        <div><b>提交评估</b><p>上传稿件或填写需求</p><RouterLink class="footer-consult" to="/submit">开始免费评估 →</RouterLink></div>
+      <div class="shell site-footer-main">
+        <RouterLink class="footer-brand-logo" to="/" aria-label="IESST 思研学术首页">
+          <img src="/images/logo-icon.png" alt="IESST" />
+          <img src="/images/logo-wordmark.png" alt="IESST 思研学术" />
+        </RouterLink>
+        <nav class="footer-link-column" aria-label="我们的服务">
+          <b>我们的服务</b>
+          <RouterLink to="/SCI">SCI期刊</RouterLink>
+          <RouterLink to="/EI">EI期刊</RouterLink>
+          <RouterLink to="/services/translation">翻译润色</RouterLink>
+          <RouterLink to="/services/editing">科学编辑</RouterLink>
+        </nav>
+        <nav class="footer-link-column" aria-label="关于 IESST">
+          <b>关于 IESST</b>
+          <RouterLink to="/about">机构介绍</RouterLink>
+          <RouterLink to="/about">联系我们</RouterLink>
+          <RouterLink to="/about">合作申请</RouterLink>
+        </nav>
+        <nav class="footer-link-column" aria-label="专家服务">
+          <b>专家服务</b>
+          <RouterLink to="/about">专家团队</RouterLink>
+          <RouterLink to="/services/editing">审稿合作</RouterLink>
+          <RouterLink to="/services/editing">编辑支持</RouterLink>
+        </nav>
+        <nav class="footer-link-column" aria-label="帮助中心">
+          <b>帮助中心</b>
+          <RouterLink to="/submit">稿件评估</RouterLink>
+          <RouterLink to="/student/login">登录/注册</RouterLink>
+          <RouterLink to="/student/orders">我的订单</RouterLink>
+        </nav>
+        <div class="footer-contact-column">
+          <b>联系我们</b>
+          <span>服务热线：0371-65867066</span>
+          <span>工作时间：周一至周五 9:00–18:00</span>
+          <RouterLink to="/submit">提交稿件评估 →</RouterLink>
+        </div>
+        <div class="footer-qr-block">
+          <img src="/images/editor-contact-qr.svg" alt="编辑咨询二维码" loading="lazy" decoding="async" />
+          <b>思研学术服务号</b>
+          <span>扫码咨询编辑</span>
+        </div>
       </div>
+      <div class="site-footer-bottom"><div class="shell">Copyright © 2019–2026 IESST 思研学术 · SCI 特刊交流中心</div></div>
     </footer>
     <ConsultationModal />
   </div>

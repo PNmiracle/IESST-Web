@@ -39,9 +39,9 @@ onMounted(async () => {
 <template>
   <section class="student-page">
     <div class="student-auth-card card">
-      <span class="eyebrow">STUDENT CENTER</span>
+      <span class="eyebrow">LOGIN / REGISTRATION</span>
       <h1>登录 / 注册</h1>
-      <p>已有账号可直接登录；还没有账号时，请先创建学生账号，再查看稿件评估、服务咨询和处理进度。</p>
+      <p>已有账号可直接登录；还没有账号时，请先创建账号，再查看稿件评估、服务咨询和处理进度。</p>
       <div v-if="error" class="inline-error">{{ error }}</div>
       <form @submit.prevent="login">
         <label>手机号<input v-model="form.username" inputmode="tel" autocomplete="username" required /></label>

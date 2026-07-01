@@ -19,7 +19,7 @@ const form = reactive({
   message: "",
 });
 const conversionSteps = [
-  { title: "免费评估稿件", text: "上传稿件或填写当前需求，系统生成后台记录。" },
+  { title: "提交稿件评估", text: "上传稿件或填写当前需求，系统生成后台记录。" },
   { title: "编辑确认方案", text: "结合方向、服务类型和稿件阶段判断处理路径。" },
   { title: "同步处理进度", text: "登录学生账号提交后，可在我的订单查看节点。" },
 ];
@@ -84,15 +84,15 @@ onMounted(async () => {
 <template>
   <section class="page-hero assessment-hero">
     <div class="shell">
-      <span>FREE ASSESSMENT</span>
-      <h1>免费评估稿件</h1>
+      <span>MANUSCRIPT ASSESSMENT</span>
+      <h1>提交稿件评估</h1>
       <p>统一入口：上传稿件或填写需求，后台生成记录；登录学生账号后同步生成订单进度。</p>
     </div>
   </section>
   <section class="section shell submit-page-grid unified-submit-page">
     <div>
       <h2>一条清晰的提交路径</h2>
-      <p class="submit-page-lead">不需要先判断该点“咨询”还是“提交”。先完成免费评估，编辑会根据稿件阶段推荐 SCI/EI、翻译润色或科学编辑服务。</p>
+      <p class="submit-page-lead">不需要先判断该点“咨询”还是“提交”。先提交稿件评估，编辑会根据稿件阶段推荐 SCI/EI、翻译润色或科学编辑服务。</p>
       <div class="submission-flow">
         <article v-for="(step, index) in conversionSteps" :key="step.title">
           <b>{{ String(index + 1).padStart(2, "0") }}</b>
@@ -127,7 +127,7 @@ onMounted(async () => {
         <small>支持 PDF、DOC、DOCX，单文件不超过 20MB。</small>
       </label>
       <label class="wide">需求说明<textarea v-model="form.message" placeholder="可填写研究方向、当前阶段、目标期刊、希望解决的问题"></textarea></label>
-      <button class="primary wide" :disabled="submitting">{{ submitting ? "正在提交…" : "提交免费评估" }}</button>
+      <button class="primary wide" :disabled="submitting">{{ submitting ? "正在提交…" : "提交稿件评估" }}</button>
     </form>
   </section>
 </template>

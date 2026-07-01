@@ -157,7 +157,7 @@ onMounted(() => loadOrders(true));
       </article>
       <footer v-if="pagination.totalPages > 1" class="student-pagination"><span>第 {{ filters.page }} / {{ pagination.totalPages }} 页</span><div><button class="ghost" :disabled="filters.page <= 1" @click="changePage(filters.page - 1)">上一页</button><button class="ghost" :disabled="filters.page >= pagination.totalPages" @click="changePage(filters.page + 1)">下一页</button></div></footer>
     </div>
-    <div v-else class="empty-state"><b>{{ filters.status === "ALL" ? "暂时没有订单" : "该状态下没有订单" }}</b><span>提交免费评估后，编辑确认的进度会显示在这里。</span><RouterLink class="primary" to="/submit">免费评估稿件</RouterLink></div>
+    <div v-else class="empty-state"><b>{{ filters.status === "ALL" ? "暂时没有订单" : "该状态下没有订单" }}</b><span>提交稿件评估后，编辑确认的进度会显示在这里。</span><RouterLink class="primary" to="/submit">提交稿件评估</RouterLink></div>
 
     <section class="student-invoices">
       <div class="student-orders-head compact"><div><span class="eyebrow">INVOICES</span><h2>发票记录</h2></div></div>

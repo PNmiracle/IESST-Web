@@ -101,7 +101,7 @@ public class DemoStore {
 
     public void deleteBanner(long id) { jdbc.update("DELETE FROM banners WHERE id=?", id); }
 
-    public List<Journal> publicJournals() { return queryJournals("SELECT * FROM journals WHERE published=TRUE ORDER BY id"); }
+    public List<Journal> publicJournals() { return queryJournals("SELECT * FROM journals WHERE published=TRUE ORDER BY CASE WHEN image_url LIKE '/images/journals/%' THEN 0 ELSE 1 END, id"); }
     public List<Journal> publicJournals(
             String type,
             String discipline,
@@ -408,7 +408,9 @@ public class DemoStore {
         if ("click".equals(sort)) {
             return Comparator.comparing((Journal item) -> item.viewCount() == null ? 0L : item.viewCount(), Comparator.reverseOrder());
         }
-        return Comparator.comparing(Journal::id);
+        return Comparator
+                .comparing((Journal item) -> item.imageUrl() != null && item.imageUrl().startsWith("/images/journals/") ? 0 : 1)
+                .thenComparing(Journal::id);
     }
 
     private Submission mapSubmission(java.sql.ResultSet rs) throws java.sql.SQLException {

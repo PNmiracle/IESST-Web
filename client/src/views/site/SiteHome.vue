@@ -16,6 +16,9 @@ const loadError = ref("");
 const paused = ref(false);
 const journalType = ref("ALL");
 const keyword = ref("");
+const journalPage = ref(0);
+const editorQrOpen = ref(false);
+const expertSlide = ref(0);
 const submissionSteps = [
   { title: "后台生成记录", text: "稿件信息会进入管理员投稿列表，便于编辑跟进。" },
   { title: "编辑初步评估", text: "结合研究方向、目标类型和稿件阶段判断服务范围。" },
@@ -101,6 +104,25 @@ const filteredJournals = computed(() => {
     return matchesType && matchesKeyword;
   });
 });
+const journalsPerPage = 4;
+const journalPageCount = computed(() => Math.max(1, Math.ceil(filteredJournals.value.length / journalsPerPage)));
+const visibleJournals = computed(() => {
+  const start = journalPage.value * journalsPerPage;
+  return filteredJournals.value.slice(start, start + journalsPerPage);
+});
+const expertMatchRates = ["96.2%", "97.9%", "95.8%", "98.1%", "96.7%", "97.4%"];
+const visibleExperts = computed(() => {
+  const total = experts.value.length;
+  if (!total) return [];
+  return [-1, 0, 1].map((offset) => {
+    const index = (expertSlide.value + offset + total) % total;
+    return {
+      ...experts.value[index],
+      position: offset,
+      matchRate: expertMatchRates[index % expertMatchRates.length],
+    };
+  });
+});
 
 function optimizedBannerImage(url) {
   return optimizedImageMap[url] || url;
@@ -130,6 +152,15 @@ function showSlide(index) {
   currentSlide.value = (index + banners.value.length) % banners.value.length;
 }
 
+function showExpert(step) {
+  if (!experts.value.length) return;
+  expertSlide.value = (expertSlide.value + step + experts.value.length) % experts.value.length;
+}
+
+function showJournalPage(index) {
+  journalPage.value = (index + journalPageCount.value) % journalPageCount.value;
+}
+
 function startCarousel() {
   clearInterval(carouselTimer);
   carouselTimer = setInterval(() => {
@@ -157,6 +188,12 @@ async function loadData() {
 onMounted(loadData);
 onBeforeUnmount(() => clearInterval(carouselTimer));
 watch(activeBanner, (banner) => preloadImage(optimizedBannerImage(banner?.imageUrl)), { immediate: true });
+watch([journalType, keyword], () => {
+  journalPage.value = 0;
+});
+watch(journalPageCount, (count) => {
+  if (journalPage.value >= count) journalPage.value = Math.max(0, count - 1);
+});
 </script>
 
 <template>
@@ -215,7 +252,7 @@ watch(activeBanner, (banner) => preloadImage(optimizedBannerImage(banner?.imageU
           </article>
         </div>
         <div class="advantage-actions">
-          <RouterLink class="primary" to="/submit?subject=学术服务发表优势&target=SCI">免费评估稿件</RouterLink>
+          <RouterLink class="primary" to="/submit?subject=学术服务发表优势&target=SCI">提交稿件评估</RouterLink>
         </div>
       </div>
     </section>
@@ -226,7 +263,19 @@ watch(activeBanner, (banner) => preloadImage(optimizedBannerImage(banner?.imageU
 
     <section class="section shell">
       <div class="heading"><div><span>ACADEMIC SERVICES</span><h2>论文服务</h2></div><p>根据稿件所处阶段选择语言或科学编辑服务。</p></div>
-      <div class="service-entry-grid"><RouterLink class="service-entry translation" to="/services/translation"><span>LANGUAGE SERVICES</span><h3>翻译润色</h3><p>高级翻译、母语润色与深度语言编辑。</p><b>查看服务 →</b></RouterLink><RouterLink class="service-entry editing" to="/services/editing"><span>SCIENTIFIC EDITING</span><h3>科学编辑</h3><p>稿件诊断、科学编辑与返修支持。</p><b>查看服务 →</b></RouterLink></div>
+      <div class="service-entry-grid">
+        <RouterLink class="service-entry translation" to="/services/translation"><span>LANGUAGE SERVICES</span><h3>翻译润色</h3><p>高级翻译、母语润色与深度语言编辑。</p><b>查看服务 →</b></RouterLink>
+        <article class="service-entry editing">
+          <span>SCIENTIFIC EDITING</span>
+          <h3>科学编辑</h3>
+          <p>稿件诊断、科学编辑与返修支持。</p>
+          <div class="service-entry-actions">
+            <a href="https://www.iaast.cn/Thesis/polish/story" target="_blank" rel="noopener noreferrer">论文润色</a>
+            <a href="https://www.iaast.cn/SCI/submission/330" target="_blank" rel="noopener noreferrer">论文提交</a>
+            <button type="button" aria-haspopup="dialog" @click="editorQrOpen = true">咨询编辑</button>
+          </div>
+        </article>
+      </div>
     </section>
 
     <section class="quick-service">
@@ -245,27 +294,86 @@ watch(activeBanner, (banner) => preloadImage(optimizedBannerImage(banner?.imageU
         <input v-model="keyword" type="search" placeholder="搜索期刊名称、学科方向或关键词" />
       </div>
       <div v-if="loading" class="empty-state">期刊列表加载中…</div>
-      <div v-else-if="filteredJournals.length" class="journal-showcase-grid home-journal-grid">
-        <JournalCard v-for="journal in filteredJournals" :key="journal.id" :journal="journal" />
+      <div v-else-if="filteredJournals.length" class="home-journal-carousel" aria-label="精选期刊轮播">
+        <div class="journal-showcase-grid home-journal-grid">
+          <JournalCard v-for="journal in visibleJournals" :key="journal.id" :journal="journal" />
+        </div>
+        <div v-if="journalPageCount > 1" class="home-journal-controls">
+          <button type="button" aria-label="上一组期刊" @click="showJournalPage(journalPage - 1)">‹</button>
+          <div class="home-journal-dots" aria-label="期刊轮播页码">
+            <button
+              v-for="page in journalPageCount"
+              :key="page"
+              type="button"
+              :class="{ active: journalPage === page - 1 }"
+              :aria-label="`切换到第 ${page} 组期刊`"
+              :aria-current="journalPage === page - 1 ? 'page' : undefined"
+              @click="showJournalPage(page - 1)"
+            ></button>
+          </div>
+          <button type="button" aria-label="下一组期刊" @click="showJournalPage(journalPage + 1)">›</button>
+        </div>
       </div>
       <div v-else class="empty-state"><b>没有匹配的期刊</b><span>调整筛选条件或提交稿件信息，由编辑协助选刊。</span></div>
     </section>
 
     <section id="submission" class="section pale home-assessment-band">
       <div class="shell">
-        <div><span class="eyebrow">ONE CLEAR PATH</span><h2>从免费评估开始</h2><p>上传稿件或填写需求，编辑确认服务方案；登录学生账号后，可在订单中心持续查看进度与文件。</p></div>
+        <div><span class="eyebrow">ONE CLEAR PATH</span><h2>从稿件评估开始</h2><p>上传稿件或填写需求，编辑确认服务方案；登录学生账号后，可在订单中心持续查看进度与文件。</p></div>
         <div class="home-assessment-flow"><article v-for="(step, index) in submissionSteps" :key="step.title"><b>{{ String(index + 1).padStart(2, "0") }}</b><span>{{ step.title }}</span></article></div>
-        <RouterLink class="primary" to="/submit?subject=首页统一投稿入口&target=SCI">免费评估稿件</RouterLink>
+        <div class="home-assessment-action">
+          <img src="/images/editor-contact-qr.svg" alt="编辑咨询二维码" loading="lazy" decoding="async" />
+          <small>扫码咨询编辑</small>
+          <RouterLink class="primary" to="/submit?subject=首页统一投稿入口&target=SCI">提交稿件评估</RouterLink>
+        </div>
       </div>
     </section>
 
-    <section class="section shell">
-      <div class="heading"><div><span>GLOBAL EXPERTS</span><h2>专家团队，汇聚全球学者</h2></div><RouterLink to="/about">了解团队与机构 →</RouterLink></div>
-      <div class="expert-grid">
-        <article v-for="expert in experts" :key="expert.id" class="card"><img :src="expert.imageUrl" :alt="expert.name" loading="lazy" decoding="async" /><div><h3>{{ expert.name }}</h3><p>{{ expert.institution }}</p><small>{{ expert.role }}</small></div></article>
+    <section class="section expert-showcase-section">
+      <div class="shell">
+        <div class="heading"><div><span>GLOBAL EXPERTS</span><h2>专家团队，汇聚全球学者</h2></div><RouterLink to="/about">了解团队与机构 →</RouterLink></div>
+        <div class="expert-match-summary">
+          <h3><strong>3000+</strong> 小领域专家匹配，<strong>1300+</strong> 细分学科领域覆盖</h3>
+          <p>按研究方向与稿件阶段匹配学科专家，为选刊评估、科学编辑和投稿过程提供专业支持。</p>
+        </div>
+        <div v-if="visibleExperts.length" class="expert-carousel" aria-label="专家团队轮播">
+          <article
+            v-for="expert in visibleExperts"
+            :key="`${expert.id}-${expert.position}`"
+            :class="['expert-carousel-card', { active: expert.position === 0, side: expert.position !== 0 }]"
+            :aria-hidden="expert.position !== 0"
+          >
+            <img :src="expert.imageUrl" :alt="expert.position === 0 ? expert.name : ''" loading="lazy" decoding="async" />
+            <div class="expert-profile-main">
+              <div class="expert-profile-title"><div><h3>{{ expert.name }}</h3><span aria-label="五星专家">★★★★★</span></div><strong>{{ expert.matchRate }}<small>客户好评率</small></strong></div>
+              <em>SCI 特刊学术编辑</em>
+              <dl><div><dt>大学学科：</dt><dd>{{ expert.institution }}</dd></div><div><dt>擅长领域：</dt><dd>稿件评估、科学编辑与投稿建议</dd></div><div><dt>学术背景：</dt><dd>{{ expert.role }}</dd></div></dl>
+            </div>
+          </article>
+          <button class="expert-carousel-control previous" type="button" aria-label="上一位专家" @click="showExpert(-1)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 6-6 6 6 6" /></svg>
+          </button>
+          <button class="expert-carousel-control next" type="button" aria-label="下一位专家" @click="showExpert(1)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6" /></svg>
+          </button>
+        </div>
+        <RouterLink class="expert-more-link" to="/about">查看更多编辑</RouterLink>
       </div>
     </section>
 
     <section class="section pale"><div class="shell partner-block"><div><span class="eyebrow">PUBLISHER NETWORK</span><h2>国际期刊和出版社合作资源</h2><p>正式版本可将合作单位拆分为后台可维护的独立数据项，并增加资质与合作说明。</p><RouterLink class="ghost" to="/about">了解机构介绍</RouterLink></div><img src="/images/optimized/publisher-partners-1200.webp" alt="国际期刊和出版社合作资源" loading="lazy" decoding="async" /></div></section>
+
+    <Teleport to="body">
+      <div v-if="editorQrOpen" class="service-qr-backdrop" @click.self="editorQrOpen = false">
+        <section class="service-qr-modal card" role="dialog" aria-modal="true" aria-labelledby="editor-qr-title">
+          <button class="consult-close" type="button" aria-label="关闭二维码" @click="editorQrOpen = false">×</button>
+          <span class="eyebrow">CONTACT EDITOR</span>
+          <h2 id="editor-qr-title">咨询编辑</h2>
+          <p>请使用微信扫描二维码，添加编辑进行一对一咨询。</p>
+          <img src="/images/editor-contact-qr.svg" alt="编辑咨询二维码" />
+          <small>扫码后请备注您的研究方向与稿件阶段</small>
+        </section>
+      </div>
+    </Teleport>
   </div>
 </template>
