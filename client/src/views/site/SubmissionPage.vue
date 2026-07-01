@@ -9,6 +9,9 @@ const route = useRoute();
 const submitting = ref(false);
 const result = ref(null);
 const uploadResult = ref(null);
+const pendingSubmission = ref(null);
+const pendingLinkedToOrder = ref(false);
+const resultLinkedToOrder = ref(false);
 const manuscriptFile = ref(null);
 const manuscriptInput = ref(null);
 let nextAuthorKey = 2;
@@ -81,6 +84,9 @@ function chooseManuscript(event) {
 function resetForm() {
   result.value = null;
   uploadResult.value = null;
+  pendingSubmission.value = null;
+  pendingLinkedToOrder.value = false;
+  resultLinkedToOrder.value = false;
   manuscriptFile.value = null;
   if (manuscriptInput.value) manuscriptInput.value.value = "";
 }
@@ -104,7 +110,10 @@ async function submit() {
   submitting.value = true;
   uploadResult.value = null;
   try {
-    const saved = await api.submit({
+    if (!pendingSubmission.value) {
+      pendingLinkedToOrder.value = await studentSession.restore(true);
+    }
+    const saved = pendingSubmission.value || await api.submit({
       id: null,
       authorName: contactName,
       email: contactEmail,
@@ -126,8 +135,12 @@ async function submit() {
       status: null,
       createdAt: null,
     });
-    result.value = saved;
+    pendingSubmission.value = saved;
     uploadResult.value = await api.uploadSubmissionFile(saved.id, saved.uploadToken, manuscriptFile.value);
+    result.value = saved;
+    resultLinkedToOrder.value = pendingLinkedToOrder.value;
+    pendingSubmission.value = null;
+    pendingLinkedToOrder.value = false;
     showNotice("论文信息与附件已提交，后台记录已同步");
   } catch (error) {
     showNotice(error.message, true);
@@ -161,8 +174,10 @@ onMounted(async () => {
       <span>✓</span>
       <h3>提交成功</h3>
       <p>记录编号：#{{ result.id }}，当前状态：{{ result.status }}。附件已同步：{{ uploadResult?.fileName }}。</p>
+      <p v-if="!resultLinkedToOrder" class="submit-success-note">本次为未登录提交，不会显示在订单中心。下次可先登录账号，再提交并持续查看处理进度。</p>
       <div class="submit-success-actions">
-        <RouterLink class="primary" to="/student/orders">查看我的订单</RouterLink>
+        <RouterLink v-if="resultLinkedToOrder" class="primary" to="/student/orders">查看我的订单</RouterLink>
+        <RouterLink v-else class="primary" :to="{ path: '/student/login', query: { redirect: '/submit' } }">登录 / 注册</RouterLink>
         <button class="ghost" type="button" @click="resetForm">继续提交</button>
       </div>
     </section>

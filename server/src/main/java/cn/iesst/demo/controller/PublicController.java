@@ -94,13 +94,12 @@ public class PublicController {
     public ManuscriptUploadReceipt uploadSubmissionFile(
             @PathVariable long id,
             @RequestParam String uploadToken,
-            @RequestParam("file") MultipartFile file,
-            HttpSession session) {
+            @RequestParam("file") MultipartFile file) {
         uploadTokenService.claim(id, uploadToken);
         try {
             var upload = manuscriptStorageService.save(file);
             store.attachSubmissionFile(id, upload);
-            studentUserService.attachSubmissionFileToOrderIfLoggedIn(session, id, upload);
+            studentUserService.attachSubmissionFileToOrder(id, upload);
             return new ManuscriptUploadReceipt(upload.fileName(), upload.size());
         } catch (RuntimeException exception) {
             uploadTokenService.release(id);

@@ -9,6 +9,12 @@ const route = useRoute();
 const form = reactive({ username: "", password: "" });
 const loading = ref(false);
 const error = ref("");
+function redirectTarget() {
+  const target = route.query.redirect;
+  return typeof target === "string" && target.startsWith("/") && !target.startsWith("//")
+    ? target
+    : "/student/orders";
+}
 const registerTarget = computed(() => {
   const query = {};
   const mobile = form.username.trim();
@@ -23,7 +29,7 @@ async function login() {
   error.value = "";
   try {
     studentSession.login(await api.studentLogin(form));
-    router.replace(typeof route.query.redirect === "string" ? route.query.redirect : "/student/orders");
+    router.replace(redirectTarget());
   } catch (exception) {
     error.value = exception.message || "登录失败";
   } finally {
@@ -32,7 +38,7 @@ async function login() {
 }
 
 onMounted(async () => {
-  if (await studentSession.restore()) router.replace("/student/orders");
+  if (await studentSession.restore()) router.replace(redirectTarget());
 });
 </script>
 

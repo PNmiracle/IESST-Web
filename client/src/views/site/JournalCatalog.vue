@@ -60,7 +60,7 @@ function resetFilters() {
 function changePage(page) {
   if (page < 1 || page > totalPages.value || page === currentPage.value) return;
   currentPage.value = page;
-  document.querySelector(".journal-sort-bar")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  document.querySelector(".journal-catalog-page")?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 onMounted(load);
@@ -68,14 +68,6 @@ watch(() => props.journalType, resetFilters);
 </script>
 
 <template>
-  <section class="page-hero">
-    <div class="shell">
-      <span>{{ journalType }} JOURNAL CATALOG</span>
-      <h1>{{ journalType }} 期刊资源</h1>
-      <p>按学科领域快速筛选适合的投稿方向。</p>
-    </div>
-  </section>
-
   <section class="section shell journal-catalog-page">
     <nav class="catalog-breadcrumb" aria-label="当前位置">
       <RouterLink to="/">首页</RouterLink>

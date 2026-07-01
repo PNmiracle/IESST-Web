@@ -130,7 +130,7 @@ public class StudentUserService {
         args.add(safeSize);
         args.add((safePage - 1) * safeSize);
         List<StudentOrder> items = jdbc.query(
-                "SELECT * FROM student_orders" + where + " ORDER BY created_at DESC LIMIT ? OFFSET ?",
+                "SELECT * FROM student_orders" + where + " ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?",
                 (rs, rowNum) -> mapOrder(rs),
                 args.toArray());
         return PageResponse.of(items, safePage, safeSize, total == null ? 0 : total);
@@ -229,15 +229,10 @@ public class StudentUserService {
         return findConsultation(id);
     }
 
-    public void attachSubmissionFileToOrderIfLoggedIn(HttpSession session, long submissionId, StoredManuscript upload) {
-        Long studentId = currentStudentIdIfPresent(session);
-        if (studentId == null) {
-            return;
-        }
+    public void attachSubmissionFileToOrder(long submissionId, StoredManuscript upload) {
         List<Long> orderIds = jdbc.query(
-                "SELECT id FROM student_orders WHERE student_user_id=? AND source_submission_id=?",
+                "SELECT id FROM student_orders WHERE source_submission_id=?",
                 (rs, rowNum) -> rs.getLong("id"),
-                studentId,
                 submissionId);
         orderIds.forEach(orderId -> store.insertAndReturnId(
                 "INSERT INTO student_order_files(order_id,file_category,file_name,storage_key,file_size,content_type,visible_to_student,uploaded_by) VALUES (?,?,?,?,?,?,TRUE,?)",

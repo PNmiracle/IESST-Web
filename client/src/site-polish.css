@@ -2125,7 +2125,7 @@ html.mobile-preview .expert-carousel-control.next {
 }
 
 .journal-catalog-page {
-  padding-top: 34px;
+  padding-top: 44px;
 }
 
 .catalog-breadcrumb {
@@ -2513,7 +2513,7 @@ html.mobile-preview .expert-carousel-control.next {
 
 @media (max-width: 650px) {
   .journal-catalog-page {
-    padding-top: 24px;
+    padding-top: 28px;
   }
 
   .filter-row,
@@ -2603,7 +2603,7 @@ html.mobile-preview .expert-carousel-control.next {
   }
 }
 
-@media (min-width: 651px), (hover: hover) and (pointer: fine) {
+@media (min-width: 651px) {
   html,
   body {
     overflow-x: auto;
@@ -2886,7 +2886,7 @@ html.mobile-preview .expert-carousel-control.next {
   display: none;
 }
 
-@media (max-width: 650px) and (hover: none) and (pointer: coarse) {
+@media (max-width: 650px) {
   html,
   body {
     overflow-x: hidden;
@@ -3531,7 +3531,7 @@ html.mobile-preview .expert-carousel-control.next {
   }
 }
 
-@media (max-width: 650px) and (hover: none) and (pointer: coarse) {
+@media (max-width: 650px) {
   .site-app .site-nav,
   .site-app .site-nav.shell {
     grid-template-columns: 124px minmax(0, 1fr) 36px;
@@ -3574,11 +3574,6 @@ html.mobile-preview .expert-carousel-control.next {
 }
 
 @media (max-width: 650px) {
-  html.mobile-preview .site-nav .site-main-menu,
-  html.mobile-preview .site-nav .site-main-menu.open {
-    display: none;
-  }
-
   html.mobile-preview .mobile-shortcut-section {
     display: block;
     padding: 24px 14px 28px;
@@ -3791,12 +3786,7 @@ html.mobile-preview .expert-carousel-control.next {
   }
 }
 
-@media (max-width: 650px) and (hover: none) and (pointer: coarse) {
-  .site-app .site-nav .site-main-menu,
-  .site-app .site-nav .site-main-menu.open {
-    display: none;
-  }
-
+@media (max-width: 650px) {
   .site-app .mobile-shortcut-section {
     display: block;
     padding: 24px 14px 28px;
@@ -4013,7 +4003,7 @@ html.mobile-preview .expert-carousel-control.next {
   display: none;
 }
 
-@media (min-width: 651px), (hover: hover) and (pointer: fine) {
+@media (min-width: 651px) {
   .site-app .mobile-shortcut-section {
     display: none !important;
   }
@@ -4135,7 +4125,7 @@ html.mobile-preview .footer-contact-column span {
   letter-spacing: 0.3px;
 }
 
-@media (max-width: 950px) and (hover: none) and (pointer: coarse) {
+@media (max-width: 950px) {
   .site-app .site-footer-main {
     width: min(calc(100% - 40px), 760px);
     max-width: 760px;
@@ -4195,7 +4185,7 @@ html.mobile-preview .footer-contact-column {
   }
 }
 
-@media (max-width: 650px) and (hover: none) and (pointer: coarse) {
+@media (max-width: 650px) {
   .site-app .mobile-shortcut-section {
     display: block;
   }

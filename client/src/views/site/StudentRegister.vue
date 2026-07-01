@@ -10,13 +10,20 @@ const form = reactive({ mobile: "", displayName: "", password: "", confirmPasswo
 const loading = ref(false);
 const error = ref("");
 
+function redirectTarget() {
+  const target = route.query.redirect;
+  return typeof target === "string" && target.startsWith("/") && !target.startsWith("//")
+    ? target
+    : "/student/orders";
+}
+
 async function register() {
   if (loading.value) return;
   loading.value = true;
   error.value = "";
   try {
     studentSession.login(await api.studentRegister(form));
-    router.replace(typeof route.query.redirect === "string" ? route.query.redirect : "/student/orders");
+    router.replace(redirectTarget());
   } catch (exception) {
     error.value = exception.message || "注册失败";
   } finally {
@@ -26,7 +33,7 @@ async function register() {
 
 onMounted(async () => {
   if (typeof route.query.mobile === "string") form.mobile = route.query.mobile;
-  if (await studentSession.restore()) router.replace("/student/orders");
+  if (await studentSession.restore()) router.replace(redirectTarget());
 });
 </script>
 

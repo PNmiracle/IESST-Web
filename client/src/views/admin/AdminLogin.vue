@@ -10,13 +10,20 @@ const form = reactive({ username: "admin", password: "" });
 const loading = ref(false);
 const error = ref("");
 
+function redirectTarget() {
+  const target = route.query.redirect;
+  return typeof target === "string" && target.startsWith("/") && !target.startsWith("//")
+    ? target
+    : "/admin/dashboard";
+}
+
 async function login() {
   if (loading.value) return;
   loading.value = true;
   error.value = "";
   try {
     session.login(await api.login(form));
-    router.replace(typeof route.query.redirect === "string" ? route.query.redirect : "/admin/dashboard");
+    router.replace(redirectTarget());
   } catch (exception) {
     error.value = exception.message;
   } finally {
