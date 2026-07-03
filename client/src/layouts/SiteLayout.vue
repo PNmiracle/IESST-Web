@@ -154,7 +154,7 @@ watch(
           <b>联系我们</b>
           <span>服务热线：0371-65867066</span>
           <span>工作时间：周一至周五 9:00–18:00</span>
-          <RouterLink to="/submit">提交稿件评估 →</RouterLink>
+          <RouterLink class="footer-assessment-button" to="/submit">提交稿件评估 →</RouterLink>
         </div>
         <div class="footer-qr-block">
           <img src="/images/editor-contact-qr.svg" alt="编辑咨询二维码" loading="lazy" decoding="async" />

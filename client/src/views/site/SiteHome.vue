@@ -20,7 +20,7 @@ const journalPage = ref(0);
 const editorQrOpen = ref(false);
 const expertSlide = ref(0);
 const submissionSteps = [
-  { title: "后台生成记录", text: "稿件信息会进入管理员投稿列表，便于编辑跟进。" },
+  { title: "建立个人投稿档案", text: "稿件信息会进入管理员投稿列表，便于编辑跟进。" },
   { title: "编辑初步评估", text: "结合研究方向、目标类型和稿件阶段判断服务范围。" },
   { title: "同步进度反馈", text: "登录学生账号提交时，可在我的订单中查看处理状态。" },
 ];
