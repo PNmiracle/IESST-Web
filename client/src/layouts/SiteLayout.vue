@@ -152,7 +152,7 @@ watch(
         </nav>
         <div class="footer-contact-column">
           <b>联系我们</b>
-          <span>联系邮箱：XXXXXXXX</span>
+          <span>联系邮箱：editor@iesst.com</span>
           <span>工作时间：周一至周五 9:00–18:00</span>
           <RouterLink class="footer-assessment-button" to="/submit">提交稿件评估</RouterLink>
         </div>
