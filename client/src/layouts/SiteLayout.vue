@@ -157,7 +157,7 @@ watch(
           <RouterLink class="footer-assessment-button" to="/submit">提交稿件评估</RouterLink>
         </div>
         <div class="footer-qr-block">
-          <img src="/images/editor-contact-qr.svg" alt="编辑咨询二维码" loading="lazy" decoding="async" />
+          <img src="/images/editor-contact-qr.png" alt="编辑咨询二维码" loading="lazy" decoding="async" />
           <b>思研学术服务号</b>
           <span>扫码咨询编辑</span>
         </div>

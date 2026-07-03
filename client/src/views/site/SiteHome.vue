@@ -321,7 +321,7 @@ watch(journalPageCount, (count) => {
         <div><span class="eyebrow">ONE CLEAR PATH</span><h2>从稿件评估开始</h2><p>上传稿件或填写需求，编辑确认服务方案；登录学生账号后，可在订单中心持续查看进度与文件。</p></div>
         <div class="home-assessment-flow"><article v-for="(step, index) in submissionSteps" :key="step.title"><b>{{ String(index + 1).padStart(2, "0") }}</b><span>{{ step.title }}</span></article></div>
         <div class="home-assessment-action">
-          <img src="/images/editor-contact-qr.svg" alt="编辑咨询二维码" loading="lazy" decoding="async" />
+          <img src="/images/editor-contact-qr.png" alt="编辑咨询二维码" loading="lazy" decoding="async" />
           <small>扫码咨询编辑</small>
           <RouterLink class="primary" to="/submit?subject=首页统一投稿入口&target=SCI">提交稿件评估</RouterLink>
         </div>
@@ -369,7 +369,7 @@ watch(journalPageCount, (count) => {
           <span class="eyebrow">CONTACT EDITOR</span>
           <h2 id="editor-qr-title">咨询编辑</h2>
           <p>请使用微信扫描二维码，添加编辑进行一对一咨询。</p>
-          <img src="/images/editor-contact-qr.svg" alt="编辑咨询二维码" />
+          <img src="/images/editor-contact-qr.png" alt="编辑咨询二维码" />
           <small>扫码后请备注您的研究方向与稿件阶段</small>
         </section>
       </div>
