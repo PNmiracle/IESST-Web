@@ -4020,9 +4020,9 @@ html.mobile-preview .expert-carousel-control.next {
 .site-app .site-footer-main,
 html.mobile-preview .site-footer-main {
   display: grid !important;
-  width: 1200px;
-  max-width: 1200px;
-  grid-template-columns: 1.35fr repeat(4, 0.72fr) 1.15fr 0.8fr !important;
+  width: min(calc(100% - 40px), 1400px);
+  max-width: 1400px;
+  grid-template-columns: 360px repeat(4, minmax(78px, 1fr)) 190px 110px !important;
   align-items: start !important;
   padding: 46px 0 42px;
   gap: 30px !important;
@@ -4034,18 +4034,22 @@ html.mobile-preview .site-footer-main {
   align-self: start;
   padding-right: 28px;
   border-right: 1px solid #e6e8ee;
-  gap: 14px;
+  gap: 10px;
 }
 
 .footer-brand-logo img:first-child {
-  width: 68px;
-  height: 68px;
+  width: 60px;
+  height: 64px;
+  flex: none;
   object-fit: contain;
 }
 
 .footer-brand-logo img:last-child {
-  width: 150px;
-  height: auto;
+  width: 250px;
+  height: 70px;
+  margin-bottom: 25px;
+  object-fit: contain;
+  object-position: left center;
 }
 
 .site-app .footer-link-column,
