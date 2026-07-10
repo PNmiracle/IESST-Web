@@ -19,6 +19,9 @@ const keyword = ref("");
 const journalPage = ref(0);
 const editorQrOpen = ref(false);
 const expertSlide = ref(0);
+const activeFaqIndex = ref(0);
+const resourceQrOpen = ref(false);
+const selectedResource = ref(null);
 const submissionSteps = [
   { title: "建立个人投稿档案", text: "稿件信息会进入管理员投稿列表，便于编辑跟进。" },
   { title: "编辑初步评估", text: "结合研究方向、目标类型和稿件阶段判断服务范围。" },
@@ -31,6 +34,54 @@ const mobileShortcutItems = [
   { label: "翻译润色", icon: "translate", to: "/services/translation" },
   { label: "科学编辑", icon: "edit", to: "/services/editing" },
   { label: "提交评估", icon: "submit", to: "/submit" },
+];
+const faqs = [
+  {
+    question: "录用、出版、检索周期是什么样的？",
+    answer: "录用一般在 2–6 个月，部分刊物录用即出版，部分刊物在录用后 1–3 个月出版；出版后通常 2–3 个月可完成检索。",
+  },
+  {
+    question: "论文被检索后是否开具检索证明？",
+    answer: "所有已检索的论文，我们都会免费提供检索证明。",
+  },
+  {
+    question: "如何申请开票？",
+    answer: "请联系客户服务并提供订单号申请开票。其中，版面费部分可提供期刊部官方 Invoice。",
+  },
+  {
+    question: "为什么不能告知期刊名称？",
+    answer: "为减少期刊名称在市场上的流通与大规模传播，保护期刊长期稳定检索，付款前仅提供期刊分区、影响因子、征稿方向等相关信息，不提供期刊名称。",
+  },
+  {
+    question: "如果我是人文社科类的作者，我可以投稿 EI 或者 SCI 吗？",
+    answer: "可以。具体的研究方向匹配与投稿方案，请咨询编辑老师。",
+  },
+];
+const academicResources = [
+  {
+    title: "最新 SCI 目录",
+    subtitle: "SCI JOURNAL LIST",
+    description: ["快速了解当前 SCI ", { text: "期刊资源", keep: true }, "与", { text: "研究方向", keep: true }, "。"],
+    badge: "SCI",
+  },
+  {
+    title: "最新 EI 目录",
+    subtitle: "EI JOURNAL LIST",
+    description: ["查阅 EI ", { text: "收录期刊", keep: true }, "与学科", { text: "覆盖情况", keep: true }, "。"],
+    badge: "EI",
+  },
+  {
+    title: "中科院期刊分区表（2025年）",
+    subtitle: "CAS JOURNAL RANKING",
+    description: ["获取", { text: "期刊分区", keep: true }, "参考，辅助", { text: "目标刊物", keep: true }, "筛选。"],
+    badge: "2025",
+  },
+  {
+    title: "新锐期刊分区表（最新版）",
+    subtitle: "EMERGING JOURNALS",
+    description: ["探索新锐", { text: "期刊", keep: true }, "的分区与", { text: "研究方向", keep: true }, "。"],
+    badge: "NEW",
+  },
 ];
 const advantages = [
   {
@@ -155,6 +206,28 @@ function showSlide(index) {
 function showExpert(step) {
   if (!experts.value.length) return;
   expertSlide.value = (expertSlide.value + step + experts.value.length) % experts.value.length;
+}
+
+function toggleFaq(index) {
+  activeFaqIndex.value = activeFaqIndex.value === index ? -1 : index;
+}
+
+function openResource(resource) {
+  selectedResource.value = resource;
+  resourceQrOpen.value = true;
+}
+
+function closeResourceQr() {
+  resourceQrOpen.value = false;
+}
+
+function resourceTitleParts(title = "") {
+  const bracketIndex = title.indexOf("（");
+  if (bracketIndex < 0) return [{ text: title, keep: false, breakBefore: false }];
+  return [
+    { text: title.slice(0, bracketIndex), keep: false, breakBefore: false },
+    { text: title.slice(bracketIndex), keep: true, breakBefore: true },
+  ];
 }
 
 function showJournalPage(index) {
@@ -286,6 +359,54 @@ watch(journalPageCount, (count) => {
       </div>
     </section>
 
+    <section class="section knowledge-hub-section">
+      <div class="shell knowledge-hub-grid">
+        <div class="faq-panel">
+          <div class="knowledge-heading">
+            <span class="eyebrow">HELP CENTER</span>
+            <h2>常见问题</h2>
+            <p>关于投稿、出版、检索与服务流程的说明。</p>
+          </div>
+          <div class="faq-list">
+            <article v-for="(faq, index) in faqs" :key="faq.question" class="faq-item" :class="{ 'is-open': activeFaqIndex === index }">
+              <button type="button" class="faq-trigger" :aria-expanded="activeFaqIndex === index" @click="toggleFaq(index)">
+                <span class="faq-number">{{ String(index + 1).padStart(2, "0") }}</span>
+                <strong>{{ faq.question }}</strong>
+                <span class="faq-toggle" aria-hidden="true"></span>
+              </button>
+              <div v-show="activeFaqIndex === index" class="faq-answer"><p>{{ faq.answer }}</p></div>
+            </article>
+          </div>
+        </div>
+
+        <div class="resource-panel">
+          <div class="knowledge-heading">
+            <span class="eyebrow">ACADEMIC RESOURCE</span>
+            <h2>学术资源下载</h2>
+            <p>选择所需资源，扫码添加编辑微信后即可获取。</p>
+          </div>
+          <div class="resource-grid">
+            <button v-for="resource in academicResources" :key="resource.title" type="button" class="resource-card" @click="openResource(resource)">
+              <span class="resource-card-top"><small>{{ resource.subtitle }}</small><b>{{ resource.badge }}</b></span>
+              <strong>
+                <template v-for="(part, partIndex) in resourceTitleParts(resource.title)" :key="partIndex">
+                  <br v-if="part.breakBefore" />
+                  <span :class="{ 'resource-title-suffix': part.keep }">{{ part.text }}</span>
+                </template>
+              </strong>
+              <span class="resource-description">
+                <template v-for="(part, partIndex) in resource.description" :key="partIndex">
+                  <span v-if="typeof part === 'object'" :class="{ 'keep-together': part.keep }">{{ part.text }}</span>
+                  <template v-else>{{ part }}</template>
+                </template>
+              </span>
+              <em>扫码获取 <i aria-hidden="true">↗</i></em>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section id="journals" class="section shell">
       <div class="heading"><div><span>JOURNAL CATALOG</span><h2>精选期刊方向</h2></div><p>选择类型或输入关键词，快速查找适合的研究方向。</p></div>
       <div class="journal-tools">
@@ -371,6 +492,21 @@ watch(journalPageCount, (count) => {
           <p>请使用微信扫描二维码，添加编辑进行一对一咨询。</p>
           <img src="/images/editor-contact-qr.png" alt="编辑咨询二维码" />
           <small>扫码后请备注您的研究方向与稿件阶段</small>
+        </section>
+      </div>
+      <div v-if="resourceQrOpen" class="service-qr-backdrop" @click.self="closeResourceQr">
+        <section class="service-qr-modal resource-qr-modal card" role="dialog" aria-modal="true" aria-labelledby="resource-qr-title">
+          <button class="consult-close" type="button" aria-label="关闭二维码" @click="closeResourceQr">×</button>
+          <span class="eyebrow">WECHAT RESOURCE ACCESS</span>
+          <h2 id="resource-qr-title">
+            <template v-for="(part, partIndex) in resourceTitleParts(selectedResource?.title)" :key="partIndex">
+              <br v-if="part.breakBefore" />
+              <span :class="{ 'modal-keep': part.keep }">{{ part.text }}</span>
+            </template>
+          </h2>
+          <p>请使用微信扫描二维码，添加编辑后备注<span class="modal-keep">“{{ selectedResource?.title }}”</span>，<br />即可获取对应资源。</p>
+          <img src="/images/editor-contact-qr.png" alt="添加编辑微信二维码" />
+          <small>资源由编辑核验后发送，请勿重复扫码</small>
         </section>
       </div>
     </Teleport>

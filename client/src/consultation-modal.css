@@ -45,9 +45,12 @@
 }
 
 .consult-heading p,
-.consult-success p {
+.consult-success p,
+.dialog p {
   color: var(--muted);
+  line-break: strict;
   line-height: 1.7;
+  text-wrap: pretty;
 }
 
 .consult-form {
