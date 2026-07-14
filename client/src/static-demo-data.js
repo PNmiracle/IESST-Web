@@ -56,7 +56,7 @@ export const staticJournals = [
 ];
 
 export const staticServices = [
-  { id: 1, category: "translation", title: "高级翻译", price: "¥0.8/字", description: "由具备学科背景的双语专家完成中英翻译，并进行术语与逻辑复核。", features: "资深译员首轮翻译\n学科领域专家审核\n15天内一次免费修订", published: true },
+  { id: 1, category: "translation", title: "高级翻译", price: "¥0.8/词", description: "由具备学科背景的双语专家完成中英翻译，并进行术语与逻辑复核。", features: "资深译员首轮翻译\n学科领域专家审核\n15天内一次免费修订", published: true },
   { id: 2, category: "translation", title: "深度润色", price: "¥0.5/词", description: "优化语法、术语、句式和学术表达，使全文逻辑清晰、上下文自然。", features: "专业术语编校\n语言错误全面修正\n整体结构与表达审校", published: true },
   { id: 3, category: "editing", title: "稿件诊断", price: "按稿评估", description: "从期刊适配、结构逻辑、研究亮点和发表风险等维度形成诊断建议。", features: "研究亮点评估\n结构与逻辑诊断\n目标期刊适配建议", published: true },
   { id: 4, category: "editing", title: "科学编辑", price: "定制报价", description: "围绕标题、摘要、论证结构、图表说明和研究叙事进行深度编辑。", features: "学术逻辑优化\n图表与摘要建议\n编辑修改说明", published: true },

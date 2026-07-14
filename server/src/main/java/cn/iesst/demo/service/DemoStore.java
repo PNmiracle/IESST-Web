@@ -44,7 +44,7 @@ public class DemoStore {
             saveJournal(new Journal(null, "EI", "Electronic Information and Communication", "电子与通信", "EI Compendex", "2-4个月", "电子信息、信号处理与通信网络。", null, "EI", "-", null, "-", "预计1-2个月", "长期征稿", null, "机械电子工程", "-", "-", 0L, null, null, false));
         }
         if (count("service_offerings") == 0) {
-            saveService(new ServiceOffering(null, "translation", "高级翻译", "¥0.8/字", "由具备学科背景的双语专家完成中英翻译，并进行术语与逻辑复核。", "资深译员首轮翻译\n学科领域专家审核\n15天内一次免费修订", true));
+            saveService(new ServiceOffering(null, "translation", "高级翻译", "¥0.8/词", "由具备学科背景的双语专家完成中英翻译，并进行术语与逻辑复核。", "资深译员首轮翻译\n学科领域专家审核\n15天内一次免费修订", true));
             saveService(new ServiceOffering(null, "translation", "深度润色", "¥0.5/词", "优化语法、术语、句式和学术表达，使全文逻辑清晰、上下文自然。", "专业术语编校\n语言错误全面修正\n整体结构与表达审校", true));
             saveService(new ServiceOffering(null, "editing", "稿件诊断", "按稿评估", "从期刊适配、结构逻辑、研究亮点和发表风险等维度形成诊断建议。", "研究亮点评估\n结构与逻辑诊断\n目标期刊适配建议", true));
             saveService(new ServiceOffering(null, "editing", "科学编辑", "定制报价", "围绕标题、摘要、论证结构、图表说明和研究叙事进行深度编辑。", "学术逻辑优化\n图表与摘要建议\n编辑修改说明", true));

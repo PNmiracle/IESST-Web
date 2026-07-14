@@ -13,7 +13,7 @@ async function logout() {
 <template>
   <div class="admin-shell">
     <aside class="admin-sidebar">
-      <RouterLink class="brand light" to="/admin/dashboard"><span>IESST</span><small>网站内容管理后台</small></RouterLink>
+      <RouterLink class="admin-brand-logo" to="/admin/dashboard" aria-label="IESST 思研学术管理后台"><img src="/images/iesst-logo-primary.png" alt="IESST 思研学术" /></RouterLink>
       <nav>
         <RouterLink to="/admin/dashboard"><b>览</b><span>数据概览</span></RouterLink>
         <RouterLink to="/admin/banners"><b>轮</b><span>轮播图管理</span></RouterLink>

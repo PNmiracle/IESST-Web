@@ -38,7 +38,7 @@ onMounted(() => {
 
 <template>
   <main class="login-page">
-    <section class="login-aside"><div class="brand light"><span>IESST</span><small>思研学术管理后台</small></div><div><span class="eyebrow">CONTENT MANAGEMENT</span><h1>让内容维护更清晰、更高效</h1><p>独立管理轮播图、SCI / EI 期刊和用户投稿记录。</p></div><a href="/">← 返回访客官网</a></section>
+    <section class="login-aside"><div class="login-brand-logo"><img src="/images/iesst-logo-primary.png" alt="IESST 思研学术" /></div><div><span class="eyebrow">CONTENT MANAGEMENT</span><h1>让内容维护更清晰、更高效</h1><p>独立管理轮播图、SCI / EI 期刊和用户投稿记录。</p></div><a href="/">← 返回访客官网</a></section>
     <section class="login-panel">
       <form class="login-card" @submit.prevent="login">
         <span class="eyebrow">ADMIN LOGIN</span><h2>管理员登录</h2><p>请输入管理员账号和密码进入内容管理后台。</p>

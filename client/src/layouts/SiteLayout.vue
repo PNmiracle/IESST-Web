@@ -88,8 +88,7 @@ watch(
     <header class="site-header">
       <div class="shell site-nav">
         <RouterLink class="brand brand-logo" to="/" aria-label="IESST 思研学术首页">
-          <img class="brand-mark" src="/images/logo-icon.png" alt="IESST" />
-          <img class="brand-wordmark" src="/images/logo-wordmark.png" alt="IESST 思研学术 · SCI 特刊交流中心" />
+          <img class="brand-primary-logo" src="/images/iesst-logo-primary.png" alt="IESST 思研学术 · 核心期刊交流中心" />
         </RouterLink>
         <div class="mobile-header-contact">服务热线：0371-65867066</div>
         <button class="mobile-menu-toggle" type="button" :aria-expanded="mobileMenuOpen" aria-label="打开导航菜单" @click="mobileMenuOpen = !mobileMenuOpen">
@@ -122,8 +121,7 @@ watch(
     <footer class="site-footer">
       <div class="shell site-footer-main">
         <RouterLink class="footer-brand-logo" to="/" aria-label="IESST 思研学术首页">
-          <img src="/images/logo-icon.png" alt="IESST" />
-          <img src="/images/logo-wordmark.png" alt="IESST 思研学术" />
+          <img src="/images/iesst-logo-primary.png" alt="IESST 思研学术 · 核心期刊交流中心" />
         </RouterLink>
         <nav class="footer-link-column" aria-label="我们的服务">
           <b>我们的服务</b>

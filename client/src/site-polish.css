@@ -4743,3 +4743,78 @@ html.mobile-preview .footer-contact-column {
     grid-column: auto;
   }
 }
+
+/* Unified IESST logo supplied by the brand team. Kept last to win over legacy logo rules. */
+.site-app .brand-logo {
+  display: flex;
+  width: 320px;
+  min-width: 320px;
+  align-items: center;
+}
+
+.site-app .brand-primary-logo {
+  display: block;
+  width: 320px;
+  height: 76px;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.site-app .footer-brand-logo {
+  display: flex;
+  width: 270px;
+  min-width: 270px;
+}
+
+.site-app .footer-brand-logo img {
+  display: block;
+  width: 250px;
+  height: auto;
+  margin: 0 !important;
+  object-fit: contain;
+}
+
+.admin-brand-logo,
+.login-brand-logo {
+  display: block;
+  padding: 8px 10px;
+  background: #fff;
+  border-radius: 10px;
+}
+
+.admin-brand-logo {
+  width: 100%;
+  margin-bottom: 42px;
+}
+
+.login-brand-logo {
+  width: 220px;
+}
+
+.admin-brand-logo img,
+.login-brand-logo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@media (max-width: 650px) {
+  .site-app .brand-logo,
+  .site-app .brand-primary-logo {
+    width: 230px;
+    min-width: 0;
+  }
+
+  .site-app .brand-primary-logo {
+    height: 60px;
+  }
+
+  .site-app .footer-brand-logo {
+    width: 230px;
+    min-width: 0;
+  }
+
+  .site-app .footer-brand-logo img {
+    width: 220px;
+  }
+}
