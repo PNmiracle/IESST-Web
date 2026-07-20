@@ -175,7 +175,7 @@ public class DemoStore {
         if (input.paperTitle() == null || input.paperTitle().isBlank()) throw new IllegalArgumentException("请填写论文标题");
         return insertSubmission(new Submission(
                 null, authorName, email, input.paperTitle(), input.targetType(), input.message(),
-                input.serviceType(), Boolean.TRUE.equals(input.expedited()), input.contactPhone(),
+                input.serviceType(), Boolean.TRUE.equals(input.expedited()), Boolean.TRUE.equals(input.authorSupportProgram()), input.contactPhone(),
                 input.specialRequirements(), authors, "待处理", LocalDateTime.now()));
     }
 
@@ -219,9 +219,9 @@ public class DemoStore {
     }
     private Submission insertSubmission(Submission input) {
         long id = insert(
-                "INSERT INTO submissions(author_name,email,paper_title,target_type,message,service_type,expedited,contact_phone,special_requirements,status,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                "INSERT INTO submissions(author_name,email,paper_title,target_type,message,service_type,expedited,author_support_program,contact_phone,special_requirements,status,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
                 input.authorName(), input.email(), input.paperTitle(), input.targetType(), input.message(),
-                input.serviceType(), Boolean.TRUE.equals(input.expedited()), input.contactPhone(),
+                input.serviceType(), Boolean.TRUE.equals(input.expedited()), Boolean.TRUE.equals(input.authorSupportProgram()), input.contactPhone(),
                 input.specialRequirements(), input.status(), Timestamp.valueOf(input.createdAt()));
         List<SubmissionAuthor> authors = input.authors() == null ? List.of() : input.authors();
         for (int index = 0; index < authors.size(); index++) {
@@ -233,7 +233,7 @@ public class DemoStore {
         }
         return new Submission(
                 id, input.authorName(), input.email(), input.paperTitle(), input.targetType(), input.message(),
-                input.serviceType(), input.expedited(), input.contactPhone(), input.specialRequirements(),
+                input.serviceType(), input.expedited(), input.authorSupportProgram(), input.contactPhone(), input.specialRequirements(),
                 authorsForSubmission(id), input.status(), input.createdAt());
     }
 
@@ -469,6 +469,7 @@ public class DemoStore {
                 rs.getString("message"),
                 rs.getString("service_type"),
                 rs.getBoolean("expedited"),
+                rs.getBoolean("author_support_program"),
                 rs.getString("contact_phone"),
                 rs.getString("special_requirements"),
                 authorsForSubmission(rs.getLong("id")),

@@ -21,6 +21,7 @@ const form = reactive({
   targetType: "SCI",
   serviceType: "高级翻译",
   expedited: false,
+  authorSupportProgram: null,
   contactName: "",
   contactEmail: "",
   contactPhone: "",
@@ -122,6 +123,7 @@ async function submit() {
       message: form.sourceMessage,
       serviceType: isServiceMode.value ? form.serviceType : null,
       expedited: isServiceMode.value ? form.expedited : false,
+      authorSupportProgram: form.authorSupportProgram,
       contactPhone: isServiceMode.value ? form.contactPhone : null,
       specialRequirements: form.specialRequirements,
       authors: isServiceMode.value ? [] : form.authors.map((author, index) => ({
@@ -152,6 +154,7 @@ async function submit() {
 onMounted(async () => {
   if (route.query.target) form.targetType = route.query.target;
   if (route.query.serviceType) form.serviceType = route.query.serviceType;
+  if (route.query.support === "1") form.authorSupportProgram = true;
   if (route.query.subject) form.sourceMessage = `提交来源：${route.query.subject}`;
   const isReady = await studentSession.restore();
   if (isReady) {
@@ -226,6 +229,15 @@ onMounted(async () => {
           <label class="corresponding-choice"><input type="radio" name="corresponding-author" :checked="author.correspondingAuthor" @change="chooseCorresponding(index)" />设为通讯作者</label>
         </article>
       </section>
+
+      <fieldset id="author-support-program" class="author-support-choice wide">
+        <legend>是否参加优秀作者扶持计划 *</legend>
+        <p>选择“是”后，编辑将在稿件评估时同步确认申请条件与扶持方案。</p>
+        <div>
+          <label :class="{ active: form.authorSupportProgram === true }"><input v-model="form.authorSupportProgram" type="radio" name="author-support-program" :value="true" required />是</label>
+          <label :class="{ active: form.authorSupportProgram === false }"><input v-model="form.authorSupportProgram" type="radio" name="author-support-program" :value="false" required />否</label>
+        </div>
+      </fieldset>
 
       <label class="wide">特殊要求<textarea v-model="form.specialRequirements" maxlength="5000" placeholder="可填写目标期刊、交付时间、语言要求或其他说明"></textarea></label>
       <button class="primary wide submission-final-button" :disabled="submitting">{{ submitting ? "正在提交…" : isServiceMode ? "提交服务需求" : "提交论文" }}</button>

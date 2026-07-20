@@ -1,6 +1,7 @@
 export const staticBanners = [
-  { id: 1, title: "思研学术 SCI 特刊交流中心", imageUrl: "images/optimized/hero-center-1600.webp", linkUrl: "/SCI", sortOrder: 1, enabled: true },
-  { id: 2, title: "SCI 特刊快速通道", imageUrl: "images/optimized/hero-fast-track-1600.webp", linkUrl: "/SCI", sortOrder: 2, enabled: true },
+  { id: 1, title: "思研学术 - 核心期刊交流中心", imageUrl: "images/optimized/hero-academic-center-1600.jpg", linkUrl: "/about", sortOrder: 1, enabled: true },
+  { id: 2, title: "核心期刊快速通道", imageUrl: "images/optimized/hero-fast-track-updated-1600.jpg", linkUrl: "/SCI", sortOrder: 2, enabled: true },
+  { id: 3, title: "优秀作者扶持计划", imageUrl: "images/optimized/hero-author-support-1600.jpg", linkUrl: "/submit", sortOrder: 3, enabled: true },
 ];
 
 const journalCoverCatalog = [

@@ -88,7 +88,7 @@ watch(
     <header class="site-header">
       <div class="shell site-nav">
         <RouterLink class="brand brand-logo" to="/" aria-label="IESST 思研学术首页">
-          <img class="brand-primary-logo" src="/images/iesst-logo-primary.png" alt="IESST 思研学术 · 核心期刊交流中心" />
+          <img class="brand-primary-logo" src="/images/iesst-logo-primary-compact.png" alt="IESST 思研学术 · 核心期刊交流中心" />
         </RouterLink>
         <div class="mobile-header-contact">服务热线：0371-65867066</div>
         <button class="mobile-menu-toggle" type="button" :aria-expanded="mobileMenuOpen" aria-label="打开导航菜单" @click="mobileMenuOpen = !mobileMenuOpen">
@@ -100,6 +100,7 @@ watch(
           <RouterLink to="/SCI">SCI期刊</RouterLink>
           <RouterLink to="/services/translation">翻译润色</RouterLink>
           <RouterLink to="/services/editing">科学编辑</RouterLink>
+          <RouterLink :to="{ path: '/', hash: '#scholar-recruitment' }">学者招募</RouterLink>
           <RouterLink to="/about">关于我们</RouterLink>
         </nav>
         <div class="site-nav-actions">
@@ -121,7 +122,7 @@ watch(
     <footer class="site-footer">
       <div class="shell site-footer-main">
         <RouterLink class="footer-brand-logo" to="/" aria-label="IESST 思研学术首页">
-          <img src="/images/iesst-logo-primary.png" alt="IESST 思研学术 · 核心期刊交流中心" />
+          <img src="/images/iesst-logo-primary-compact.png" alt="IESST 思研学术 · 核心期刊交流中心" />
         </RouterLink>
         <nav class="footer-link-column" aria-label="我们的服务">
           <b>我们的服务</b>
@@ -133,7 +134,7 @@ watch(
         <nav class="footer-link-column" aria-label="关于 IESST">
           <b>关于 IESST</b>
           <RouterLink to="/about">机构介绍</RouterLink>
-          <RouterLink to="/about">联系我们</RouterLink>
+          <RouterLink :to="{ path: route.path, hash: '#site-contact' }">联系我们</RouterLink>
           <RouterLink to="/about">合作申请</RouterLink>
         </nav>
         <nav class="footer-link-column" aria-label="专家服务">
@@ -148,20 +149,31 @@ watch(
           <RouterLink to="/student/login">登录/注册</RouterLink>
           <RouterLink to="/student/orders">我的订单</RouterLink>
         </nav>
-        <div class="footer-contact-column">
-          <b>联系我们</b>
-          <span>联系邮箱：editor@iesst.com</span>
-          <span>工作时间：周一至周五 9:00–18:00</span>
-          <RouterLink class="footer-assessment-button" to="/submit">提交稿件评估</RouterLink>
-        </div>
-        <div class="footer-qr-block">
-          <img src="/images/editor-contact-qr.png" alt="编辑咨询二维码" loading="lazy" decoding="async" />
-          <b>思研学术服务号</b>
-          <span>扫码咨询编辑</span>
-        </div>
       </div>
+      <aside id="site-contact" class="shell site-footer-contact" aria-labelledby="site-contact-title">
+        <div class="site-footer-contact-copy">
+          <h2 id="site-contact-title"><span aria-hidden="true"></span>联系我们</h2>
+          <h3>项目合作</h3>
+          <strong>IESST 思研学术合作中心</strong>
+          <p>电话/微信：<a href="tel:037165867066">0371-65867066</a></p>
+          <p>邮箱：<a href="mailto:editor@iesst.com">editor@iesst.com</a></p>
+        </div>
+        <div class="site-footer-contact-qr">
+          <img src="/images/editor-contact-qr.png" alt="编辑咨询二维码" loading="lazy" decoding="async" />
+          <span>扫一扫添加</span>
+        </div>
+      </aside>
       <div class="site-footer-bottom"><div class="shell">Copyright © 2019–2026 IESST 思研学术 · SCI 特刊交流中心</div></div>
     </footer>
+    <RouterLink
+      class="author-support-ad"
+      :to="{ path: '/submit', query: { subject: '优秀作者扶持计划', target: 'SCI', support: '1' }, hash: '#author-support-program' }"
+      aria-label="优秀作者扶持计划火热报名中，立即申请"
+    >
+      <span aria-hidden="true">优</span>
+      <div><strong>优秀作者扶持计划</strong><b>火热报名中！</b></div>
+      <em>立即申请 →</em>
+    </RouterLink>
     <ConsultationModal />
   </div>
 </template>

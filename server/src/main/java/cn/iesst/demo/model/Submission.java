@@ -27,6 +27,7 @@ public record Submission(
         @Size(max = 100, message = "服务类型长度不能超过100个字符")
         String serviceType,
         Boolean expedited,
+        Boolean authorSupportProgram,
         @Size(max = 50, message = "联系电话长度不能超过50个字符")
         String contactPhone,
         @Size(max = 5000, message = "特殊要求不能超过5000个字符")

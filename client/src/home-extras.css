@@ -249,3 +249,270 @@
   .faq-trigger strong { font-size: 13px; }
   .faq-answer { padding: 0 20px 15px 53px; }
 }
+
+/* Scholar recruitment */
+.scholar-recruitment-section {
+  position: relative;
+  scroll-margin-top: 88px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 9% 18%, rgba(100, 177, 245, 0.14), transparent 27%),
+    radial-gradient(circle at 89% 84%, rgba(112, 82, 220, 0.12), transparent 30%),
+    #f7f7fb;
+}
+
+.scholar-recruitment-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  margin-bottom: 34px;
+  gap: 42px;
+}
+
+.scholar-recruitment-heading h2 {
+  margin: 0 0 12px;
+  color: #172039;
+  font-size: clamp(30px, 3vw, 42px);
+  line-height: 1.2;
+}
+
+.scholar-recruitment-heading p {
+  max-width: 720px;
+  margin: 0;
+  color: #667188;
+  font-size: 15px;
+  line-height: 1.85;
+}
+
+.scholar-recruitment-heading > strong {
+  flex: none;
+  padding-bottom: 4px;
+  color: #674a9f;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+}
+
+.scholar-recruitment-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.scholar-recruitment-card {
+  --recruitment-start: #61bdf7;
+  --recruitment-end: #2f9ceb;
+  --recruitment-soft: rgba(97, 189, 247, 0.15);
+  display: flex;
+  min-height: 520px;
+  overflow: hidden;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid #e5e6ee;
+  border-radius: 14px;
+  box-shadow: 0 18px 44px rgba(32, 41, 66, 0.09);
+  transition: transform 0.24s ease, box-shadow 0.24s ease;
+}
+
+.scholar-recruitment-card:hover {
+  box-shadow: 0 24px 54px rgba(32, 41, 66, 0.14);
+  transform: translateY(-6px);
+}
+
+.scholar-recruitment-card.tone-orange {
+  --recruitment-start: #ffb06f;
+  --recruitment-end: #ff7e4e;
+  --recruitment-soft: rgba(255, 139, 82, 0.15);
+}
+
+.scholar-recruitment-card.tone-indigo {
+  --recruitment-start: #7d9cf5;
+  --recruitment-end: #6269ee;
+  --recruitment-soft: rgba(99, 108, 239, 0.14);
+}
+
+.scholar-recruitment-card > header {
+  position: relative;
+  min-height: 166px;
+  padding: 28px 30px;
+  overflow: hidden;
+  color: #fff;
+  background: linear-gradient(135deg, var(--recruitment-start), var(--recruitment-end));
+}
+
+.scholar-recruitment-card > header::before,
+.scholar-recruitment-card > header::after {
+  position: absolute;
+  right: -18%;
+  bottom: -65px;
+  width: 84%;
+  height: 116px;
+  content: "";
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+  transform: rotate(-8deg);
+}
+
+.scholar-recruitment-card > header::after {
+  right: 25%;
+  bottom: -82px;
+  width: 92%;
+  background: rgba(255, 255, 255, 0.09);
+  transform: rotate(11deg);
+}
+
+.scholar-recruitment-card > header span,
+.scholar-recruitment-card > header h3 {
+  position: relative;
+  z-index: 1;
+}
+
+.scholar-recruitment-card > header span {
+  display: block;
+  margin-bottom: 18px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.scholar-recruitment-card > header h3 {
+  margin: 0;
+  font-size: clamp(28px, 2.6vw, 38px);
+  line-height: 1.2;
+  text-align: center;
+}
+
+.scholar-recruitment-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 30px;
+}
+
+.scholar-recruitment-body h4 {
+  margin: 0 0 16px;
+  color: #222b3e;
+  font-size: 16px;
+}
+
+.scholar-recruitment-body ul {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: recruitment-item;
+  gap: 14px;
+}
+
+.scholar-recruitment-body li {
+  position: relative;
+  padding-left: 27px;
+  color: #555f73;
+  font-size: 14px;
+  line-height: 1.72;
+  counter-increment: recruitment-item;
+}
+
+.scholar-recruitment-body li::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: var(--recruitment-end);
+  content: counter(recruitment-item) ".";
+  font-weight: 800;
+}
+
+.scholar-recruitment-body p {
+  margin: 22px 0 24px;
+  padding: 14px 16px;
+  color: #596477;
+  background: var(--recruitment-soft);
+  border-radius: 9px;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.scholar-recruitment-body button {
+  width: min(220px, 100%);
+  min-height: 48px;
+  margin: auto auto 0;
+  border: 0;
+  color: #fff;
+  background: linear-gradient(135deg, var(--recruitment-start), var(--recruitment-end));
+  border-radius: 8px;
+  box-shadow: 0 10px 22px var(--recruitment-soft);
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 800;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.scholar-recruitment-body button:hover,
+.scholar-recruitment-body button:focus-visible {
+  outline: none;
+  box-shadow: 0 13px 28px var(--recruitment-soft);
+  transform: translateY(-2px);
+}
+
+.recruitment-qr-modal h2 {
+  font-size: 26px;
+}
+
+.recruitment-qr-modal p {
+  max-width: 430px;
+}
+
+@media (max-width: 950px) {
+  .scholar-recruitment-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .scholar-recruitment-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .scholar-recruitment-card {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 650px) {
+  .scholar-recruitment-section {
+    scroll-margin-top: 74px;
+  }
+
+  .scholar-recruitment-heading {
+    margin-bottom: 24px;
+  }
+
+  .scholar-recruitment-heading p {
+    font-size: 14px;
+  }
+
+  .scholar-recruitment-heading > strong {
+    font-size: 11px;
+    line-height: 1.6;
+  }
+
+  .scholar-recruitment-grid {
+    gap: 16px;
+  }
+
+  .scholar-recruitment-card > header {
+    min-height: 132px;
+    padding: 22px 24px;
+  }
+
+  .scholar-recruitment-card > header span {
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+
+  .scholar-recruitment-card > header h3 {
+    font-size: 29px;
+  }
+
+  .scholar-recruitment-body {
+    padding: 24px 22px;
+  }
+}
