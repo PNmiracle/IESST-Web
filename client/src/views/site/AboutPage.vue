@@ -87,6 +87,13 @@ function openAboutConsultation() {
   padding: 72px 0 94px;
 }
 
+@media (min-width: 651px) {
+  .about-page > .about-content {
+    width: 1000px;
+    max-width: 1000px;
+  }
+}
+
 .about-title {
   display: flex;
   align-items: center;
