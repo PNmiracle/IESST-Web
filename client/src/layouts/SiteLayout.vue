@@ -149,20 +149,17 @@ watch(
           <RouterLink to="/student/login">登录/注册</RouterLink>
           <RouterLink to="/student/orders">我的订单</RouterLink>
         </nav>
+        <aside id="site-contact" class="footer-contact-column" aria-labelledby="site-contact-title">
+          <b id="site-contact-title">联系我们</b>
+          <strong>Doris Zhang</strong>
+          <a href="tel:+8615515607605">手机/微信：+86 15515607605</a>
+          <a href="mailto:contact@iaast.cn">邮箱：contact@iaast.cn</a>
+          <div class="footer-qr-block">
+            <img src="/images/editor-contact-qr.png" alt="Doris Zhang 微信二维码" loading="lazy" decoding="async" />
+            <span>扫一扫添加</span>
+          </div>
+        </aside>
       </div>
-      <aside id="site-contact" class="shell site-footer-contact" aria-labelledby="site-contact-title">
-        <div class="site-footer-contact-copy">
-          <h2 id="site-contact-title"><span aria-hidden="true"></span>联系我们</h2>
-          <h3>项目合作</h3>
-          <strong>IESST 思研学术合作中心</strong>
-          <p>电话/微信：<a href="tel:037165867066">0371-65867066</a></p>
-          <p>邮箱：<a href="mailto:editor@iesst.com">editor@iesst.com</a></p>
-        </div>
-        <div class="site-footer-contact-qr">
-          <img src="/images/editor-contact-qr.png" alt="编辑咨询二维码" loading="lazy" decoding="async" />
-          <span>扫一扫添加</span>
-        </div>
-      </aside>
       <div class="site-footer-bottom"><div class="shell">Copyright © 2019–2026 IESST 思研学术 · SCI 特刊交流中心</div></div>
     </footer>
     <RouterLink
