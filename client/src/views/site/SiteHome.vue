@@ -447,7 +447,7 @@ watch(journalPageCount, (count) => {
 
     <section id="submission" class="section pale home-assessment-band">
       <div class="shell">
-        <div><span class="eyebrow">ONE CLEAR PATH</span><h2>从稿件评估开始</h2><p>上传稿件或填写需求，编辑确认服务方案；登录作者账号后，可在订单中心持续查看进度与文件。</p></div>
+        <div><span class="eyebrow">ONE CLEAR PATH</span><h2>从稿件评估开始</h2><p>上传稿件或填写需求，编辑确认服务方案；<br>登录作者账号后，<br>可在订单中心持续查看进度与文件。</p></div>
         <div class="home-assessment-flow"><article v-for="(step, index) in submissionSteps" :key="step.title"><b>{{ String(index + 1).padStart(2, "0") }}</b><span>{{ step.title }}</span></article></div>
         <div class="home-assessment-action">
           <img src="/images/editor-contact-qr.png" alt="编辑咨询二维码" loading="lazy" decoding="async" />
