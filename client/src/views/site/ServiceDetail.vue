@@ -102,7 +102,7 @@ onMounted(async () => {
 <template>
   <section v-if="isPremiumService" class="section shell translation-intro-section">
     <article class="translation-intro-card">
-      <figure :class="['translation-visual', { 'editing-visual': isEditing }]">
+      <figure :class="['translation-visual', { 'editing-visual': isEditing, 'translation-service-visual': isTranslation }]">
         <img :src="service.image" :alt="service.title" loading="eager" fetchpriority="high" decoding="async" />
         <figcaption v-if="isEditing"><b>论文科学编辑</b><b>极速出版支持</b></figcaption>
       </figure>

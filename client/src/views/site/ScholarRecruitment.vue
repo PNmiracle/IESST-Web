@@ -6,7 +6,7 @@ const roles = [
   {
     id: "journal-expert",
     title: "期刊专家",
-    tone: "sky",
+    tone: "purple",
     requirements: [
       "博士学位或副高级以上职称，具有稳定研究方向",
       "近年持续发表高质量成果，具备良好学术声誉",
@@ -16,7 +16,7 @@ const roles = [
   {
     id: "association-committee",
     title: "协会委员会",
-    tone: "orange",
+    tone: "blue",
     requirements: [
       "高校或科研机构学术骨干、学科带头人",
       "具备学术组织、协会工作或国际合作经验",

@@ -77,10 +77,11 @@
 
 .translation-visual {
   position: relative;
+  width: 280px;
+  height: 173px;
   min-width: 0;
   margin: 0;
   overflow: hidden;
-  aspect-ratio: 1.63;
   border-radius: 8px;
 }
 
@@ -90,6 +91,10 @@
   height: 100%;
   object-fit: cover;
   object-position: center;
+}
+
+.translation-visual.translation-service-visual img {
+  transform: translateY(4px) scale(1.07);
 }
 
 .translation-visual figcaption {
@@ -513,6 +518,8 @@
   }
 
   .translation-visual {
+    width: 100%;
+    height: auto;
     aspect-ratio: 1.66;
     border-radius: 12px;
   }

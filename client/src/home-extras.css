@@ -299,9 +299,9 @@
 }
 
 .scholar-recruitment-card {
-  --recruitment-start: #61bdf7;
-  --recruitment-end: #2f9ceb;
-  --recruitment-soft: rgba(97, 189, 247, 0.15);
+  --recruitment-start: #ae3dbd;
+  --recruitment-end: #8244c6;
+  --recruitment-soft: rgba(145, 64, 194, 0.16);
   display: flex;
   min-height: 520px;
   overflow: hidden;
@@ -318,16 +318,22 @@
   transform: translateY(-6px);
 }
 
-.scholar-recruitment-card.tone-orange {
-  --recruitment-start: #ffb06f;
-  --recruitment-end: #ff7e4e;
-  --recruitment-soft: rgba(255, 139, 82, 0.15);
+.scholar-recruitment-card.tone-purple {
+  --recruitment-start: #ae3dbd;
+  --recruitment-end: #8244c6;
+  --recruitment-soft: rgba(145, 64, 194, 0.16);
+}
+
+.scholar-recruitment-card.tone-blue {
+  --recruitment-start: #5a68d9;
+  --recruitment-end: #4f78e8;
+  --recruitment-soft: rgba(79, 108, 224, 0.16);
 }
 
 .scholar-recruitment-card.tone-indigo {
-  --recruitment-start: #7d9cf5;
-  --recruitment-end: #6269ee;
-  --recruitment-soft: rgba(99, 108, 239, 0.14);
+  --recruitment-start: #5b68d6;
+  --recruitment-end: #7446c8;
+  --recruitment-soft: rgba(102, 78, 201, 0.16);
 }
 
 .scholar-recruitment-card > header {
