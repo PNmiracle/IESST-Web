@@ -105,7 +105,7 @@ watch(
         </nav>
         <div class="site-nav-actions">
           <RouterLink class="primary compact" to="/submit">提交稿件评估</RouterLink>
-          <nav class="site-auth-links" aria-label="学生账号">
+          <nav class="site-auth-links" aria-label="作者账号">
             <template v-if="studentSession.isLoggedIn.value">
               <RouterLink to="/student/orders">{{ studentSession.state.displayName || studentSession.state.mobile }}</RouterLink>
               <RouterLink to="/student/orders">我的订单</RouterLink>
@@ -151,11 +151,11 @@ watch(
         </nav>
         <aside id="site-contact" class="footer-contact-column" aria-labelledby="site-contact-title">
           <b id="site-contact-title">联系我们</b>
-          <strong>Doris Zhang</strong>
-          <a href="tel:+8615515607605">手机/微信：+86 15515607605</a>
-          <a href="mailto:contact@iaast.cn">邮箱：contact@iaast.cn</a>
+          <strong>Amy Wang</strong>
+          <span>微信：iesst008</span>
+          <a href="mailto:editor@submissionmail.com">邮箱：editor@submissionmail.com</a>
           <div class="footer-qr-block">
-            <img src="/images/editor-contact-qr.png" alt="Doris Zhang 微信二维码" loading="lazy" decoding="async" />
+            <img src="/images/editor-contact-qr.png" alt="Amy Wang 微信二维码" loading="lazy" decoding="async" />
             <span>扫一扫添加</span>
           </div>
         </aside>

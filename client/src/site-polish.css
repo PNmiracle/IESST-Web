@@ -4108,9 +4108,11 @@ html.mobile-preview .footer-contact-column {
 .site-app .footer-contact-column > b,
 .site-app .footer-contact-column > strong,
 .site-app .footer-contact-column > a,
+.site-app .footer-contact-column > span,
 html.mobile-preview .footer-contact-column > b,
 html.mobile-preview .footer-contact-column > strong,
-html.mobile-preview .footer-contact-column > a {
+html.mobile-preview .footer-contact-column > a,
+html.mobile-preview .footer-contact-column > span {
   grid-column: 1;
   overflow-wrap: anywhere;
 }

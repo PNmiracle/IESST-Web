@@ -27,7 +27,7 @@ const selectedResource = ref(null);
 const submissionSteps = [
   { title: "建立个人投稿档案", text: "稿件信息会进入管理员投稿列表，便于编辑跟进。" },
   { title: "编辑初步评估", text: "结合研究方向、目标类型和稿件阶段判断服务范围。" },
-  { title: "同步进度反馈", text: "登录学生账号提交时，可在我的订单中查看处理状态。" },
+  { title: "同步进度反馈", text: "登录作者账号提交时，可在我的订单中查看处理状态。" },
 ];
 const mobileShortcutItems = [
   { label: "首页", icon: "home", to: "/" },
@@ -88,7 +88,7 @@ const academicResources = [
 const advantages = [
   {
     title: "权威期刊资源",
-    text: "思研学术专注于 SCI 特刊，涵盖各个学科领域，提供多元化发表通道",
+    text: "思研学术专注于核心期刊，涵盖各个学科领域，提供多元化发表通道",
     icon: "book",
   },
   {
@@ -339,7 +339,7 @@ watch(journalPageCount, (count) => {
     </section>
 
     <section class="section pale">
-      <div class="shell solution-grid"><figure class="solution-cover"><img src="/images/optimized/sci-journals-books-cutout-720.webp" srcset="/images/optimized/sci-journals-books-cutout-520.webp 520w, /images/optimized/sci-journals-books-cutout-720.webp 720w, /images/optimized/sci-journals-books-cutout-900.webp 900w" sizes="(max-width: 650px) 88vw, 42vw" alt="SCI 期刊封面组合" loading="eager" fetchpriority="low" decoding="async" /></figure><div class="solution-copy"><h2 class="solution-title">可靠的SCI全流程解决方案</h2><p>论文写完了，发表才刚刚开始。选刊拿不准、流程摸不透、语言不过关、审稿意见不知如何回复——每一个环节都可能拖上数月。思研学术 SCI 特刊快速通道，将上述问题一并纳入标准服务流程：精准匹配已授权的正规特刊、编委团队前置审稿、专业编辑语言润色、审稿意见协同回应。</p><p>我们不替您写论文，不替您伪造审稿，只做一件事——帮您把合格的稿件，高效、合规地送进特刊的录用通道。</p><p>您负责把研究做扎实，我们把发表做简单。</p><div class="solution-actions"><RouterLink class="primary" to="/SCI">了解更多</RouterLink></div></div></div>
+      <div class="shell solution-grid"><figure class="solution-cover"><img src="/images/optimized/sci-journals-books-cutout-720.webp" srcset="/images/optimized/sci-journals-books-cutout-520.webp 520w, /images/optimized/sci-journals-books-cutout-720.webp 720w, /images/optimized/sci-journals-books-cutout-900.webp 900w" sizes="(max-width: 650px) 88vw, 42vw" alt="SCI 期刊封面组合" loading="eager" fetchpriority="low" decoding="async" /></figure><div class="solution-copy"><h2 class="solution-title">可靠的SCI全流程解决方案</h2><p>论文写完了，发表才刚刚开始。选刊拿不准、流程摸不透、语言不过关、审稿意见不知如何回复——每一个环节都可能拖上数月。思研学术 SCI 特刊快速通道，将上述问题一并纳入标准服务流程：精准匹配已授权的正规特刊、编委团队前置审稿、专业编辑语言润色、审稿意见协同回应。</p><p>我们不替您写论文，不替您伪造审稿，只做一件事——帮您把合格的稿件，高效、合规地送进期刊的录用通道。</p><p>您负责把研究做扎实，我们把发表做简单。</p><div class="solution-actions"><RouterLink class="primary" to="/SCI">了解更多</RouterLink></div></div></div>
     </section>
 
     <section class="section shell">
@@ -447,7 +447,7 @@ watch(journalPageCount, (count) => {
 
     <section id="submission" class="section pale home-assessment-band">
       <div class="shell">
-        <div><span class="eyebrow">ONE CLEAR PATH</span><h2>从稿件评估开始</h2><p>上传稿件或填写需求，编辑确认服务方案；登录学生账号后，可在订单中心持续查看进度与文件。</p></div>
+        <div><span class="eyebrow">ONE CLEAR PATH</span><h2>从稿件评估开始</h2><p>上传稿件或填写需求，编辑确认服务方案；登录作者账号后，可在订单中心持续查看进度与文件。</p></div>
         <div class="home-assessment-flow"><article v-for="(step, index) in submissionSteps" :key="step.title"><b>{{ String(index + 1).padStart(2, "0") }}</b><span>{{ step.title }}</span></article></div>
         <div class="home-assessment-action">
           <img src="/images/editor-contact-qr.png" alt="编辑咨询二维码" loading="lazy" decoding="async" />
@@ -489,7 +489,7 @@ watch(journalPageCount, (count) => {
       </div>
     </section>
 
-    <section class="section pale"><div class="shell partner-block"><div><span class="eyebrow">PUBLISHER NETWORK</span><h2>国际期刊和出版社合作资源</h2><p>正式版本可将合作单位拆分为后台可维护的独立数据项，并增加资质与合作说明。</p><RouterLink class="ghost" to="/about">了解机构介绍</RouterLink></div><img src="/images/optimized/publisher-partners-1200.webp" alt="国际期刊和出版社合作资源" loading="lazy" decoding="async" /></div></section>
+    <section class="section pale"><div class="shell partner-block"><div><span class="eyebrow">PUBLISHER NETWORK</span><h2>国际期刊和出版社合作资源</h2><RouterLink class="ghost" to="/about">了解机构介绍</RouterLink></div><img src="/images/optimized/publisher-partners-1200.webp" alt="国际期刊和出版社合作资源" loading="lazy" decoding="async" /></div></section>
 
     <Teleport to="body">
       <div v-if="editorQrOpen" class="service-qr-backdrop" @click.self="editorQrOpen = false">

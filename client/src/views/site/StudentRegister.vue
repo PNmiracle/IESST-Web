@@ -42,7 +42,7 @@ onMounted(async () => {
     <div class="student-auth-card card">
       <span class="eyebrow">QUICK REGISTER</span>
       <h1>快速注册</h1>
-      <p>注册学生账号后，可登录查看自己的订单、服务进度和发票记录。</p>
+      <p>注册作者账号后，可登录查看自己的订单、服务进度和发票记录。</p>
       <div v-if="error" class="inline-error">{{ error }}</div>
       <form @submit.prevent="register">
         <label>手机号<input v-model="form.mobile" autocomplete="tel" placeholder="请输入 11 位手机号" required /></label>
