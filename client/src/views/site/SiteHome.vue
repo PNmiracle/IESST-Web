@@ -20,8 +20,6 @@ const journalType = ref("ALL");
 const keyword = ref("");
 const journalPage = ref(0);
 const editorQrOpen = ref(false);
-const recruitQrOpen = ref(false);
-const selectedRecruitRole = ref(null);
 const expertSlide = ref(0);
 const activeFaqIndex = ref(0);
 const resourceQrOpen = ref(false);
@@ -117,41 +115,6 @@ const advantages = [
     title: "安全保障",
     text: "严格保护客户隐私和论文版权，确保论文内容不被泄露，提供安全可靠的服务保障",
     icon: "shield",
-  },
-];
-const scholarRecruitmentRoles = [
-  {
-    id: "journal-expert",
-    title: "期刊专家",
-    tone: "sky",
-    summary: "参与重点期刊选题策划、专刊组织与学术质量建设。",
-    requirements: [
-      "博士学位或副高级以上职称，具有稳定研究方向",
-      "近年持续发表高质量成果，具备良好学术声誉",
-      "有期刊编委、客座编辑或专刊组织经验者优先",
-    ],
-  },
-  {
-    id: "association-committee",
-    title: "协会委员会",
-    tone: "orange",
-    summary: "共同策划国际学术活动，推动跨机构、跨学科交流合作。",
-    requirements: [
-      "高校或科研机构学术骨干、学科带头人",
-      "具备学术组织、协会工作或国际合作经验",
-      "愿意参与委员会建设及年度学术活动策划",
-    ],
-  },
-  {
-    id: "review-expert",
-    title: "审稿专家",
-    tone: "indigo",
-    summary: "以专业、客观的同行评议支持稿件质量提升与规范出版。",
-    requirements: [
-      "硕士及以上学历，在细分领域有持续研究积累",
-      "发表过 SCI / EI 等高质量学术论文",
-      "有期刊审稿、编委或科研项目评审经验者优先",
-    ],
   },
 ];
 let carouselTimer;
@@ -264,16 +227,6 @@ function openResource(resource) {
 
 function closeResourceQr() {
   resourceQrOpen.value = false;
-}
-
-function openRecruitment(role) {
-  selectedRecruitRole.value = role;
-  recruitQrOpen.value = true;
-}
-
-function closeRecruitment() {
-  recruitQrOpen.value = false;
-  selectedRecruitRole.value = null;
 }
 
 function resourceTitleParts(title = "") {
@@ -536,32 +489,6 @@ watch(journalPageCount, (count) => {
       </div>
     </section>
 
-    <section id="scholar-recruitment" class="section scholar-recruitment-section">
-      <div class="shell">
-        <header class="scholar-recruitment-heading">
-          <div>
-            <h2>学者招募</h2>
-            <p>面向全球高校、科研机构与行业研究团队，邀请具有专业积累和公共学术热情的学者加入思研学术合作网络。</p>
-          </div>
-          <strong>共建可信、开放、长期的学术共同体</strong>
-        </header>
-        <div class="scholar-recruitment-grid">
-          <article v-for="role in scholarRecruitmentRoles" :key="role.id" :class="['scholar-recruitment-card', `tone-${role.tone}`]">
-            <header>
-              <span>招募职位</span>
-              <h3>{{ role.title }}</h3>
-            </header>
-            <div class="scholar-recruitment-body">
-              <h4>招募对象</h4>
-              <ul><li v-for="item in role.requirements" :key="item">{{ item }}</li></ul>
-              <p>{{ role.summary }}</p>
-              <button type="button" @click="openRecruitment(role)">立即加入</button>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-
     <section class="section pale"><div class="shell partner-block"><div><span class="eyebrow">PUBLISHER NETWORK</span><h2>国际期刊和出版社合作资源</h2><p>正式版本可将合作单位拆分为后台可维护的独立数据项，并增加资质与合作说明。</p><RouterLink class="ghost" to="/about">了解机构介绍</RouterLink></div><img src="/images/optimized/publisher-partners-1200.webp" alt="国际期刊和出版社合作资源" loading="lazy" decoding="async" /></div></section>
 
     <Teleport to="body">
@@ -588,16 +515,6 @@ watch(journalPageCount, (count) => {
           <p><SmartCommaText :text="`请使用微信扫描二维码，添加编辑后备注“${selectedResource?.title}”，即可获取对应资源。`" /></p>
           <img src="/images/editor-contact-qr.png" alt="添加编辑微信二维码" />
           <small>资源由编辑核验后发送，请勿重复扫码</small>
-        </section>
-      </div>
-      <div v-if="recruitQrOpen" class="service-qr-backdrop" @click.self="closeRecruitment">
-        <section class="service-qr-modal recruitment-qr-modal card" role="dialog" aria-modal="true" aria-labelledby="recruitment-qr-title">
-          <button class="consult-close" type="button" aria-label="关闭学者招募咨询" @click="closeRecruitment">×</button>
-          <span class="eyebrow">SCHOLAR RECRUITMENT</span>
-          <h2 id="recruitment-qr-title">申请加入{{ selectedRecruitRole?.title }}</h2>
-          <p><SmartCommaText :text="`请使用微信扫描二维码，添加编辑后备注“${selectedRecruitRole?.title}申请”，我们将核验研究方向与学术经历，并在核验后与您联系。`" /></p>
-          <img src="/images/editor-contact-qr.png" alt="学者招募咨询二维码" />
-          <small>建议同时准备个人简介、研究方向与代表性成果</small>
         </section>
       </div>
     </Teleport>

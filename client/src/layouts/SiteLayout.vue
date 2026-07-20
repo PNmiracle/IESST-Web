@@ -100,7 +100,7 @@ watch(
           <RouterLink to="/SCI">SCI期刊</RouterLink>
           <RouterLink to="/services/translation">翻译润色</RouterLink>
           <RouterLink to="/services/editing">科学编辑</RouterLink>
-          <RouterLink :to="{ path: '/', hash: '#scholar-recruitment' }">学者招募</RouterLink>
+          <RouterLink to="/scholar-recruitment">学者招募</RouterLink>
           <RouterLink to="/about">关于我们</RouterLink>
         </nav>
         <div class="site-nav-actions">

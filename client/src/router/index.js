@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory, createWebHistory } from "vue-router
 import { setUnauthorizedHandler } from "../api";
 import { session } from "../stores/session";
 import SiteHome from "../views/site/SiteHome.vue";
+import ScholarRecruitment from "../views/site/ScholarRecruitment.vue";
 import SiteLayout from "../layouts/SiteLayout.vue";
 import JournalCatalog from "../views/site/JournalCatalog.vue";
 import JournalDetail from "../views/site/JournalDetail.vue";
@@ -34,6 +35,7 @@ const router = createRouter({
       component: SiteLayout,
       children: [
         { path: "", name: "site-home", component: SiteHome },
+        { path: "scholar-recruitment", name: "scholar-recruitment", component: ScholarRecruitment },
         { path: "SCI", name: "sci-catalog", component: JournalCatalog, props: { journalType: "SCI" } },
         { path: "SCI/:id", name: "sci-detail", component: JournalDetail, props: { journalType: "SCI" } },
         { path: "EI", name: "ei-catalog", component: JournalCatalog, props: { journalType: "EI" } },

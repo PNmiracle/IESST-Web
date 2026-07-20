@@ -79,14 +79,17 @@
   position: relative;
   min-width: 0;
   margin: 0;
+  overflow: hidden;
+  aspect-ratio: 1.63;
+  border-radius: 8px;
 }
 
 .translation-visual img {
   display: block;
   width: 100%;
-  aspect-ratio: 1.63;
+  height: 100%;
   object-fit: cover;
-  border-radius: 8px;
+  object-position: center;
 }
 
 .translation-visual figcaption {
@@ -509,10 +512,9 @@
     gap: 16px;
   }
 
-  .translation-visual img {
+  .translation-visual {
     aspect-ratio: 1.66;
     border-radius: 12px;
-    object-position: center;
   }
 
   .translation-visual.editing-visual figcaption {

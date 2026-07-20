@@ -269,7 +269,7 @@
   gap: 42px;
 }
 
-.scholar-recruitment-heading h2 {
+.scholar-recruitment-heading h1 {
   margin: 0 0 12px;
   color: #172039;
   font-size: clamp(30px, 3vw, 42px);
@@ -361,7 +361,7 @@
 }
 
 .scholar-recruitment-card > header span,
-.scholar-recruitment-card > header h3 {
+.scholar-recruitment-card > header h2 {
   position: relative;
   z-index: 1;
 }
@@ -373,7 +373,7 @@
   font-weight: 700;
 }
 
-.scholar-recruitment-card > header h3 {
+.scholar-recruitment-card > header h2 {
   margin: 0;
   font-size: clamp(28px, 2.6vw, 38px);
   line-height: 1.2;
@@ -387,7 +387,7 @@
   padding: 30px;
 }
 
-.scholar-recruitment-body h4 {
+.scholar-recruitment-body h3 {
   margin: 0 0 16px;
   color: #222b3e;
   font-size: 16px;
@@ -508,7 +508,7 @@
     font-size: 14px;
   }
 
-  .scholar-recruitment-card > header h3 {
+  .scholar-recruitment-card > header h2 {
     font-size: 29px;
   }
 
